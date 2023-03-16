@@ -67,13 +67,13 @@ module.exports.getProfileInfo = async(userId, req, res) => {
 //   });
 // };
 
-// const calculateAge = (profile) => {
-//     let ageDifference = Date.now() - profile.dob.getTime();
-//     let ageDateObject = new Date(ageDifference);
-//     let ageTemp = ageDateObject.getUTCFullYear() - 1970;
-//     let age = ageTemp > 0 ? ageTemp : 0;
-//     return age;
-// }
+const calculateAge = (profile) => {
+    let ageDifference = Date.now() - profile.dob.getTime();
+    let ageDateObject = new Date(ageDifference);
+    let ageTemp = ageDateObject.getUTCFullYear() - 1970;
+    let age = ageTemp > 0 ? ageTemp : 0;
+    return age;
+}
 
 // This function deletes user profile from a database
 module.exports.deleteProfile = (id) => {
