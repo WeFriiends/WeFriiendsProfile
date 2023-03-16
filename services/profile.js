@@ -22,31 +22,23 @@ module.exports.registerProfile = (userId) => {
   });
 };
 
-module.exports.getProfileInfo = (userId) => {
-  return new Promise((resolve, reject) => {
-    Profile.findOne({
-      userId: userId,
-    })
-      .exec()
-      .then((profile) => {
-        if (!profile) {
-          reject("No profile found");
+module.exports.getProfileInfo = async(userId, req, res) => {
+    try {
+        const foundProfile = await Profile.findOne({userId: userId});
+        if (!foundProfile) {
+            res.status(400).json({message: "Profile not found"});
         }
-        if (profile.dob) {
-          // Calculating user age and adding it to profile info
-          let ageDifference = Date.now() - profile.dob.getTime();
-          let ageDateObject = new Date(ageDifference);
-          let ageTemp = ageDateObject.getUTCFullYear() - 1970;
-          let age = ageTemp > 0 ? ageTemp : 0;
-          let updObject = { age: age };
-          let returnProfile = Object.assign(updObject, profile._doc);
-          resolve(returnProfile);
+        if (foundProfile.dob) {
+            const age =  calculateAge(profile);
+            let updObject = { age: age };
+            let profileWithAge = Object.assign(updObject, foundProfile._doc);
+            res.status(200). send({profile: profileWithAge});
         }
-        resolve(profile);
-      })
-      .catch((err) => reject(err));
-  });
-};
+        res.status(200). send({profile: foundProfile});
+    } catch(err) {
+        res.status(422).send(err)
+    }
+   
 
 // This function returns user info including current age
 // module.exports.getProfileInfo = (userId) => {
