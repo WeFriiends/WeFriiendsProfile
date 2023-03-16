@@ -34,7 +34,7 @@ module.exports.getProfileInfo = async(userId, req, res) => {
             const age =  calculateAge(profile);
             let updObject = { age: age };
             let profileWithAge = Object.assign(updObject, foundProfile._doc);
-            return rofileWithAge;
+            return profileWithAge;
         }
       console.log("return foundProfile ", foundProfile)
         return foundProfile;
