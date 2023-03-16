@@ -1,19 +1,40 @@
 const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
 
-module.exports.registerProfile = async (userId) => {
-    let profileToSave = new Profile({
-        userId: userId,
+// module.exports.registerProfile = async (userId) => {
+//     let profileToSave = new Profile({
+//         userId: userId,
+//     });
+//     try {
+//         console.log("error here")
+//         await profileToSave.save();
+//     } catch (err) {
+//         if (err.code == 11000) {
+//             return ("This userId is already associated with an account");
+//         }
+//         return "There was an error creating the profile: " + err;
+//     }
+// };
+
+module.exports.registerProfile = (userId) => {
+  return new Promise((resolve, reject) => {
+    let newProfile = new Profile({
+      userId: userId,
     });
-    try {
-        console.log("error here")
-        await profileToSave.save();
-    } catch (err) {
-        if (err.code == 11000) {
-            return ("This userId is already associated with an account");
+    console.log("Trying to register");
+    newProfile
+      .save((err) => {
+        if (err) {
+          if (err.code == 11000) {
+            reject("This userId is already associated with an account");
+          } else {
+            reject("There was an error creating the profile: " + err);
+          }
         }
-        return "There was an error creating the profile: " + err;
-    }
+        resolve(newProfile);
+      })
+      .catch((err) => reject(err));
+  });
 };
 
 // This function returns user info including current age
