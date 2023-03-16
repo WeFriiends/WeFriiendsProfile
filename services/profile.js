@@ -37,7 +37,7 @@ module.exports.getProfileInfo = async(userId, req, res) => {
         res.status(200). send({profile: foundProfile});
     } catch(err) {
         res.status(422).send(err)
-    }
+    }}
    
 
 // This function returns user info including current age
