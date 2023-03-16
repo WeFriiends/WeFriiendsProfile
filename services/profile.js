@@ -26,17 +26,17 @@ module.exports.getProfileInfo = async(userId, req, res) => {
     try {
         const foundProfile = await Profile.findOne({userId: userId});
         if (!foundProfile) {
-            res.status(400).json({message: "Profile not found"});
+            return ({message: "Profile not found"});
         }
         if (foundProfile.dob) {
             const age =  calculateAge(profile);
             let updObject = { age: age };
             let profileWithAge = Object.assign(updObject, foundProfile._doc);
-            res.status(200). send({profile: profileWithAge});
+            return rofileWithAge;
         }
-        res.status(200). send({profile: foundProfile});
+        return foundProfile;
     } catch(err) {
-        res.status(422).send(err)
+        return err
     }}
    
 
