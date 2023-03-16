@@ -6,6 +6,7 @@ module.exports.registerProfile = async (userId) => {
         userId: userId,
     });
     try {
+        console.log("error here")
         await profileToSave.save();
     } catch (err) {
         if (err.code == 11000) {
