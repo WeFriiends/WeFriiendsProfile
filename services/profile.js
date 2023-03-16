@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
 
 module.exports.registerProfile = async (userId) => {
-    let profileToSave = ({
+    let profileToSave = new Profile({
         userId: userId,
     });
     try {
