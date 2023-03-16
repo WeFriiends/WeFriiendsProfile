@@ -1,21 +1,6 @@
 const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
 
-// module.exports.registerProfile = async (userId) => {
-//     let profileToSave = new Profile({
-//         userId: userId,
-//     });
-//     try {
-//         console.log("error here")
-//         await profileToSave.save();
-//     } catch (err) {
-//         if (err.code == 11000) {
-//             return ("This userId is already associated with an account");
-//         }
-//         return "There was an error creating the profile: " + err;
-//     }
-// };
-
 module.exports.registerProfile = (userId) => {
   return new Promise((resolve, reject) => {
     let newProfile = new Profile({
@@ -37,7 +22,6 @@ module.exports.registerProfile = (userId) => {
   });
 };
 
-// This function returns user info including current age
 module.exports.getProfileInfo = (userId) => {
   return new Promise((resolve, reject) => {
     Profile.findOne({
@@ -49,10 +33,14 @@ module.exports.getProfileInfo = (userId) => {
           reject("No profile found");
         }
         if (profile.dob) {
-            const age =  calculateAge(profile);
-            let updObject = { age: age };
-            let profileWithAge = Object.assign(updObject, profile._doc);
-          resolve(profileWithAge);
+          // Calculating user age and adding it to profile info
+          let ageDifference = Date.now() - profile.dob.getTime();
+          let ageDateObject = new Date(ageDifference);
+          let ageTemp = ageDateObject.getUTCFullYear() - 1970;
+          let age = ageTemp > 0 ? ageTemp : 0;
+          let updObject = { age: age };
+          let returnProfile = Object.assign(updObject, profile._doc);
+          resolve(returnProfile);
         }
         resolve(profile);
       })
@@ -60,13 +48,36 @@ module.exports.getProfileInfo = (userId) => {
   });
 };
 
-const calculateAge = (profile) => {
-    let ageDifference = Date.now() - profile.dob.getTime();
-    let ageDateObject = new Date(ageDifference);
-    let ageTemp = ageDateObject.getUTCFullYear() - 1970;
-    let age = ageTemp > 0 ? ageTemp : 0;
-    return age;
-}
+// This function returns user info including current age
+// module.exports.getProfileInfo = (userId) => {
+//   return new Promise((resolve, reject) => {
+//     Profile.findOne({
+//       userId: userId,
+//     })
+//       .exec()
+//       .then((profile) => {
+//         if (!profile) {
+//           reject("No profile found");
+//         }
+//         if (profile.dob) {
+//             const age =  calculateAge(profile);
+//             let updObject = { age: age };
+//             let profileWithAge = Object.assign(updObject, profile._doc);
+//           resolve(profileWithAge);
+//         }
+//         resolve(profile);
+//       })
+//       .catch((err) => reject(err));
+//   });
+// };
+
+// const calculateAge = (profile) => {
+//     let ageDifference = Date.now() - profile.dob.getTime();
+//     let ageDateObject = new Date(ageDifference);
+//     let ageTemp = ageDateObject.getUTCFullYear() - 1970;
+//     let age = ageTemp > 0 ? ageTemp : 0;
+//     return age;
+// }
 
 // This function deletes user profile from a database
 module.exports.deleteProfile = (id) => {
