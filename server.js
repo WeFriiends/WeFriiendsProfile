@@ -30,16 +30,19 @@ require("./routes/delete-routes")(app);
 mongoose.connect(
     process.env.MONGODB_URL,
     { useNewUrlParser: true, useUnifiedTopology: true },
-//     () => {
-//         console.log("Connected to Mongo DB");
-//     }
-);
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function() {
-    console.log("Connection Successful!");
-    app.listen(HTTP_PORT, () => {
+    () => {
+        console.log("Connected to Mongo DB");
+         app.listen(HTTP_PORT, () => {
         console.log("API listening on: " + HTTP_PORT);
     });
-});
+    }
+);
+
+// const db = mongoose.connection;
+// db.on("error", console.error.bind(console, "connection error:"));
+// db.once("open", function() {
+//     console.log("Connection Successful!");
+//     app.listen(HTTP_PORT, () => {
+//         console.log("API listening on: " + HTTP_PORT);
+//     });
+// });
