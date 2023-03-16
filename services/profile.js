@@ -36,7 +36,7 @@ module.exports.getProfileInfo = async(userId, req, res) => {
         }
         return foundProfile;
     } catch(err) {
-        return err
+        console.log(err);
     }}
    
 
