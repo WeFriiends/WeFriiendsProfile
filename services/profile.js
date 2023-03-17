@@ -31,7 +31,7 @@ module.exports.getProfileInfo = async(userId, req, res) => {
         }
         if (foundProfile.dob) {
           console.log("profile with dob")
-            const age =  calculateAge(profile);
+            const age =  calculateAge(foundProfile);
             let updObject = { age: age };
             let profileWithAge = Object.assign(updObject, foundProfile._doc);
             return profileWithAge;
