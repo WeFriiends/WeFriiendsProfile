@@ -12,7 +12,7 @@ module.exports = (app) => {
                     .getProfileInfo(req.user.userId)
                     .then((profile) => res.json({ profile: profile, message: "Success" }))
                     .catch((err) => {
-                    console.log(err);
+                    console.log('in catch ',err);
                 profile
                     .registerProfile(req.user.userId)
                     .then((profile) => {
