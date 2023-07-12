@@ -2,11 +2,12 @@ const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
 
 module.exports.registerProfile = (userId) => {
+  console.log('id is ', userId)
   return new Promise((resolve, reject) => {
     let newProfile = new Profile({
       userId: userId,
     });
-    console.log("Trying to register");
+    console.log("Trying to register ", newProfile);
     newProfile
       .save((err) => {
         if (err) {
