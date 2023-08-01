@@ -60,20 +60,20 @@ module.exports.getName = (id) => {
 
 // This function adds a short description or updates description if name already exists
 module.exports.addBio = (id, bio) => {
-  return new Promise((resolve, reject) => {
-    Profile.find({
-      userId: id,
-    })
-      .exec()
-      .then((profile) => {
-        Profile.findOneAndUpdate({ userId: id }, { bio: bio }, { new: true })
-          .exec()
-          .then((profile) => {
-            resolve(profile.bio);
-          })
-          .catch((err) => {
-            reject(`Unable to update bio for user with id: ${id}`);
-          });
-      });
-  });
+    return new Promise((resolve, reject) => {
+        Profile.find({
+        userId: id,
+        })
+        .exec()
+        .then((profile) => {
+            Profile.findOneAndUpdate({ userId: id }, { bio: bio }, { new: true })
+            .exec()
+            .then((profile) => {
+                resolve(profile.bio);
+            })
+            .catch((err) => {
+                reject(`Unable to update bio for user with id: ${id}`);
+            });
+        });
+    });
 };
