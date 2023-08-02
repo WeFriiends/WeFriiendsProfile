@@ -7,7 +7,7 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
       try {
-        console.log('after jwt before get profile')
+        console.log('after jwt before get profile ', req.user.userId)
         const existingProfile = await profile.getProfileInfo(req.user.userId);
         console.log('got profile ', existingProfile);
         if (existingProfile) {
