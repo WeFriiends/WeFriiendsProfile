@@ -8,9 +8,9 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         console.log('after jwt before get profile')
-        const profile = await profile.getProfileInfo(req.user.userId);
-        console.log('got profile ', profile);
-        if (profile) {
+        const existingProfile = await profile.getProfileInfo(req.user.userId);
+        console.log('got profile ', existingProfile);
+        if (existingProfile) {
           res.json({ profile });
         } else {
             console.log('profile doesnt exist ')

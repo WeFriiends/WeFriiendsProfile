@@ -17,7 +17,20 @@ module.exports.registerProfile = async (userId) => {
 };
 
 // This function returns user info including current age
-module.exports.getProfileInfo = (userId) => {
+module.exports.getProfileInfo = async (userId) => {
+  const profile = await Profile.findOne({ userId: id });
+  if (!profile) {
+   return 
+  } else {
+    if (profile.dob) {
+      const age = calculateAge(profile);
+      let updObject = { age: age };
+      let profileWithAge = Object.assign(updObject, profile._doc);
+      return profileWithAge;
+    } else {
+        return profile
+    }
+  }
   //   return new Promise((resolve, reject) => {
   //     Profile.findOne({
   //       userId: userId,
