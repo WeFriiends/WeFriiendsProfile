@@ -14,7 +14,7 @@ module.exports = (app) => {
       try {
         await profileService.addName(req.user.userId, req.body.name);
       } catch (e) {
-        res.status(400).send("Could not complete the request to update name")
+        res.status(400).send("Could not complete the request to update name");
       }
     }
   );

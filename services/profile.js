@@ -17,25 +17,26 @@ module.exports.registerProfile = async (userId) => {
 
 // This function returns user info including current age
 module.exports.getProfileInfo = (userId) => {
-  return new Promise((resolve, reject) => {
-    Profile.findOne({
-      userId: userId,
-    })
-      .exec()
-      .then((profile) => {
-        if (!profile) {
-          reject("No profile found");
-        }
-        if (profile.dob) {
-            const age =  calculateAge(profile);
-            let updObject = { age: age };
-            let profileWithAge = Object.assign(updObject, profile._doc);
-          resolve(profileWithAge);
-        }
-        resolve(profile);
-      })
-      .catch((err) => reject(err));
-  });
+    
+//   return new Promise((resolve, reject) => {
+//     Profile.findOne({
+//       userId: userId,
+//     })
+//       .exec()
+//       .then((profile) => {
+//         if (!profile) {
+//           reject("No profile found");
+//         }
+//         if (profile.dob) {
+//             const age =  calculateAge(profile);
+//             let updObject = { age: age };
+//             let profileWithAge = Object.assign(updObject, profile._doc);
+//           resolve(profileWithAge);
+//         }
+//         resolve(profile);
+//       })
+//       .catch((err) => reject(err));
+//   });
 };
 
 const calculateAge = (profile) => {
