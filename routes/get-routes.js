@@ -23,7 +23,7 @@ module.exports = (app) => {
           }
         }
       } catch (e) {
-        res.status(422).json({ message: err });
+        res.status(422).json({ message: e });
       }
 
       //   profile
