@@ -8,14 +8,14 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         console.log('after jwt before get profile')
-        const profile = await getProfileInfo(req.user.userId);
+        const profile = await profile.getProfileInfo(req.user.userId);
         console.log('got profile ', profile);
         if (profile) {
           res.json({ profile });
         } else {
             console.log('profile doesnt exist ')
             
-          const result = await registerProfile(req.user.userId);
+          const result = await profile.registerProfile(req.user.userId);
           if (result) {
             res.json({
               profile: result,
