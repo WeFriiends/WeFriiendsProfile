@@ -18,6 +18,7 @@ module.exports.registerProfile = async (userId) => {
 
 // This function returns user info including current age
 module.exports.getProfileInfo = async (userId) => {
+    console.log("in getprofile info")
   const profile = await Profile.findOne({ userId: id });
   if (!profile) {
    return 
