@@ -7,6 +7,7 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
       try {
+        console.log('after jwt before get profile')
         const profile = await getProfileInfo(req.user.userId);
         console.log('got profile ', profile);
         if (profile) {
