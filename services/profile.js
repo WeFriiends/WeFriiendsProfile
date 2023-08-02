@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
 
 module.exports.registerProfile = async (userId) => {
-  console.log("in register profile ", userId);
-  let profileToSave = new Profile ({
+  let profileToSave = new Profile({
     userId: userId,
   });
   try {
@@ -12,17 +11,15 @@ module.exports.registerProfile = async (userId) => {
     if (err.code == 11000) {
       return "This userId is already associated with an account";
     }
-    return "There was an error creating the profile: " + err;
+    return err.code;
   }
 };
 
-// This function returns user info including current age
 module.exports.getProfileInfo = async (userId) => {
-    console.log("in getprofile info ", userId)
   const profile = await Profile.findOne({ userId: userId });
-  console.log('profile received ', profile)
+
   if (!profile) {
-   return 
+    return;
   } else {
     if (profile.dob) {
       const age = calculateAge(profile);
@@ -30,28 +27,9 @@ module.exports.getProfileInfo = async (userId) => {
       let profileWithAge = Object.assign(updObject, profile._doc);
       return profileWithAge;
     } else {
-        return profile
+      return profile;
     }
   }
-  //   return new Promise((resolve, reject) => {
-  //     Profile.findOne({
-  //       userId: userId,
-  //     })
-  //       .exec()
-  //       .then((profile) => {
-  //         if (!profile) {
-  //           reject("No profile found");
-  //         }
-  //         if (profile.dob) {
-  //             const age =  calculateAge(profile);
-  //             let updObject = { age: age };
-  //             let profileWithAge = Object.assign(updObject, profile._doc);
-  //           resolve(profileWithAge);
-  //         }
-  //         resolve(profile);
-  //       })
-  //       .catch((err) => reject(err));
-  //   });
 };
 
 const calculateAge = (profile) => {
@@ -62,7 +40,6 @@ const calculateAge = (profile) => {
   return age;
 };
 
-// This function deletes user profile from a database
 module.exports.deleteProfile = (id) => {
   return new Promise((resolve, reject) => {
     Profile.deleteOne({
