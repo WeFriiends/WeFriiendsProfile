@@ -20,6 +20,7 @@ module.exports.registerProfile = async (userId) => {
 module.exports.getProfileInfo = async (userId) => {
     console.log("in getprofile info ", userId)
   const profile = await Profile.findOne({ userId: userId });
+  console.log('profile received ', profile)
   if (!profile) {
    return 
   } else {
