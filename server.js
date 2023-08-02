@@ -19,7 +19,12 @@ const HTTP_PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
+app.use(passport.initialize());
 
+require("./routes/photo-routes")(app);
+require("./routes/update-routes")(app);
+require("./routes/get-routes")(app);
+require("./routes/delete-routes")(app);
 mongoose.connect(
     process.env.MONGODB_URL,
     { useNewUrlParser: true, useUnifiedTopology: true },
@@ -30,6 +35,7 @@ mongoose.connect(
     });
     }
 );
+
 
 // const db = mongoose.connection;
 // db.on("error", console.error.bind(console, "connection error:"));
