@@ -3,9 +3,9 @@ let Profile = mongoose.model("profiles");
 
 module.exports.registerProfile = async (userId) => {
   console.log("in register profile ", userId);
-  let profileToSave = {
+  let profileToSave = new Profile ({
     userId: userId,
-  };
+  });
   try {
     await profileToSave.save();
   } catch (err) {
