@@ -11,7 +11,6 @@ module.exports = (app) => {
     "/api/profile/name",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
-       
       try {
         await profileService.addName(req.user.userId, req.body.name);
       } catch (e) {
