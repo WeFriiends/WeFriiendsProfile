@@ -29,6 +29,7 @@ module.exports.addGender = (id, gender) => {
 };
 
 module.exports.addName = async (id, name) => {
+  console.log("in add name")
   const profile = await Profile.find({ userId: id });
   if (profile) {
     await Profile.updateOne(
