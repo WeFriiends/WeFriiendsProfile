@@ -13,8 +13,8 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         console.log("in try")
-        const res = await profileService.addName(req.user.userId, req.body.name);
-        console.log("res ", res)
+         await profileService.addName(req.user.userId, req.body.name);
+       
       } catch (e) {
         res.status(400).send("Could not complete the request to update name");
       }
