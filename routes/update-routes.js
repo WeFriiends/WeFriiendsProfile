@@ -7,7 +7,7 @@ const additionalInfoService = require("../services/interests");
 
 module.exports = (app) => {
   //This route updates name of a user in the profile
-  app.post(
+  app.put(
     "/api/profile/name",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
