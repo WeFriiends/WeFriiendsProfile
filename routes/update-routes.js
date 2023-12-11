@@ -7,37 +7,37 @@ const additionalInfoService = require("../services/interests");
 
 module.exports = (app) => {
   //This route updates name of a user in the profile
-  app.post(
-    "/api/profile/name",
-    passport.authenticate("jwt", { session: false }),
-    async (req, res) => {
-      try {
-        console.log("in try")
-         await profileService.addName(req.user.userId, req.body.name);
-       
-      } catch (e) {
-        res.status(400).send("Could not complete the request to update name");
-      }
-    })
-  
-  //   app.post(
+  // app.post(
   //   "/api/profile/name",
   //   passport.authenticate("jwt", { session: false }),
-  //   (req, res) => {
-  //     console.log(req.body.name);
-  //     profileService
-  //       .addName(req.user.userId, req.body.name)
-  //       .then((name) => {
-  //         res.status(200).json({
-  //           name: name,
-  //           message: "Name has been successfully updated",
-  //         });
-  //       })
-  //       .catch((msg) => {
-  //         res.status(422).json({ error: msg });
-  //       });
-  //   }
-  // );
+  //   async (req, res) => {
+  //     try {
+  //       console.log("in try")
+  //        await profileService.addName(req.user.userId, req.body.name);
+       
+  //     } catch (e) {
+  //       res.status(400).send("Could not complete the request to update name");
+  //     }
+  //   })
+  
+    app.post(
+    "/api/profile/name",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+      console.log(req.body.name);
+      profileService
+        .addName(req.user.userId, req.body.name)
+        .then((name) => {
+          res.status(200).json({
+            name: name,
+            message: "Name has been successfully updated",
+          });
+        })
+        .catch((msg) => {
+          res.status(422).json({ error: msg });
+        });
+    }
+  );
 
   //This route sets gender of a user in the profile
   app.put(
