@@ -46,7 +46,7 @@ module.exports.addName = async (id, name) => {
     return response
   }
   } catch (e) {
-    console.log(e)
+    console.log(e.message)
   }
   
 };
