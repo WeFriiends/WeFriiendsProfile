@@ -43,6 +43,7 @@ module.exports.addName = async (id, name) => {
       }
     );
     console.log("response ", response)
+    return response
   }
   } catch (e) {
     console.log(e)
