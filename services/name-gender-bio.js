@@ -43,7 +43,7 @@ module.exports.addName = async (id, name) => {
         $currentDate: { lastUpdated: true },
       }
     );
-   return res
+//   return res
   }
   } catch (e) {
     console.log(e.message)
