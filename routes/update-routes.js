@@ -18,7 +18,7 @@ module.exports = (app) => {
       } catch (e) {
         res.status(400).send("Could not complete the request to update name");
       }
-    }
+    })
   
   //   app.post(
   //   "/api/profile/name",
