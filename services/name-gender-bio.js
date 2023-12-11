@@ -33,6 +33,7 @@ module.exports.addName = async (id, name) => {
   try {
     const profile = await Profile.find({ userId: id });
   if (profile) {
+    console.log("in update")
     const response = await Profile.updateOne(
       { userId: id },
       {
