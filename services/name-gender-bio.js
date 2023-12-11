@@ -30,25 +30,40 @@ module.exports.addGender = (id, gender) => {
 
 module.exports.addName = async (id, name) => {
   console.log("in add name")
-  try {
-    const profile = await Profile.find({ userId: id });
-  if (profile) {
-    console.log("in update")
-     await Profile.updateOne(
-      { userId: id },
-      {
-        $set: {
-          name: name,
-        },
-        $currentDate: { lastUpdated: true },
-      }
-    );
+  // try {
+  //   const profile = await Profile.find({ userId: id });
+  // if (profile) {
+  //   console.log("in update")
+  //    await Profile.updateOne(
+  //     { userId: id },
+  //     {
+  //       $set: {
+  //         name: name,
+  //       },
+  //       $currentDate: { lastUpdated: true },
+  //     }
+  //   );
    
-  }
-  } catch (e) {
-    console.log(e.message)
-  }
-  
+  // }
+  // } catch (e) {
+  //   console.log(e.message)
+  // }
+    return new Promise((resolve, reject) => {
+    Profile.find({
+      userId: id,
+    })
+      .exec()
+      .then((profile) => {
+        Profile.findOneAndUpdate({ userId: id }, { name: name }, { new: true })
+          .exec()
+          .then((profile) => {
+            resolve(profile.name);
+          })
+          .catch((err) => {
+            reject(`Unable to update Name for user with id: ${id}`);
+          });
+      });
+  });
 };
 
 module.exports.getName = (id) => {
