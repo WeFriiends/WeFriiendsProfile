@@ -12,6 +12,7 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
       try {
+        console.log("in try")
         await profileService.addName(req.user.userId, req.body.name);
       } catch (e) {
         res.status(400).send("Could not complete the request to update name");
