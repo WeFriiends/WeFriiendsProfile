@@ -8,10 +8,13 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         const existingProfile = await profile.getProfileInfo(req.user.userId);
+          console.log("here in existing new profile")
         if (existingProfile) {
           res.json(existingProfile);
         } else {
+          console.log("here in creating new profile")
           const result = await profile.registerProfile(req.user.userId);
+          console.log("result ",result)
           if (result) {
             res.json({
               profile: result,
