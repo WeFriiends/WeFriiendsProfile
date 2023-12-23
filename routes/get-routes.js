@@ -13,7 +13,7 @@ module.exports = (app) => {
         if (existingProfile) {
           res.json(existingProfile);
         } else {
-          console.log("here in creating new profile")
+          console.log("here in creating new profile ", req.user)
           const result = await profile.registerProfile(req.user.userId);
           console.log("result ",result)
           if (result) {
