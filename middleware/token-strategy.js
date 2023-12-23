@@ -11,7 +11,7 @@ let JwtStrategy = passportJWT.Strategy;
 // Configure its options
 let jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken("jwt")   //fromAuthHeaderWithScheme("jwt");
-jwtOptions.secretOrKey =  '08F1D51A6FAF8236DEB77C24ECA0AE656HGB02486B290E2E0';
+jwtOptions.secretOrKey =  'secret';
 
 let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   console.log("payload received", jwt_payload);
