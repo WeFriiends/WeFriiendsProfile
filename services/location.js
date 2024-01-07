@@ -1,7 +1,7 @@
-/* This service will set location for users who manually update it */
-
 const mongoose = require("mongoose");
 let Profile = mongoose.model("profiles");
+
+/* This service will set location for users who manually update it */
 
 // This function returns location object for a user with id passed as a parameter
 module.exports.getLocation = (id) => {
@@ -54,12 +54,21 @@ module.exports.addCity = (id, city) => {
   });
 };
 
-// This function adds location object for users whose location was identified via Google API
-module.exports.setLocation = (id, coordinates) => {
+// This function adds location object for users
+module.exports.setLocation = (id, coordinates, country, city) => {
   return new Promise((resolve, reject) => {
     Profile.findOneAndUpdate(
       { userId: id },
-      { $set: { location: { lat: coordinates.lat, lng: coordinates.lng } } }
+      {
+        $set: {
+          location: {
+            lat: coordinates.lat,
+            lng: coordinates.lng,
+            country: country,
+            city: city,
+          },
+        },
+      }
     )
       .exec()
       .then((profile) => {
