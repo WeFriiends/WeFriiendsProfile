@@ -4,6 +4,10 @@ const profileService = require("../services/name-gender-bio");
 const dateService = require("../services/date");
 const locationService = require("../services/location");
 const additionalInfoService = require("../services/interests");
+const maxmind = require("maxmind");
+const fs = require("fs");
+const buffer = fs.readFileSync("./lib/GeoLite2-City.mmdb");
+const lookup = new maxmind.Reader(buffer);
 
 module.exports = (app) => {
   //This route updates name of a user in the profile
@@ -14,13 +18,13 @@ module.exports = (app) => {
   //     try {
   //       console.log("in try")
   //        await profileService.addName(req.user.userId, req.body.name);
-       
+
   //     } catch (e) {
   //       res.status(400).send("Could not complete the request to update name");
   //     }
   //   })
-  
-    app.post(
+
+  app.post(
     "/api/profile/name",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
@@ -107,13 +111,41 @@ module.exports = (app) => {
     }
   );
 
-  //This route sets location (country) of a user in the profile
+  //This route sets location (city) of a user in the profile
   app.put(
     "/api/profile/location/city/:id",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
       locationService
         .addCity(req.user.userId, req.params.id)
+        .then((data) => {
+          res.json(data);
+        })
+        .catch((msg) => {
+          res.status(422).json({ error: msg });
+        });
+    }
+  );
+
+  //This route sets geolocation of a user in the profile
+  app.put(
+    "/api/profile/location/geo",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+      const userIP = req.headers["x-forwarded-for"] || req.ip;
+      const info = lookup.get(userIP);
+
+      if (!info || !info.country || !info.city || !info.location) {
+        res.status(400).json({ error: "Location is not defined" });
+        return;
+      }
+      locationService
+        .setLocation(
+          req.user.userId,
+          { lat: info.location.latitude, lng: info.location.longitude },
+          info.country.iso_code,
+          info.city.names.en
+        )
         .then((data) => {
           res.json(data);
         })
