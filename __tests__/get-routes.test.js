@@ -3,7 +3,7 @@ const express = require("express");
 const profileRoute = require("../routes/get-routes");
 const mockingoose = require("mockingoose");
 const passport = require("passport");
-require("../middleware/token-strategy");
+const jwtSecret = require("../middleware/token-strategy");
 
 const model = require("../models/Profile");
 const jwt = require("jsonwebtoken");
@@ -37,7 +37,7 @@ describe("GET /api/profile", () => {
       _id: "123",
       userId: userId,
     };
-    const token = jwt.sign(payload, "secret");
+    const token = jwt.sign(payload, jwtSecret);
 
     const response = await request(app)
       .get("/api/profile")
