@@ -10,71 +10,6 @@ const buffer = fs.readFileSync("./lib/GeoLite2-City.mmdb");
 const lookup = new maxmind.Reader(buffer);
 
 module.exports = (app) => {
-  //This route updates name of a user in the profile
-  // app.post(
-  //   "/api/profile/name",
-  //   passport.authenticate("jwt", { session: false }),
-  //   async (req, res) => {
-  //     try {
-  //       console.log("in try")
-  //        await profileService.addName(req.user.userId, req.body.name);
-
-  //     } catch (e) {
-  //       res.status(400).send("Could not complete the request to update name");
-  //     }
-  //   })
-
-  app.post(
-    "/api/profile/name",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      console.log(req.body.name);
-      profileService
-        .addName(req.user.userId, req.body.name)
-        .then((name) => {
-          res.status(200).json({
-            name: name,
-            message: "Name has been successfully updated",
-          });
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets gender of a user in the profile
-  app.put(
-    "/api/profile/gender/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      profileService
-        .addGender(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets bio (short description) of a user in the profile
-  app.put(
-    "/api/profile/bio/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      profileService
-        .addBio(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
   // This route sets date of birth and zodiac sign of the user
   app.post(
     "/api/profile/dob",
@@ -95,31 +30,17 @@ module.exports = (app) => {
     }
   );
 
-  //This route sets location (country) of a user in the profile
-  app.put(
-    "/api/profile/location/country/:id",
+  // This route update user profile
+  app.post(
+    "/api/profile/update",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
-      locationService
-        .addCountry(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets location (city) of a user in the profile
-  app.put(
-    "/api/profile/location/city/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      locationService
-        .addCity(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
+      profileService
+        .updateProfile(req.user.userId, req.body)
+        .then(() => {
+          res.status(200).json({
+            message: "Profile has been successfully updated",
+          });
         })
         .catch((msg) => {
           res.status(422).json({ error: msg });
@@ -148,22 +69,6 @@ module.exports = (app) => {
         )
         .then((data) => {
           res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route updates "looking for" section of a user in the profile
-  app.post(
-    "/api/profile/lookingfor",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      additionalInfoService
-        .addReason(req.user.userId, req.body.interests)
-        .then((reasons) => {
-          res.status(200).json({ lookingFor: reasons });
         })
         .catch((msg) => {
           res.status(422).json({ error: msg });

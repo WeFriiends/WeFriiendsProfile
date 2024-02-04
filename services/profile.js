@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
-let Profile = mongoose.model("profiles");
+const Profile = require("../models/Profile");
 
 module.exports.registerProfile = async (userId) => {
-  console.log("in registering new profile")
+  console.log("in registering new profile");
   let profileToSave = new Profile({
     userId: userId,
   });
-  console.log("new profile ",profileToSave )
+  console.log("new profile ", profileToSave);
   try {
     await profileToSave.save();
   } catch (err) {

@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "node node_modules/jest/bin/jest.js",
+    "start": "node server.js",
+    "test-back": "jest __tests__"
   },
   "author": "",
   "license": "ISC",
@@ -23,5 +24,10 @@
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "zodiac-signs": "^1.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mockingoose": "^2.16.2",
+    "supertest": "^6.3.4"
   }
 }
