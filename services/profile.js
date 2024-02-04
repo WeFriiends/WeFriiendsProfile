@@ -8,7 +8,7 @@ module.exports.registerProfile = async (userId) => {
   });
   console.log("new profile ", profileToSave);
   try {
-    await profileToSave.save();
+    return await profileToSave.save();
   } catch (err) {
     if (err.code == 11000) {
       return "This userId is already associated with an account";

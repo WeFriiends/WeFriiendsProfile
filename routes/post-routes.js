@@ -9,10 +9,8 @@ module.exports = (app) => {
     (req, res) => {
       profileService
         .registerProfile(req.user.userId, req.body)
-        .then(() => {
-          res.status(200).json({
-            message: "Profile has been successfully created",
-          });
+        .then((profile) => {
+          res.status(200).json(profile);
         })
         .catch((msg) => {
           res.status(422).json({ error: msg });
