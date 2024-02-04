@@ -33,11 +33,11 @@ describe("GET /api/profile", () => {
 
     mockingoose(model).toReturn(_existingProfile, "findOne");
 
-    let payload = {
+    const payload = {
       _id: "123",
       userId: userId,
     };
-    let token = jwt.sign(payload, "secret");
+    const token = jwt.sign(payload, "secret");
 
     const response = await request(app)
       .get("/api/profile")
@@ -45,5 +45,11 @@ describe("GET /api/profile", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({ ..._existingProfile, age: 25 });
+  });
+
+  it("doesn't returns existing profile if not authed", async () => {
+    const response = await request(app).get("/api/profile");
+
+    expect(response.statusCode).toBe(401);
   });
 });
