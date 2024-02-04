@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node node_modules/jest/bin/jest.js",
     "start": "node server.js",
-    "test-back": "jest __tests__"
+    "test-back": "jest __tests__",
+    "test-back:watch": "jest --watch __tests__"
   },
   "author": "",
   "license": "ISC",
