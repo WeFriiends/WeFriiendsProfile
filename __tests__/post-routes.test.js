@@ -18,7 +18,7 @@ describe("POST /api/profiles", () => {
   });
 
   it("returns profile if data added", async () => {
-    const userId = "test-user";
+    const userId = "test-user-id";
     const _newProfile = {
       _id: "65bf74e4bbc75c11e6e83ce0",
       name: "",

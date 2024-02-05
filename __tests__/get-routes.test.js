@@ -17,7 +17,7 @@ describe("GET /api/profile", () => {
     profileRoute(app);
   });
 
-  it("returns existing profile", async () => {
+  it("returns profile when exists", async () => {
     const userId = "test-user";
     const _existingProfile = {
       _id: "65bf74e4bbc75c11e6e83ce0",

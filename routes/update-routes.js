@@ -31,10 +31,29 @@ module.exports = (app) => {
   // );
 
   // This route update user profile
-  app.post(
-    "/api/profile/update",
+  app.put(
+    "/api/profiles/update",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
+      //modifying date into <YYYY-mm-dd> format
+      let dobString = `<${req.body.year}-${
+        req.body.month < 10 ? "0" + req.body.month : req.body.month
+      }-${req.body.day < 10 ? "0" + req.body.day : req.body.day}>`;
+      dateService.addDateOfBirthAndZodiac(req.user.userId, dobString);
+
+      const userIP = req.headers["x-forwarded-for"] || req.ip;
+      const info = lookup.get(userIP);
+      if (!info || !info.country || !info.city || !info.location) {
+        res.status(400).json({ error: "Location is not defined" });
+        return;
+      }
+      locationService.setLocation(
+        req.user.userId,
+        { lat: info.location.latitude, lng: info.location.longitude },
+        info.country.iso_code,
+        info.city.names.en
+      );
+
       profileService
         .updateProfile(req.user.userId, req.body)
         .then(() => {
