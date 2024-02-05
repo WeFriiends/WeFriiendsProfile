@@ -83,4 +83,38 @@ describe("DELETE /api/profile", () => {
 
     expect(response.statusCode).toBe(401);
   });
+
+  it("returns 200 if delete allready deleted profile", async () => {
+    const userId = "test-user-id";
+    const _existingProfile = {
+      _id: "65bf74e4bbc75c11e6e83ce0",
+      name: "",
+      dob: "1998-12-31T23:00:00.000Z",
+      zodiacSign: "",
+      gender: "F",
+      reason: [],
+      location: {},
+      bio: "",
+      photos: [],
+    };
+
+    mockingoose(model).toReturn(_existingProfile, "findOneAndRemove");
+
+    const payload = {
+      _id: "123",
+      userId,
+    };
+    const token = jwt.sign(payload, jwtSecret);
+
+    //first responce
+    await request(app)
+      .delete(`/api/profiles/${userId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    //second responce
+    const secondResponse = await request(app)
+      .delete(`/api/profiles/${userId}`)
+      .set("Authorization", `Bearer ${token}`);
+    expect(secondResponse.statusCode).toBe(200);
+  });
 });
