@@ -21,7 +21,7 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
       const { id } = req.params;
-
+      //check if I work with my personal profile
       if (id !== req.user.userId) {
         res.status(401).json({ message: "Access denied" });
         return;

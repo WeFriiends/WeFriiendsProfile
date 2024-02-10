@@ -25,17 +25,17 @@ require("./routes/photo-routes")(app);
 require("./routes/update-routes")(app);
 require("./routes/get-routes")(app);
 require("./routes/delete-routes")(app);
-mongoose.connect(
-    process.env.MONGODB_URL,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    () => {
-        console.log("Connected to Mongo DB");
-         app.listen(HTTP_PORT, () => {
-        console.log("API listening on: " + HTTP_PORT);
-    });
-    }
-);
 
+mongoose.connect(
+  process.env.MONGODB_URL,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  () => {
+    console.log("Connected to Mongo DB");
+    app.listen(HTTP_PORT, () => {
+      console.log("API listening on: " + HTTP_PORT);
+    });
+  }
+);
 
 // const db = mongoose.connection;
 // db.on("error", console.error.bind(console, "connection error:"));
@@ -45,3 +45,5 @@ mongoose.connect(
 //         console.log("API listening on: " + HTTP_PORT);
 //     });
 // });
+
+module.exports = app;

@@ -1,22 +1,12 @@
 const request = require("supertest");
-const express = require("express");
-const postRoute = require("../routes/post-routes");
 const mockingoose = require("mockingoose");
-const passport = require("passport");
 const jwtSecret = require("../middleware/token-strategy");
 
 const model = require("../models/Profile");
 const jwt = require("jsonwebtoken");
+const app = require("../server");
 
 describe("POST /api/profiles", () => {
-  let app;
-
-  beforeEach(() => {
-    app = express();
-    app.use(passport.initialize());
-    postRoute(app);
-  });
-
   it("returns profile if data added", async () => {
     const userId = "test-user-id";
     const _newProfile = {

@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
 const zodiac = require("zodiac-signs")("en");
-let Profile = mongoose.model("profiles");
+const Profile = require("../models/Profile");
 
 // This function adds date of birth and zodiac sign
 // dob param should have format "<YYYY-mm-dd>"
@@ -64,3 +63,7 @@ module.exports.getZodiacSign = (id) => {
       });
   });
 };
+
+module.exports.dateToZodiac = (date) =>
+  zodiac.getSignByDate({ day: date.getDate(), month: date.getMonth() + 1 })
+    .name;

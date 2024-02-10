@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-let Profile = mongoose.model("profiles");
+const Profile = require("../models/Profile");
 
 /* This service will set location for users who manually update it */
 

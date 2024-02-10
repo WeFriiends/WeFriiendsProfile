@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const Profile = require("../models/Profile");
+const dateToZodiac = require("./date");
 
 module.exports.registerProfile = async (userId) => {
   console.log("in registering new profile");
@@ -52,6 +52,33 @@ module.exports.deleteProfile = (id) => {
         resolve("User has been deleted successfully");
       })
       .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+module.exports.updateProfile = async (id, data) => {
+  console.log(1, data);
+
+  return new Promise((resolve, reject) => {
+    console.log(2, data);
+
+    if (data.dob) {
+      data = { ...data, zodiacSign: dateToZodiac(data.date) };
+    }
+    console.log(3, data);
+    Profile.findOneAndUpdate(
+      {
+        userId: id,
+      },
+      data
+    )
+      .then((updatedProfile) => {
+        console.log(4, data);
+        resolve(updatedProfile);
+      })
+      .catch((err) => {
+        console.log(5, data);
         reject(err);
       });
   });

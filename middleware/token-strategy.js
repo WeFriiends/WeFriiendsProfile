@@ -20,6 +20,7 @@ const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
     // The following will ensure that all routes using
     // passport.authenticate have a req.user._id and req.user.userId values
     // that matches the request payload data
+
     next(null, {
       _id: jwt_payload._id,
       userId: jwt_payload.userId,

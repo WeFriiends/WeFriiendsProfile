@@ -1,22 +1,12 @@
 const request = require("supertest");
-const express = require("express");
-const profileRoute = require("../routes/delete-routes");
 const mockingoose = require("mockingoose");
-const passport = require("passport");
 const jwtSecret = require("../middleware/token-strategy");
 
 const model = require("../models/Profile");
 const jwt = require("jsonwebtoken");
+const app = require("../server");
 
 describe("DELETE /api/profile", () => {
-  let app;
-
-  beforeEach(() => {
-    app = express();
-    app.use(passport.initialize());
-    profileRoute(app);
-  });
-
   it("deletes profile when exists", async () => {
     const userId = "test-user-id";
     const _existingProfile = {

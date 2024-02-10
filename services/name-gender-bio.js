@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-let Profile = mongoose.model("profiles");
+const Profile = require("../models/Profile");
 
 module.exports.addGender = (id, gender) => {
   return new Promise((resolve, reject) => {
@@ -29,24 +28,24 @@ module.exports.addGender = (id, gender) => {
 };
 
 module.exports.addName = async (id, name) => {
-  console.log("in add name")
+  console.log("in add name");
   try {
     const profile = await Profile.find({ userId: id });
-  if (profile) {
-    console.log("in update")
-     const res = await Profile.updateOne(
-      { userId: id },
-      {
-        $set: {
-          name: name,
-        },
-        $currentDate: { lastUpdated: true },
-      }
-    );
-//   return res
-  }
+    if (profile) {
+      console.log("in update");
+      const res = await Profile.updateOne(
+        { userId: id },
+        {
+          $set: {
+            name: name,
+          },
+          $currentDate: { lastUpdated: true },
+        }
+      );
+      //   return res
+    }
   } catch (e) {
-    console.log(e.message)
+    console.log(e.message);
   }
   //   return new Promise((resolve, reject) => {
   //   Profile.find({
@@ -83,20 +82,20 @@ module.exports.getName = (id) => {
 
 // This function adds a short description or updates description if name already exists
 module.exports.addBio = (id, bio) => {
-    return new Promise((resolve, reject) => {
-        Profile.find({
-        userId: id,
-        })
-        .exec()
-        .then((profile) => {
-            Profile.findOneAndUpdate({ userId: id }, { bio: bio }, { new: true })
-            .exec()
-            .then((profile) => {
-                resolve(profile.bio);
-            })
-            .catch((err) => {
-                reject(`Unable to update bio for user with id: ${id}`);
-            });
-        });
-    });
+  return new Promise((resolve, reject) => {
+    Profile.find({
+      userId: id,
+    })
+      .exec()
+      .then((profile) => {
+        Profile.findOneAndUpdate({ userId: id }, { bio: bio }, { new: true })
+          .exec()
+          .then((profile) => {
+            resolve(profile.bio);
+          })
+          .catch((err) => {
+            reject(`Unable to update bio for user with id: ${id}`);
+          });
+      });
+  });
 };
