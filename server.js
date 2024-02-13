@@ -25,6 +25,7 @@ require("./routes/photo-routes")(app);
 require("./routes/update-routes")(app);
 require("./routes/get-routes")(app);
 require("./routes/delete-routes")(app);
+require("./routes/post-routes")(app);
 
 mongoose.connect(
   process.env.MONGODB_URL,

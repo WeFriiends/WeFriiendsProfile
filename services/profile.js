@@ -58,15 +58,11 @@ module.exports.deleteProfile = (id) => {
 };
 
 module.exports.updateProfile = async (id, data) => {
-  console.log(1, data);
-
   return new Promise((resolve, reject) => {
-    console.log(2, data);
-
     if (data.dob) {
       data = { ...data, zodiacSign: dateToZodiac(data.date) };
     }
-    console.log(3, data);
+
     Profile.findOneAndUpdate(
       {
         userId: id,
@@ -74,11 +70,9 @@ module.exports.updateProfile = async (id, data) => {
       data
     )
       .then((updatedProfile) => {
-        console.log(4, data);
         resolve(updatedProfile);
       })
       .catch((err) => {
-        console.log(5, data);
         reject(err);
       });
   });
