@@ -10,18 +10,6 @@ describe("UPDATE /api/profiles/:id", () => {
   it("updates profile when exists", async () => {
     const userId = "test-user-id";
 
-    const _existingProfile = {
-      _id: "65bf74e4bbc75c11e6e83ce0",
-      name: "",
-      dob: "1998-12-31T23:00:00.000Z",
-      zodiacSign: "",
-      gender: "F",
-      reason: [],
-      location: {},
-      bio: "",
-      photos: [],
-    };
-
     const changes = {
       name: "Jane Dow",
     };
@@ -52,6 +40,6 @@ describe("UPDATE /api/profiles/:id", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    // expect(response.body.user.name).toMatchObject("Jane Dow");
+    expect(response.body.name).toBe("Jane Dow");
   });
 });
