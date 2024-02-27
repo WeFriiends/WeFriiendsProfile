@@ -43,18 +43,14 @@ const calculateAge = (profile) => {
 };
 
 module.exports.deleteProfile = async (id) => {
-  return new Promise((resolve, reject) => {
-    Profile.deleteOne({
+  try {
+    await Profile.deleteOne({
       userId: id,
-    })
-      .exec()
-      .then(() => {
-        resolve("User has been deleted successfully");
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+    }).exec();
+    return "User has been deleted successfully";
+  } catch (err) {
+    throw err;
+  }
 };
 
 module.exports.updateProfile = async (id, data) => {
