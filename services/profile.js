@@ -10,7 +10,7 @@ module.exports.registerProfile = async (userId) => {
   try {
     return await profileToSave.save();
   } catch (err) {
-    if (err.code == 11000) {
+    if (err.code === 11000) {
       return "This userId is already associated with an account";
     }
     return err.code;
@@ -42,7 +42,7 @@ const calculateAge = (profile) => {
   return age;
 };
 
-module.exports.deleteProfile = (id) => {
+module.exports.deleteProfile = async (id) => {
   return new Promise((resolve, reject) => {
     Profile.deleteOne({
       userId: id,
@@ -58,22 +58,16 @@ module.exports.deleteProfile = (id) => {
 };
 
 module.exports.updateProfile = async (id, data) => {
-  return new Promise((resolve, reject) => {
+  try {
     if (data.dob) {
       data = { ...data, zodiacSign: dateToZodiac(data.date) };
     }
-
-    Profile.findOneAndUpdate(
-      {
-        userId: id,
-      },
+    const updatedProfile = await Profile.findByIdAndUpdate(
+      { userId: id },
       data
-    )
-      .then((updatedProfile) => {
-        resolve(updatedProfile);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+    );
+    return updatedProfile;
+  } catch (err) {
+    throw err;
+  }
 };

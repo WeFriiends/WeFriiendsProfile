@@ -37,7 +37,7 @@ describe("GET /api/profile", () => {
     expect(response.body).toEqual({ ..._existingProfile, age: 25 });
   });
 
-  it("doesn't returns existing profile if not authed", async () => {
+  it("doesn't return existing profile if not authed", async () => {
     const response = await request(app).get("/api/profile");
 
     expect(response.statusCode).toBe(401);

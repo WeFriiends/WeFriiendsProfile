@@ -7,15 +7,13 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
       try {
-        console.log("here in existing new profile ", req.user);
         const existingProfile = await profile.getProfileInfo(req.user.userId);
 
         if (existingProfile) {
           res.json(existingProfile);
         } else {
-          console.log("here in creating new profile ", req.user);
           const result = await profile.registerProfile(req.user.userId);
-          console.log("result ", result);
+
           if (result) {
             res.json({
               profile: result,

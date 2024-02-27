@@ -7,8 +7,8 @@ const jwt = require("jsonwebtoken");
 const app = require("../server");
 
 describe("DELETE /api/profile", () => {
+  const userId = "test-user-id";
   it("deletes profile when exists", async () => {
-    const userId = "test-user-id";
     const _existingProfile = {
       _id: "65bf74e4bbc75c11e6e83ce0",
       name: "",
@@ -36,7 +36,6 @@ describe("DELETE /api/profile", () => {
   });
 
   it("returns 401 if trying to delete someone else's profile", async () => {
-    const userId = "test-user-id";
     const anotherId = "someone-else's-id";
 
     const _existingProfile = {
@@ -67,15 +66,12 @@ describe("DELETE /api/profile", () => {
   });
 
   it("doesn't delete profile if not authed", async () => {
-    const userId = "test-user-id";
-
     const response = await request(app).delete(`/api/profiles/${userId}`);
 
     expect(response.statusCode).toBe(401);
   });
 
   it("returns 200 if delete allready deleted profile", async () => {
-    const userId = "test-user-id";
     const _existingProfile = {
       _id: "65bf74e4bbc75c11e6e83ce0",
       name: "",
