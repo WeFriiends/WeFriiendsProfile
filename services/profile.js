@@ -1,20 +1,12 @@
 const Profile = require("../models/Profile");
 const dateToZodiac = require("./date");
 
-module.exports.registerProfile = async (userId) => {
-  console.log("in registering new profile");
+module.exports.registerProfile = async (userId, data) => {
   let profileToSave = new Profile({
+    ...data,
     userId: userId,
   });
-  console.log("new profile ", profileToSave);
-  try {
-    return await profileToSave.save();
-  } catch (err) {
-    if (err.code === 11000) {
-      return "This userId is already associated with an account";
-    }
-    return err.code;
-  }
+  return await profileToSave.save();
 };
 
 module.exports.getProfileInfo = async (userId) => {

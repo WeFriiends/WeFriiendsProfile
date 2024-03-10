@@ -11,7 +11,6 @@ require("./services/interests");
 require("./services/date");
 require("./services/location");
 require("./services/photo");
-require("./services/name-gender-bio");
 require("./services/profile");
 require("./middleware/token-strategy");
 

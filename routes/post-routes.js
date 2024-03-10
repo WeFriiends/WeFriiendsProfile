@@ -1,7 +1,6 @@
 const profileService = require("../services/profile");
 const passport = require("passport");
 
-// This route create user profile
 module.exports = (app) => {
   app.post(
     "/api/profiles",
