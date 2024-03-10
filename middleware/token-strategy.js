@@ -15,7 +15,6 @@ const SECRET = "secret";
 jwtOptions.secretOrKey = SECRET;
 
 const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-  console.log("payload received", jwt_payload);
   if (jwt_payload) {
     // The following will ensure that all routes using
     // passport.authenticate have a req.user._id and req.user.userId values

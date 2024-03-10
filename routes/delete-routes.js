@@ -10,7 +10,7 @@ module.exports = (app) => {
         .deleteProfile(req.user.userId)
         .then((msg) => res.json({ message: msg }))
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           res.status(422).json({ message: err });
         });
     }
@@ -31,7 +31,7 @@ module.exports = (app) => {
         .deleteProfile(id)
         .then((msg) => res.json({ message: msg }))
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           res.status(422).json({ message: err });
         });
     }
