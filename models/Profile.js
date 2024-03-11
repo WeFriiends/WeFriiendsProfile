@@ -6,6 +6,7 @@ const profileSchema = new Schema(
     userId: {
       type: String,
       unique: true,
+      index: true,
     },
     name: String,
     dob: Date,
