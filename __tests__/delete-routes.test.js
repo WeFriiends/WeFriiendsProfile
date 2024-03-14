@@ -8,19 +8,19 @@ const app = require("../server");
 
 describe("DELETE /api/profile", () => {
   const userId = "test-user-id";
-  it("deletes profile when exists", async () => {
-    const _existingProfile = {
-      _id: "65bf74e4bbc75c11e6e83ce0",
-      name: "",
-      dob: "1998-12-31T23:00:00.000Z",
-      zodiacSign: "",
-      gender: "F",
-      reason: [],
-      location: {},
-      bio: "",
-      photos: [],
-    };
+  const _existingProfile = {
+    _id: "65bf74e4bbc75c11e6e83ce0",
+    name: "",
+    dob: "1998-12-31T23:00:00.000Z",
+    zodiacSign: "",
+    gender: "F",
+    reason: [],
+    location: {},
+    bio: "",
+    photos: [],
+  };
 
+  it("deletes profile when exists", async () => {
     mockingoose(model).toReturn(_existingProfile, "findOneAndRemove");
 
     const payload = {
@@ -37,18 +37,6 @@ describe("DELETE /api/profile", () => {
 
   it("returns 401 if trying to delete someone else's profile", async () => {
     const anotherId = "someone-else's-id";
-
-    const _existingProfile = {
-      _id: "65bf74e4bbc75c11e6e83ce0",
-      name: "",
-      dob: "1998-12-31T23:00:00.000Z",
-      zodiacSign: "",
-      gender: "F",
-      reason: [],
-      location: {},
-      bio: "",
-      photos: [],
-    };
 
     mockingoose(model).toReturn(_existingProfile, "findOneAndRemove");
 
@@ -72,18 +60,6 @@ describe("DELETE /api/profile", () => {
   });
 
   it("returns 200 if delete allready deleted profile", async () => {
-    const _existingProfile = {
-      _id: "65bf74e4bbc75c11e6e83ce0",
-      name: "",
-      dob: "1998-12-31T23:00:00.000Z",
-      zodiacSign: "",
-      gender: "F",
-      reason: [],
-      location: {},
-      bio: "",
-      photos: [],
-    };
-
     mockingoose(model).toReturn(_existingProfile, "findOneAndRemove");
 
     const payload = {

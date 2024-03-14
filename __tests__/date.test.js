@@ -1,4 +1,4 @@
-const dateService = require("../services/date");
+const dateService = require("../services/dateToZodiac");
 
 describe("date service", () => {
   it("calculates a zodiac sign correctly", () => {

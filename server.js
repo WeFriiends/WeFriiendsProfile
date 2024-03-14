@@ -8,7 +8,7 @@ const passport = require("passport");
 
 require("./models/Profile");
 require("./services/interests");
-require("./services/date");
+require("./services/dateToZodiac");
 require("./services/location");
 require("./services/photo");
 require("./services/profile");

@@ -1,5 +1,5 @@
 const Profile = require("../models/Profile");
-const dateToZodiac = require("./date");
+const dateToZodiac = require("./dateToZodiac");
 
 module.exports.registerProfile = async (userId) => {
   let profileToSave = new Profile({
