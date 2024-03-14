@@ -1,20 +1,11 @@
-const mongoose = require("mongoose");
-let Profile = mongoose.model("profiles");
+const Profile = require("../models/Profile");
+const dateToZodiac = require("./dateToZodiac");
 
 module.exports.registerProfile = async (userId) => {
-  console.log("in registering new profile")
   let profileToSave = new Profile({
     userId: userId,
   });
-  console.log("new profile ",profileToSave )
-  try {
-    await profileToSave.save();
-  } catch (err) {
-    if (err.code == 11000) {
-      return "This userId is already associated with an account";
-    }
-    return err.code;
-  }
+  return await profileToSave.save();
 };
 
 module.exports.getProfileInfo = async (userId) => {
@@ -42,17 +33,28 @@ const calculateAge = (profile) => {
   return age;
 };
 
-module.exports.deleteProfile = (id) => {
-  return new Promise((resolve, reject) => {
-    Profile.deleteOne({
+module.exports.deleteProfile = async (id) => {
+  try {
+    await Profile.deleteOne({
       userId: id,
-    })
-      .exec()
-      .then(() => {
-        resolve("User has been deleted successfully");
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+    }).exec();
+    return "User has been deleted successfully";
+  } catch (err) {
+    throw err;
+  }
+};
+
+module.exports.updateProfile = async (id, data) => {
+  try {
+    if (data.dob) {
+      data = { ...data, zodiacSign: dateToZodiac(data.date) };
+    }
+    const updatedProfile = await Profile.findByIdAndUpdate(
+      { userId: id },
+      data
+    );
+    return updatedProfile;
+  } catch (err) {
+    throw err;
+  }
 };

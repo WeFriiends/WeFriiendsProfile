@@ -5,20 +5,21 @@ const passport = require("passport");
 const passportJWT = require("passport-jwt");
 
 // JSON Web Token Setup
-let ExtractJwt = passportJWT.ExtractJwt;
-let JwtStrategy = passportJWT.Strategy;
+const ExtractJwt = passportJWT.ExtractJwt;
+const JwtStrategy = passportJWT.Strategy;
 
 // Configure its options
-let jwtOptions = {};
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken("jwt")   //fromAuthHeaderWithScheme("jwt");
-jwtOptions.secretOrKey =  'secret';
+const jwtOptions = {};
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken("jwt"); //fromAuthHeaderWithScheme("jwt");
+const SECRET = "secret";
+jwtOptions.secretOrKey = SECRET;
 
-let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-  console.log("payload received", jwt_payload);
+const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   if (jwt_payload) {
     // The following will ensure that all routes using
     // passport.authenticate have a req.user._id and req.user.userId values
     // that matches the request payload data
+
     next(null, {
       _id: jwt_payload._id,
       userId: jwt_payload.userId,
@@ -29,3 +30,4 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
 });
 
 passport.use(strategy);
+module.exports = SECRET;

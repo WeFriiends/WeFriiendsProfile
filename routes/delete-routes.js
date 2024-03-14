@@ -10,7 +10,28 @@ module.exports = (app) => {
         .deleteProfile(req.user.userId)
         .then((msg) => res.json({ message: msg }))
         .catch((err) => {
-          console.log(err);
+          console.error(err);
+          res.status(422).json({ message: err });
+        });
+    }
+  );
+
+  app.delete(
+    "/api/profiles/:id",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+      const { id } = req.params;
+      //check if I work with my personal profile
+      if (id !== req.user.userId) {
+        res.status(401).json({ message: "Access denied" });
+        return;
+      }
+
+      profile
+        .deleteProfile(id)
+        .then((msg) => res.json({ message: msg }))
+        .catch((err) => {
+          console.error(err);
           res.status(422).json({ message: err });
         });
     }

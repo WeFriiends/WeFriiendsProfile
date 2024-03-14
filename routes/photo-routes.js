@@ -43,8 +43,6 @@ module.exports = (app) => {
           res.status(500).send({ err: error });
         }
 
-        console.log(data.Location);
-
         photoService.addPhoto(req.user.userId, data.Location);
       });
     }

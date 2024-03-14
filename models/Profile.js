@@ -6,6 +6,7 @@ const profileSchema = new Schema(
     userId: {
       type: String,
       unique: true,
+      index: true,
     },
     name: String,
     dob: Date,
@@ -28,4 +29,4 @@ const profileSchema = new Schema(
   }
 );
 
-mongoose.model("profiles", profileSchema);
+module.exports = mongoose.model("profiles", profileSchema);

@@ -1,169 +1,23 @@
 /* Routes for modifying user data */
 const passport = require("passport");
-const profileService = require("../services/name-gender-bio");
-const dateService = require("../services/date");
-const locationService = require("../services/location");
-const additionalInfoService = require("../services/interests");
-const maxmind = require("maxmind");
-const fs = require("fs");
-const buffer = fs.readFileSync("./lib/GeoLite2-City.mmdb");
-const lookup = new maxmind.Reader(buffer);
+const profileService = require("../services/profile");
 
 module.exports = (app) => {
-  //This route updates name of a user in the profile
-  // app.post(
-  //   "/api/profile/name",
-  //   passport.authenticate("jwt", { session: false }),
-  //   async (req, res) => {
-  //     try {
-  //       console.log("in try")
-  //        await profileService.addName(req.user.userId, req.body.name);
-
-  //     } catch (e) {
-  //       res.status(400).send("Could not complete the request to update name");
-  //     }
-  //   })
-
-  app.post(
-    "/api/profile/name",
+  app.patch(
+    "/api/profiles/:id",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
-      console.log(req.body.name);
-      profileService
-        .addName(req.user.userId, req.body.name)
-        .then((name) => {
-          res.status(200).json({
-            name: name,
-            message: "Name has been successfully updated",
-          });
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets gender of a user in the profile
-  app.put(
-    "/api/profile/gender/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      profileService
-        .addGender(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets bio (short description) of a user in the profile
-  app.put(
-    "/api/profile/bio/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      profileService
-        .addBio(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  // This route sets date of birth and zodiac sign of the user
-  app.post(
-    "/api/profile/dob",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      //modifying date into <YYYY-mm-dd> format
-      let dobString = `<${req.body.year}-${
-        req.body.month < 10 ? "0" + req.body.month : req.body.month
-      }-${req.body.day < 10 ? "0" + req.body.day : req.body.day}>`;
-      dateService
-        .addDateOfBirthAndZodiac(req.user.userId, dobString)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets location (country) of a user in the profile
-  app.put(
-    "/api/profile/location/country/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      locationService
-        .addCountry(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets location (city) of a user in the profile
-  app.put(
-    "/api/profile/location/city/:id",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      locationService
-        .addCity(req.user.userId, req.params.id)
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
-
-  //This route sets geolocation of a user in the profile
-  app.put(
-    "/api/profile/location/geo",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      const userIP = req.headers["x-forwarded-for"] || req.ip;
-      const info = lookup.get(userIP);
-
-      if (!info || !info.country || !info.city || !info.location) {
-        res.status(400).json({ error: "Location is not defined" });
+      const { id } = req.params;
+      //check if I work with my personal profile
+      if (id !== req.user.userId) {
+        res.status(401).json({ message: "Access denied" });
         return;
       }
-      locationService
-        .setLocation(
-          req.user.userId,
-          { lat: info.location.latitude, lng: info.location.longitude },
-          info.country.iso_code,
-          info.city.names.en
-        )
-        .then((data) => {
-          res.json(data);
-        })
-        .catch((msg) => {
-          res.status(422).json({ error: msg });
-        });
-    }
-  );
 
-  //This route updates "looking for" section of a user in the profile
-  app.post(
-    "/api/profile/lookingfor",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-      additionalInfoService
-        .addReason(req.user.userId, req.body.interests)
-        .then((reasons) => {
-          res.status(200).json({ lookingFor: reasons });
+      profileService
+        .updateProfile(req.user.userId, req.body)
+        .then((profile) => {
+          res.status(200).json(profile);
         })
         .catch((msg) => {
           res.status(422).json({ error: msg });
