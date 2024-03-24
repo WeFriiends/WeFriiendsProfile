@@ -3,6 +3,12 @@ if (typeof TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;
   global.TextDecoder = TextDecoder;
 }
+// Polyfill for Array.prototype.flatMap
+if (!Array.prototype.flatMap) {
+  Array.prototype.flatMap = function(callback) {
+      return Array.prototype.concat.apply([], this.map(callback));
+  };
+}
 const express = require("express");
 const app = express();
 const cors = require("cors");
