@@ -1,6 +1,6 @@
 const multer = require("multer");
 const passport = require("passport");
-const cloudinary = require('../config/cloudinary.config');
+const cloudinary = require('../config/cloudinary');
 const photoService = require("../services/photo");
 
 const storage = multer.memoryStorage();
