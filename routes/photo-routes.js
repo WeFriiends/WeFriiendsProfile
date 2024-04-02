@@ -1,13 +1,9 @@
 const multer = require("multer");
-const aws = require("aws-sdk");
-const photoService = require("../services/photo.js");
 const passport = require("passport");
+const cloudinary = require('../config/cloudinary');
+const photoService = require("../services/photo");
 
-const storage = multer.memoryStorage({
-  destination: function (req, file, cb) {
-    cb(null, "");
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
@@ -19,32 +15,22 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-const s3 = new aws.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET,
-});
-
 module.exports = (app) => {
   app.post(
     "/api/profile/upload",
     passport.authenticate("jwt", { session: false }),
     upload.single("file"),
-    (req, res) => {
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: req.file.originalname,
-        Body: req.file.buffer,
-        ACL: "public-read-write",
-        ContentType: "image/jpeg",
-      };
+    async (req, res) => {
+      try {
+        const uploadResult = await cloudinary.uploader.upload(req.file.buffer, { folder: "profile" });
 
-      s3.upload(params, (error, data) => {
-        if (error) {
-          res.status(500).send({ err: error });
-        }
+        await photoService.addPhoto(req.user.userId, uploadResult.url);
 
-        photoService.addPhoto(req.user.userId, data.Location);
-      });
+        return res.status(200).send({ message: "Photo uploaded successfully", cloudinary: uploadResult });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).send({ error: "Error uploading photo" });
+      }
     }
   );
 };
