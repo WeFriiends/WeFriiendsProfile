@@ -1,16 +1,10 @@
 {
-  "name": "user-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
   "scripts": {
     "test": "node node_modules/jest/bin/jest.js",
-    "start": "node server.js",
+    "start": "cp json-server/db.json json-server/workingdb.json && concurrently 'react-scripts start' 'npx json-server --watch json-server/workingdb.json --port 3005'",
     "test-back": "jest __tests__",
     "test-back:watch": "jest --watch __tests__"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1279.0",
     "bcryptjs": "^2.4.3",
@@ -28,7 +22,9 @@
     "zodiac-signs": "^1.1.0"
   },
   "devDependencies": {
+    "concurrently": "^5.3.0",
     "jest": "^29.7.0",
+    "json-server": "^0.16.3",
     "mockingoose": "^2.16.2",
     "supertest": "^6.3.4"
   },
