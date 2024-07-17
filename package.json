@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "node node_modules/jest/bin/jest.js",
-    "start": "cp json-server/db.json json-server/workingdb.json && concurrently 'react-scripts start' 'npx json-server --watch json-server/workingdb.json --port 3005'",
+    "start": "concurrently 'react-scripts start' 'npx json-server --watch json-server/workingdb.json --port 3005'",
     "test-back": "jest __tests__",
     "test-back:watch": "jest --watch __tests__"
   },
