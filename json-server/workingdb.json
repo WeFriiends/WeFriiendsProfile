@@ -1,8 +1,18 @@
 {
     "newFriends": [],
     "potentialFriends": [
-      { "id": 1, "name": "Alice", "liked": true, "profile": "Profile details for Alice" },
-      { "id": 2, "name": "Bob", "liked": false, "profile": "Profile details for Bob" }
+      {
+        "id": 1,
+        "name": "Alice",
+        "liked": true,
+        "profile": "Profile details for Alice"
+      },
+      {
+        "id": 2,
+        "name": "Bob",
+        "liked": false,
+        "profile": "Profile details for Bob"
+      }
     ]
   }
   
