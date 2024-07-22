@@ -11,10 +11,10 @@ const router = Router();
 
 /**
  * @swagger
- * /api/user:
+ * /api/profile:
  *   post:
- *     summary: Register a new user
- *     tags: [User]
+ *     summary: Register a new profile
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -29,9 +29,20 @@ const router = Router();
  *               dateOfBirth:
  *                 type: string
  *                 format: date
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                   lng:
+ *                     type: number
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: Profile created successfully
  *       400:
  *         description: Bad request
  */
@@ -39,26 +50,26 @@ router.post("/", checkJwt, registerProfile);
 
 /**
  * @swagger
- * /api/user:
+ * /api/profile:
  *   get:
- *     summary: Get current user
- *     tags: [User]
+ *     summary: Get current profile
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User retrieved successfully
+ *         description: Profile retrieved successfully
  *       404:
- *         description: User not found
+ *         description: Profile not found
  */
 router.get("/", checkJwt, getCurrentProfile);
 
 /**
  * @swagger
- * /api/user:
+ * /api/profile:
  *   put:
- *     summary: Update current user
- *     tags: [User]
+ *     summary: Update current profile
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -73,9 +84,20 @@ router.get("/", checkJwt, getCurrentProfile);
  *               dateOfBirth:
  *                 type: string
  *                 format: date
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                   lng:
+ *                     type: number
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Profile updated successfully
  *       400:
  *         description: Bad request
  */
@@ -83,15 +105,15 @@ router.put("/", checkJwt, updateProfile);
 
 /**
  * @swagger
- * /api/user:
+ * /api/profile:
  *   delete:
- *     summary: Delete current user
- *     tags: [User]
+ *     summary: Delete current profile
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Profile deleted successfully
  *       400:
  *         description: Bad request
  */

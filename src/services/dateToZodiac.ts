@@ -1,3 +1,4 @@
+// @ts-ignore
 import zodiacSigns from "zodiac-signs";
 
 const zodiac = zodiacSigns("en");
