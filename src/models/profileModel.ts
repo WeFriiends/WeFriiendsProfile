@@ -15,6 +15,7 @@ export interface ProfileDocument extends Document {
   updatedAt: Date;
   location?: Location;
   zodiacSign: string;
+  photos: string[];
 }
 
 const profileSchema = new Schema<ProfileDocument>({
@@ -27,6 +28,7 @@ const profileSchema = new Schema<ProfileDocument>({
     lng: { type: Number },
     country: { type: String },
     city: { type: String },
+    photos: { type: [String], default: [] },
   },
 });
 

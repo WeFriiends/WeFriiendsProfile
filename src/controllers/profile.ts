@@ -20,6 +20,7 @@ export const registerProfile = async (req: Request, res: Response) => {
 
     res.status(201).json(newProfile);
   } catch (error) {
+    console.log(error);
     res.status(400).json({ message: "Error creating user", error });
   }
 };

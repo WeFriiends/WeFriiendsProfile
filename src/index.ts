@@ -5,6 +5,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import profileRoutes from "./routes/profile";
+import profilePhotos from "./routes/photo";
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Routes
 app.use("/api/profile", profileRoutes);
+app.use("/api/photos", profilePhotos);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
