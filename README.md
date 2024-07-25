@@ -80,7 +80,7 @@ Copy code
 docker-compose up --build
 Access the application:
 
-The Node.js application will be available at http://localhost:3000.
+The Node.js application will be available at http://localhost:8080.
 The MongoDB service will be accessible at mongodb://localhost:27017.
 Contributing
 If you would like to contribute to this project, please fork the repository and create a pull request with your changes. Make sure to follow the code style and include tests for any new features or bug fixes.
