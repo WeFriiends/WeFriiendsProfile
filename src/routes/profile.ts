@@ -67,7 +67,7 @@ router.get("/", checkJwt, getCurrentProfile);
 /**
  * @swagger
  * /api/profile:
- *   put:
+ *   patch:
  *     summary: Update current profile
  *     tags: [Profile]
  *     security:
@@ -101,7 +101,7 @@ router.get("/", checkJwt, getCurrentProfile);
  *       400:
  *         description: Bad request
  */
-router.put("/", checkJwt, updateProfile);
+router.patch("/", checkJwt, updateProfile);
 
 /**
  * @swagger

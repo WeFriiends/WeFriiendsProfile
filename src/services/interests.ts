@@ -1,19 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
-
-interface ProfileDocument extends Document {
-  userId: string;
-  reasons: string[];
-}
-
-const ProfileSchema: Schema<ProfileDocument> = new Schema({
-  userId: { type: String, required: true },
-  reasons: { type: [String], default: [] },
-});
-
-const Profile: Model<ProfileDocument> = mongoose.model<ProfileDocument>(
-  "Profile",
-  ProfileSchema
-);
+import Profile from "../models/profileModel";
 
 export const getReasons = async (id: string): Promise<string[]> => {
   const profile = await Profile.findOne({ userId: id }).exec();

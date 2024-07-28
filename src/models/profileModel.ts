@@ -16,6 +16,8 @@ export interface ProfileDocument extends Document {
   location?: Location;
   zodiacSign: string;
   photos: string[];
+  gender: string;
+  reasons: string[];
 }
 
 const profileSchema = new Schema<ProfileDocument>({
@@ -28,8 +30,10 @@ const profileSchema = new Schema<ProfileDocument>({
     lng: { type: Number },
     country: { type: String },
     city: { type: String },
-    photos: { type: [String], default: [] },
   },
+  photos: { type: [String], default: [] },
+  gender: { type: String },
+  reasons: { type: [String], default: [] },
 });
 
 const Profile = mongoose.model<ProfileDocument>("Profile", profileSchema);

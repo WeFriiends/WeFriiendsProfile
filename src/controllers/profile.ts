@@ -40,7 +40,7 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Error retrieving profile", error });
   }
 };
-
+// check up on updating name, dob, and zodiac sign. Is the code underneath correct?
 export const updateProfile = async (req: Request, res: Response) => {
   const { name, dateOfBirth, coordinates, country, city } = req.body;
   const token = req.headers.authorization?.split(" ")[1];

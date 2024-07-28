@@ -45,7 +45,7 @@ export const uploadToCloudinary = async (
 
     for (const file of files) {
       const resizedBuffer: Buffer = await sharp(file.buffer)
-        .resize({ width: 800, height: 600 })
+        .resize({ width: 450, height: 535 })
         .toBuffer();
 
       const options: UploadApiOptions = {
