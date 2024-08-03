@@ -5,6 +5,8 @@ interface Location {
   lng: number;
   country: string;
   city: string;
+  street?: string;
+  houseNumber?: string;
 }
 
 export interface ProfileDocument extends Document {
@@ -30,6 +32,8 @@ const profileSchema = new Schema<ProfileDocument>({
     lng: { type: Number },
     country: { type: String },
     city: { type: String },
+    street: { type: String },
+    houseNumber: { type: String },
   },
   photos: { type: [String], default: [] },
   gender: { type: String },
