@@ -29,17 +29,33 @@ const router = Router();
  *               dateOfBirth:
  *                 type: string
  *                 format: date
- *               coordinates:
+ *               zodiacSign:
+ *                 type: string
+ *               location:
  *                 type: object
  *                 properties:
  *                   lat:
  *                     type: number
  *                   lng:
  *                     type: number
- *               country:
+ *                   country:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   street:
+ *                     type: string
+ *                   houseNumber:
+ *                     type: string
+ *               photos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               gender:
  *                 type: string
- *               city:
- *                 type: string
+ *               reasons:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: Profile created successfully
@@ -61,6 +77,13 @@ router.post("/", checkJwt, registerProfile);
  *         description: Profile retrieved successfully
  *       404:
  *         description: Profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  */
 router.get("/", checkJwt, getCurrentProfile);
 
@@ -84,17 +107,33 @@ router.get("/", checkJwt, getCurrentProfile);
  *               dateOfBirth:
  *                 type: string
  *                 format: date
- *               coordinates:
+ *               zodiacSign:
+ *                 type: string
+ *               location:
  *                 type: object
  *                 properties:
  *                   lat:
  *                     type: number
  *                   lng:
  *                     type: number
- *               country:
+ *                   country:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   street:
+ *                     type: string
+ *                   houseNumber:
+ *                     type: string
+ *               photos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               gender:
  *                 type: string
- *               city:
- *                 type: string
+ *               reasons:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
