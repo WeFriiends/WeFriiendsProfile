@@ -45,14 +45,13 @@ require("./routes/chat-routes")(app);
 
 mongoose.connect(
   process.env.MONGODB_URL,
-  { useNewUrlParser: true, useUnifiedTopology: true }
-).then(() => {
-  console.log("Connected to MongoDB");
-  app.listen(HTTP_PORT, () => {
-    console.log("API listening on: " + HTTP_PORT);
-  });
-}).catch((error) => {
-  console.error("Error connecting to MongoDB: ", error);
-});
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  () => {
+    console.log("Connected to Mongo DB");
+    app.listen(HTTP_PORT, () => {
+      console.log("API listening on: " + HTTP_PORT);
+    });
+  }
+);
 
 module.exports = app;
