@@ -3,12 +3,14 @@ if (typeof TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;
   global.TextDecoder = TextDecoder;
 }
+
 // Polyfill for Array.prototype.flatMap
 if (!Array.prototype.flatMap) {
   Array.prototype.flatMap = function(callback) {
-      return Array.prototype.concat.apply([], this.map(callback));
+    return Array.prototype.concat.apply([], this.map(callback));
   };
 }
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -18,6 +20,8 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 
 require("./models/Profile");
+require("./models/User");
+require("./models/Chat"); 
 require("./services/interests");
 require("./services/dateToZodiac");
 require("./services/location");
@@ -36,16 +40,19 @@ require("./routes/update-routes")(app);
 require("./routes/get-routes")(app);
 require("./routes/delete-routes")(app);
 require("./routes/post-routes")(app);
+require("./routes/user-routes")(app); 
+require("./routes/chat-routes")(app); 
 
 mongoose.connect(
   process.env.MONGODB_URL,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  () => {
-    console.log("Connected to Mongo DB");
-    app.listen(HTTP_PORT, () => {
-      console.log("API listening on: " + HTTP_PORT);
-    });
-  }
-);
+  { useNewUrlParser: true, useUnifiedTopology: true }
+).then(() => {
+  console.log("Connected to MongoDB");
+  app.listen(HTTP_PORT, () => {
+    console.log("API listening on: " + HTTP_PORT);
+  });
+}).catch((error) => {
+  console.error("Error connecting to MongoDB: ", error);
+});
 
 module.exports = app;
