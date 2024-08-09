@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface Location {
+export interface Location {
   lat: number;
   lng: number;
   country: string;
@@ -15,9 +15,9 @@ export interface ProfileDocument extends Document {
   dateOfBirth: Date;
   createdAt: Date;
   updatedAt: Date;
-  location?: Location;
+  location: Location;
   zodiacSign: string;
-  photos: string[];
+  photos?: string[];
   gender: string;
   reasons: string[];
 }

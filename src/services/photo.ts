@@ -4,7 +4,7 @@ import Profile from "../models/profileModel";
 export const getPhotos = async (id: string): Promise<string[]> => {
   try {
     const profile = await Profile.findOne({ userId: id }).exec();
-    if (profile) {
+    if (profile && profile.photos) {
       return profile.photos;
     }
     throw new Error(`Profile not found for user with id: ${id}`);
@@ -19,15 +19,15 @@ export const addPhoto = async (
 ): Promise<string[]> => {
   try {
     const profile = await Profile.findOne({ userId: id }).exec();
-    if (profile) {
-      if (profile.photos.length < 10) {
+    if (profile && profile.photos) {
+      if (profile.photos?.length < 10) {
         const updatedProfile = await Profile.findOneAndUpdate(
           { userId: id },
           { $addToSet: { photos: photoUrl } },
           { new: true }
         ).exec();
         if (updatedProfile) {
-          return updatedProfile.photos;
+          return updatedProfile.photos || [];
         }
       } else {
         throw new Error(
@@ -52,7 +52,7 @@ export const removePhoto = async (
       { new: true }
     ).exec();
     if (updatedProfile) {
-      return updatedProfile.photos;
+      return updatedProfile.photos || [];
     }
     throw new Error(`Profile not found for user with id: ${id}`);
   } catch (err) {

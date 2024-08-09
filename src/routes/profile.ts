@@ -29,8 +29,6 @@ const router = Router();
  *               dateOfBirth:
  *                 type: string
  *                 format: date
- *               zodiacSign:
- *                 type: string
  *               location:
  *                 type: object
  *                 properties:

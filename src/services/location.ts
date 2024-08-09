@@ -1,9 +1,4 @@
-import Profile from "../models/profileModel";
-
-export interface Coordinates {
-  lat: number;
-  lng: number;
-}
+import Profile, { Location } from "../models/profileModel";
 
 export const getLocation = async (id: string) => {
   try {
@@ -22,23 +17,13 @@ export const getLocation = async (id: string) => {
   }
 };
 
-export const setLocation = async (
-  id: string,
-  coordinates: Coordinates,
-  country: string,
-  city: string
-) => {
+export const setLocation = async (id: string, location: Location) => {
   try {
     const profile = await Profile.findOneAndUpdate(
       { userId: id },
       {
         $set: {
-          location: {
-            lat: coordinates.lat,
-            lng: coordinates.lng,
-            country,
-            city,
-          },
+          location,
         },
       },
       { new: true }
