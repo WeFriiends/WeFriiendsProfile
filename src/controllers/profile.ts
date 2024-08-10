@@ -23,8 +23,6 @@ export const registerProfile = async (req: Request, res: Response) => {
     });
     await newProfile.save();
 
-    await setLocation(userId, location);
-
     res.status(201).json(newProfile);
   } catch (error) {
     console.log(error);
@@ -49,20 +47,17 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
 };
 // check up on updating name, dob, and zodiac sign. Is the code underneath correct?
 export const updateProfile = async (req: Request, res: Response) => {
-  const { name, dateOfBirth, location } = req.body;
+  const { gender, reasons, location } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
 
   try {
-    const zodiacSign = dateToZodiac(new Date(dateOfBirth));
     const updatedProfile = await Profile.findByIdAndUpdate(
       userId,
-      { name, dateOfBirth, zodiacSign },
+      { gender, reasons, location },
       { new: true }
     ).exec();
-
-    await setLocation(userId, location);
 
     res.status(200).json(updatedProfile);
   } catch (error) {
