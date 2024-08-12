@@ -1,59 +1,165 @@
-import { Express, Request, Response } from "express";
-import Chat from "../models/chat";
+import { Router } from "express";
+import * as chatController from '../controllers/chat';
 
-export default (app: Express) => {
-  app.get("/chats", async (req: Request, res: Response) => {
-    try {
-      const chats = await Chat.find();
-      res.send(chats);
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
+const router = Router();
 
-  app.post("/chats", async (req: Request, res: Response) => {
-    try {
-      const newChat = new Chat(req.body);
-      await newChat.save();
-      res.send(newChat);
-    } catch (err) {
-      res.status(400).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/chats:
+ *   get:
+ *     summary: Get all chats
+ *     responses:
+ *       200:
+ *         description: List of all chats
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", chatController.getAllChats);
 
-  app.get("/chats/:id", async (req: Request, res: Response) => {
-    try {
-      const chat = await Chat.findById(req.params.id);
-      if (!chat) {
-        return res.status(404).send({ message: "Chat not found" });
-      }
-      res.send(chat);
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/chats:
+ *   post:
+ *     summary: Create a new chat
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               chat_id:
+ *                 type: string
+ *                 description: Chat ID
+ *               user_id:
+ *                 type: string
+ *                 description: User ID
+ *               friend_id:
+ *                 type: string
+ *                 description: Friend ID
+ *               messages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     message_id:
+ *                       type: string
+ *                     sender_id:
+ *                       type: string
+ *                     timestamp:
+ *                       type: string
+ *                     message:
+ *                       type: string
+ *                     read_status:
+ *                       type: boolean
+ *                 description: Array of messages
+ *     responses:
+ *       200:
+ *         description: Successfully created chat
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/", chatController.createChat);
 
-  app.put("/chats/:id", async (req: Request, res: Response) => {
-    try {
-      const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      if (!chat) {
-        return res.status(404).send({ message: "Chat not found" });
-      }
-      res.send(chat);
-    } catch (err) {
-      res.status(400).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/chats/{id}:
+ *   get:
+ *     summary: Get a chat by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chat ID
+ *     responses:
+ *       200:
+ *         description: Chat details
+ *       404:
+ *         description: Chat not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", chatController.getChatById);
 
-  app.delete("/chats/:id", async (req: Request, res: Response) => {
-    try {
-      const chat = await Chat.findByIdAndDelete(req.params.id);
-      if (!chat) {
-        return res.status(404).send({ message: "Chat not found" });
-      }
-      res.send({ message: "Chat deleted" });
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
-};
+/**
+ * @swagger
+ * /api/chats/{id}:
+ *   put:
+ *     summary: Update a chat by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chat ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               chat_id:
+ *                 type: string
+ *                 description: Chat ID
+ *               user_id:
+ *                 type: string
+ *                 description: User ID
+ *               friend_id:
+ *                 type: string
+ *                 description: Friend ID
+ *               messages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     message_id:
+ *                       type: string
+ *                     sender_id:
+ *                       type: string
+ *                     timestamp:
+ *                       type: string
+ *                     message:
+ *                       type: string
+ *                     read_status:
+ *                       type: boolean
+ *     responses:
+ *       200:
+ *         description: Successfully updated chat
+ *       404:
+ *         description: Chat not found
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id", chatController.updateChat);
+
+/**
+ * @swagger
+ * /api/chats/{id}:
+ *   delete:
+ *     summary: Delete a chat by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chat ID
+ *     responses:
+ *       200:
+ *         description: Successfully deleted chat
+ *       404:
+ *         description: Chat not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/:id", chatController.deleteChat);
+
+export default router;
