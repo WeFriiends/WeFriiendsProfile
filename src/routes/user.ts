@@ -1,59 +1,128 @@
-import { Express, Request, Response } from "express";
-import User from "../models/user";
+import { Router } from "express";
+import * as userController from '../controllers/user'
 
-export default (app: Express) => {
-  app.get("/users", async (req: Request, res: Response) => {
-    try {
-      const users = await User.find();
-      res.send(users);
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
+const router = Router();
 
-  app.post("/users", async (req: Request, res: Response) => {
-    try {
-      const newUser = new User(req.body);
-      await newUser.save();
-      res.send(newUser);
-    } catch (err) {
-      res.status(400).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", userController.getAllUsers);
 
-  app.get("/users/:id", async (req: Request, res: Response) => {
-    try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      res.send(user);
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Create a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successfully created user
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/", userController.createUser);
 
-  app.put("/users/:id", async (req: Request, res: Response) => {
-    try {
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      if (!user) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      res.send(user);
-    } catch (err) {
-      res.status(400).send(err);
-    }
-  });
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get a user by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User details
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", userController.getUserById);
 
-  app.delete("/users/:id", async (req: Request, res: Response) => {
-    try {
-      const user = await User.findByIdAndDelete(req.params.id);
-      if (!user) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      res.send({ message: "User deleted" });
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
-};
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successfully updated user
+ *       404:
+ *         description: User not found
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id", userController.updateUser);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Successfully deleted user
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/:id", userController.deleteUser);
+
+export default router;
