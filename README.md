@@ -39,8 +39,8 @@ Replace your_auth0_domain and your_auth0_audience with your Auth0 configuration 
 ### 1. Clone the repository:
 Don't forget to fill out the [Environment Variables](#environment-variables).
 ```
-git clone https://github.com/yourusername/spa-backend.git
-cd spa-backend
+git clone https://github.com/WeFriiends/WeFriiendsProfile.git
+cd WeFriiendsProfile 
 ```
 
 ### 2. Install dependencies:
