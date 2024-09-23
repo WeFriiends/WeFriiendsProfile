@@ -30,66 +30,73 @@ PORT=8080
 MONGO_URI=mongodb://root:example@mongodb:27017/yourdbname?authSource=admin
 AUTH0_DOMAIN=your_auth0_domain
 AUTH0_AUDIENCE=your_auth0_audience
+```
 
 Replace your_auth0_domain and your_auth0_audience with your Auth0 configuration details.
 
-Project Setup
-Clone the repository:
+## Project Setup
 
-bash
-Copy code
+### 1. Clone the repository:
+Don't forget to fill out the [Environment Variables](#environment-variables).
+```
 git clone https://github.com/yourusername/spa-backend.git
 cd spa-backend
-Install dependencies:
+```
 
-bash
-Copy code
+### 2. Install dependencies:
+```
 npm install
-Build the TypeScript code:
+```
 
-bash
-Copy code
+### 3. Build the TypeScript code:
+
+```
 npm run build
-Running the Application
-Running in Development Mode
+```
+
+## Running the Application
+### Running in Development Mode
+
 To run the application in development mode with automatic server restarts on code changes:
 
-bash
-Copy code
+```
 npm run dev
-Running in Production Mode
+```
+
+### Running in Production Mode
+
 To run the compiled JavaScript code in production mode:
 
-bash
-Copy code
+```
 npm run start
-Accessing Swagger Documentation
+```
+
+## Accessing Swagger Documentation
 Once the application is running, you can access the Swagger documentation at:
 
-bash
-Copy code
+```
 http://localhost:8080/api-docs
+```
 This URL will display the Swagger UI with all the API documentation.
 
-Docker Setup
-Using Docker Compose
+## Docker Setup
+### Using Docker Compose
 Build and run the containers:
 
-bash
-Copy code
+```
 docker-compose up --build
-Access the application:
+```
 
-The Node.js application will be available at http://localhost:8080.
-The MongoDB service will be accessible at mongodb://localhost:27017.
-Contributing
+## Access the application:
+
+The Node.js application will be available at `http://localhost:8080`.
+The MongoDB service will be accessible at `mongodb://localhost:27017`.
+
+### Contributing
 If you would like to contribute to this project, please fork the repository and create a pull request with your changes. Make sure to follow the code style and include tests for any new features or bug fixes.
 
-License
+### License
 This project is licensed under the MIT License. See the LICENSE file for more information.
-
-vbnet
-Copy code
 
 ### Summary
 
