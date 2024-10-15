@@ -77,3 +77,15 @@ export const deleteProfile = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Error deleting profile", error });
   }
 };
+
+export const getAllProfiles = async(req: Request, res: Response) => { 
+  const token = req.headers.authorization?.split(" ")[1];
+  const decodedToken: any = jwtDecode(token!);
+  const userId = decodedToken.sub;
+  try {
+    const profiles = await Profile.find({ _id: { $ne: userId } });
+    res.status(200).json(profiles);
+  } catch (error) { 
+    res.status(400).json({ message: "Error retrieving profiles", error });
+  }
+}

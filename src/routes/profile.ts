@@ -5,7 +5,9 @@ import {
   getCurrentProfile,
   updateProfile,
   deleteProfile,
+  getAllProfiles
 } from "../controllers/profile";
+import { getAllUsers } from "../controllers/user";
 
 const router = Router();
 
@@ -155,5 +157,25 @@ router.patch("/", checkJwt, updateProfile);
  *         description: Bad request
  */
 router.delete("/", checkJwt, deleteProfile);
+router.get("/all", checkJwt, getAllProfiles);
+/**
+ * @swagger
+ * /api/profile/all:
+ *   get:
+ *     summary: Get all profiles
+ *     tags: [Profile]
+ *     responses:
+ *       200:
+ *         description: Profiles retrieved successfully
+ *       404:
+ *         description: Profiles not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
 
 export default router;
