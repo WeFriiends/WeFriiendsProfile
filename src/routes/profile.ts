@@ -182,26 +182,18 @@ router.get("/all", checkJwt, getAllProfiles);
  *                     type: string
  *                   name:
  *                     type: string
- *                   dateOfBirth:
+ *                   age:
  *                     type: string
- *                     format: date
  *                   zodiacSign:
  *                     type: string
- *                   location:
- *                     type: object
- *                     properties:
- *                       lat:
- *                         type: number
- *                       lng:
- *                         type: number
- *                       country:
- *                         type: string
- *                       city:
- *                         type: string
- *                       street:
- *                         type: string
- *                       houseNumber:
- *                         type: string
+ *                   city:
+ *                     type: string
+ *                   distance:
+ *                     type: string
+ *                   likedUsers:
+ *                     type: array
+ *                     items:
+ *                        _id: string
  *                   photos:
  *                     type: array
  *                     items:
@@ -209,8 +201,6 @@ router.get("/all", checkJwt, getAllProfiles);
  *                       properties:
  *                         src:
  *                           type: string
- *                   gender:
- *                     type: string
  *                   reasons:
  *                     type: array
  *                     items:
