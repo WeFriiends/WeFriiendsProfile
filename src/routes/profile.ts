@@ -5,7 +5,7 @@ import {
   getCurrentProfile,
   updateProfile,
   deleteProfile,
-  getAllProfiles
+  getAllProfiles,
 } from "../controllers/profile";
 import { getAllUsers } from "../controllers/user";
 
@@ -164,6 +164,8 @@ router.get("/all", checkJwt, getAllProfiles);
  *   get:
  *     summary: Get all profiles
  *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Profiles retrieved successfully
@@ -172,10 +174,47 @@ router.get("/all", checkJwt, getAllProfiles);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   dateOfBirth:
+ *                     type: string
+ *                     format: date
+ *                   zodiacSign:
+ *                     type: string
+ *                   location:
+ *                     type: object
+ *                     properties:
+ *                       lat:
+ *                         type: number
+ *                       lng:
+ *                         type: number
+ *                       country:
+ *                         type: string
+ *                       city:
+ *                         type: string
+ *                       street:
+ *                         type: string
+ *                       houseNumber:
+ *                         type: string
+ *                   photos:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         src:
+ *                           type: string
+ *                   gender:
+ *                     type: string
+ *                   reasons:
+ *                     type: array
+ *                     items:
+ *                       type: string
  */
 
 export default router;
