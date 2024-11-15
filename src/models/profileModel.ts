@@ -9,6 +9,11 @@ export interface Location {
   houseNumber?: string;
 }
 
+export interface Photo { 
+  id: string;
+  src: string;
+}
+
 export interface ProfileDocument extends Document {
   _id: string;
   name: string;
@@ -17,7 +22,7 @@ export interface ProfileDocument extends Document {
   updatedAt: Date;
   location: Location;
   zodiacSign: string;
-  photos?: string[];
+  photos?: Photo[];
   gender: string;
   reasons: string[];
 }
@@ -35,7 +40,15 @@ const profileSchema = new Schema<ProfileDocument>({
     street: { type: String },
     houseNumber: { type: String },
   },
-  photos: { type: [String], default: [] },
+  photos: {
+    type: [
+      {
+        id: { type: String, required: true },
+        path: { type: String, required: true }
+      }
+    ],
+    default: []
+  },
   gender: { type: String },
   reasons: { type: [String], default: [] },
 });
