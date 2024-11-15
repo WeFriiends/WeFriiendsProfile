@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Profile from "../models/profileModel";
 
 export interface Photo { 
