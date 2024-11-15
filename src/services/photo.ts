@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
-import Profile from "../models/profileModel";
+import Profile from "../models/profile";
 
-export const getPhotos = async (id: string): Promise<string[]> => {
+interface Photo {
+  id: string;
+  src: string;
+}
+
+export const getPhotos = async (id: string): Promise<Photo[]> => {
   try {
     const profile = await Profile.findOne({ userId: id }).exec();
     if (profile && profile.photos) {
@@ -16,7 +21,7 @@ export const getPhotos = async (id: string): Promise<string[]> => {
 export const addPhoto = async (
   id: string,
   photoUrl: string
-): Promise<string[]> => {
+): Promise<Photo[]> => {
   try {
     const profile = await Profile.findOne({ userId: id }).exec();
     if (profile && profile.photos) {
@@ -44,7 +49,7 @@ export const addPhoto = async (
 export const removePhoto = async (
   id: string,
   photoId: string
-): Promise<string[]> => {
+): Promise<Photo[]> => {
   try {
     const updatedProfile = await Profile.findOneAndUpdate(
       { userId: id },
