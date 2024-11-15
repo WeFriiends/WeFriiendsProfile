@@ -4,6 +4,7 @@ export interface Photo {
   id: string;
   src: string;
 }
+
 export const getPhotos = async (id: string): Promise<Photo[]> => {
   try {
     const profile = await Profile.findOne({ userId: id }).exec();
