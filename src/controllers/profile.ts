@@ -1,14 +1,20 @@
 import { Request, Response } from "express";
+import multer from "multer";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
 import { setLocation } from "../services/location";
+import { ok } from "assert";
+
+const upload = multer({ dest: 'uploads/' });
 
 export const registerProfile = async (req: Request, res: Response) => {
   const { name, dateOfBirth, location, reasons, gender } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
+  console.log('profile controller', req.body);
+  return res.json({ok: true});
 
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));

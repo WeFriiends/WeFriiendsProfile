@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import { checkJwt } from "../middleware/checkJwt";
 import {
   registerProfile,
@@ -6,6 +7,9 @@ import {
   updateProfile,
   deleteProfile,
 } from "../controllers/profile";
+
+const upload = multer({ dest: 'uploads/' });
+
 
 const router = Router();
 
@@ -60,7 +64,8 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post("/", checkJwt, registerProfile);
+//router.post("/", checkJwt, registerProfile);
+router.post("/", upload.any(), registerProfile);
 
 /**
  * @swagger
