@@ -1,31 +1,76 @@
 import { Request, Response } from "express";
-import multer from "multer";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
 import { setLocation } from "../services/location";
 import { ok } from "assert";
+import fs from "fs";
 
-const upload = multer({ dest: 'uploads/' });
+const cloudinary = require('cloudinary').v2;
 
 export const registerProfile = async (req: Request, res: Response) => {
-  const { name, dateOfBirth, location, reasons, gender } = req.body;
+  cloudinary.config({
+    cloud_name: 'dm5trynua',
+    api_key: '774866789288923',
+    api_secret: 'r4viRDbd4z2Zs77WRl38TBVA6as',
+  });
+  const { name, dateOfBirth, location, reasons, gender, preferences } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
-  console.log('profile controller', req.body);
-  return res.json({ok: true});
+  console.log("profile controller", req.body);
+  if (Array.isArray(req.files))
+    req.files?.forEach((file) => {
+      console.log(file.originalname); // Имена файлов
+    });
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    // Массив для хранения ссылок на загруженные файлы
+    const uploadedFiles = [];
+
+    // Загрузка каждого файла на Cloudinary
+    const files = req.files as Express.Multer.File[];
+
+    // Итерация по файлам
+    for (const file of files) {
+      try {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "profile_pics", // Папка на Cloudinary
+        });
+
+        uploadedFiles.push(result.secure_url);
+
+        // Удаляем временный файл после загрузки на Cloudinary
+        fs.unlinkSync(file.path);
+      } catch (error) {
+        console.error(`Failed to upload file ${file.filename}:`, error);
+        throw error; // Можно также обработать ошибку индивидуально
+      }
+    }
+    // Отправляем ссылки на загруженные файлы в ответе
+    res.status(200).json({
+      message: "Files uploaded successfully",
+      files: uploadedFiles,
+    });
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    res.status(500).json({ error: "Failed to upload files to Cloudinary" });
+  }
 
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));
     const newProfile = new Profile({
-      _id: userId,
+      //_id: userId,
       name,
       dateOfBirth,
       zodiacSign,
       location,
       gender,
       reasons,
+      preferences,
     });
     await newProfile.save();
 
