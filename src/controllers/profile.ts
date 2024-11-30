@@ -14,50 +14,43 @@ export const registerProfile = async (req: Request, res: Response) => {
     api_key: '774866789288923',
     api_secret: 'r4viRDbd4z2Zs77WRl38TBVA6as',
   });
-  const { name, dateOfBirth, location, reasons, gender, preferences } = req.body;
+  const { name, dateOfBirth, location, reasons, gender } = req.body;
+  const preferences = JSON.parse(req.body.preferences);
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
+  // Массив для хранения ссылок на загруженные файлы
+  const uploadedFiles: string[] = [];
   console.log("profile controller", req.body);
   if (Array.isArray(req.files))
     req.files?.forEach((file) => {
-      console.log(file.originalname); // Имена файлов
+      console.log(file.originalname);
     });
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
-    // Массив для хранения ссылок на загруженные файлы
-    const uploadedFiles = [];
-
-    // Загрузка каждого файла на Cloudinary
     const files = req.files as Express.Multer.File[];
 
-    // Итерация по файлам
     for (const file of files) {
       try {
         const result = await cloudinary.uploader.upload(file.path, {
-          folder: "profile_pics", // Папка на Cloudinary
+          folder: "profile_pics",
         });
 
         uploadedFiles.push(result.secure_url);
 
-        // Удаляем временный файл после загрузки на Cloudinary
         fs.unlinkSync(file.path);
       } catch (error) {
         console.error(`Failed to upload file ${file.filename}:`, error);
-        throw error; // Можно также обработать ошибку индивидуально
+        throw error;
       }
     }
-    // Отправляем ссылки на загруженные файлы в ответе
-    res.status(200).json({
-      message: "Files uploaded successfully",
-      files: uploadedFiles,
-    });
+    
   } catch (error) {
     console.error("Error uploading files:", error);
-    res.status(500).json({ error: "Failed to upload files to Cloudinary" });
+    return res.status(500).json({ error: "Failed to upload files to Cloudinary" });
   }
 
   try {
@@ -71,6 +64,7 @@ export const registerProfile = async (req: Request, res: Response) => {
       gender,
       reasons,
       preferences,
+      photos: uploadedFiles
     });
     await newProfile.save();
 
@@ -82,6 +76,7 @@ export const registerProfile = async (req: Request, res: Response) => {
 };
 
 export const getCurrentProfile = async (req: Request, res: Response) => {
+  console.log("GET profile controller");
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;

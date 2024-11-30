@@ -88,7 +88,8 @@ router.post("/", upload.any(), registerProfile);
  *                 message:
  *                   type: string
  */
-router.get("/", checkJwt, getCurrentProfile);
+// router.get("/", checkJwt, getCurrentProfile);
+router.get("/",getCurrentProfile);
 
 /**
  * @swagger

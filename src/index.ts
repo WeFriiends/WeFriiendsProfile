@@ -63,11 +63,6 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-/*app.use((req, res, next) => {
-  console.log("Request received", req.body);
-  res.json({ message: "Hello from the backend!" });
-});*/
-
 // Routes
 app.use("/api/profile", profileRoutes);
 app.use("/api/photos", photosRoutes);

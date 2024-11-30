@@ -21,7 +21,6 @@ export interface Preferences {
 }
 
 export interface ProfileDocument extends Document {
-  _id: string;
   name: string;
   dateOfBirth: Date;
   createdAt: Date;
@@ -35,7 +34,6 @@ export interface ProfileDocument extends Document {
 }
 
 const profileSchema = new Schema<ProfileDocument>({
-  _id: { type: String, required: true },
   name: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
   zodiacSign: { type: String },
