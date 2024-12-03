@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
@@ -6,13 +7,15 @@ import { setLocation } from "../services/location";
 import { ok } from "assert";
 import fs from "fs";
 
+dotenv.config();
+
 const cloudinary = require('cloudinary').v2;
 
 export const registerProfile = async (req: Request, res: Response) => {
   cloudinary.config({
-    cloud_name: 'dm5trynua',
-    api_key: '774866789288923',
-    api_secret: 'r4viRDbd4z2Zs77WRl38TBVA6as',
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
   });
   const { name, dateOfBirth, location, reasons, gender } = req.body;
   const preferences = JSON.parse(req.body.preferences);
@@ -40,7 +43,6 @@ export const registerProfile = async (req: Request, res: Response) => {
         });
 
         uploadedFiles.push(result.secure_url);
-
         fs.unlinkSync(file.path);
       } catch (error) {
         console.error(`Failed to upload file ${file.filename}:`, error);
@@ -93,7 +95,7 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
 };
 // check up on updating name, dob, and zodiac sign. Is the code underneath correct?
 export const updateProfile = async (req: Request, res: Response) => {
-  const { gender, reasons, location } = req.body;
+  const { gender, reasons, location, zodiacSign } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
@@ -101,7 +103,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const updatedProfile = await Profile.findByIdAndUpdate(
       userId,
-      { gender, reasons, location },
+      { gender, reasons, location, zodiacSign },
       { new: true }
     ).exec();
 
