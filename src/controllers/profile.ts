@@ -1,25 +1,72 @@
+import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
 import { setLocation } from "../services/location";
+import { ok } from "assert";
+import fs from "fs";
+
+dotenv.config();
+
+const cloudinary = require('cloudinary').v2;
 
 export const registerProfile = async (req: Request, res: Response) => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+  });
   const { name, dateOfBirth, location, reasons, gender } = req.body;
+  const preferences = JSON.parse(req.body.preferences);
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
+  // Массив для хранения ссылок на загруженные файлы
+  const uploadedFiles: string[] = [];
+  console.log("profile controller", req.body);
+  if (Array.isArray(req.files))
+    req.files?.forEach((file) => {
+      console.log(file.originalname);
+    });
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    const files = req.files as Express.Multer.File[];
+
+    for (const file of files) {
+      try {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "profile_pics",
+        });
+
+        uploadedFiles.push(result.secure_url);
+        fs.unlinkSync(file.path);
+      } catch (error) {
+        console.error(`Failed to upload file ${file.filename}:`, error);
+        throw error;
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    return res.status(500).json({ error: "Failed to upload files to Cloudinary" });
+  }
 
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));
     const newProfile = new Profile({
-      _id: userId,
+      //_id: userId,
       name,
       dateOfBirth,
       zodiacSign,
       location,
       gender,
       reasons,
+      preferences,
+      photos: uploadedFiles
     });
     await newProfile.save();
 
@@ -31,6 +78,7 @@ export const registerProfile = async (req: Request, res: Response) => {
 };
 
 export const getCurrentProfile = async (req: Request, res: Response) => {
+  console.log("GET profile controller");
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
@@ -47,7 +95,7 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
 };
 // check up on updating name, dob, and zodiac sign. Is the code underneath correct?
 export const updateProfile = async (req: Request, res: Response) => {
-  const { gender, reasons, location } = req.body;
+  const { gender, reasons, location, zodiacSign } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
@@ -55,7 +103,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const updatedProfile = await Profile.findByIdAndUpdate(
       userId,
-      { gender, reasons, location },
+      { gender, reasons, location, zodiacSign },
       { new: true }
     ).exec();
 
