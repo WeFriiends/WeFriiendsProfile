@@ -3,8 +3,6 @@ import { Request, Response } from "express";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
-import { setLocation } from "../services/location";
-import { ok } from "assert";
 import fs from "fs";
 
 dotenv.config();
@@ -22,13 +20,8 @@ export const registerProfile = async (req: Request, res: Response) => {
   const token = req.headers.authorization?.split(" ")[1];
   const decodedToken: any = jwtDecode(token!);
   const userId = decodedToken.sub;
-  // Массив для хранения ссылок на загруженные файлы
   const uploadedFiles: string[] = [];
-  console.log("profile controller", req.body);
-  if (Array.isArray(req.files))
-    req.files?.forEach((file) => {
-      console.log(file.originalname);
-    });
+  
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
@@ -58,11 +51,10 @@ export const registerProfile = async (req: Request, res: Response) => {
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));
     const newProfile = new Profile({
-      //_id: userId,
       name,
       dateOfBirth,
       zodiacSign,
-      location,
+      location: JSON.parse(location),
       gender,
       reasons,
       preferences,

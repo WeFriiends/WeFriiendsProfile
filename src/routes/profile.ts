@@ -1,5 +1,5 @@
 import { Router } from "express";
-import multer from "multer";
+import { upload } from "../middleware/upload";
 import { checkJwt } from "../middleware/checkJwt";
 import {
   registerProfile,
@@ -7,8 +7,6 @@ import {
   updateProfile,
   deleteProfile,
 } from "../controllers/profile";
-
-const upload = multer({ dest: 'uploads/' });
 
 
 const router = Router();
