@@ -4,6 +4,8 @@ import { jwtDecode } from "jwt-decode";
 import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
 import fs from "fs";
+import moment from "moment";
+
 
 dotenv.config();
 
@@ -50,6 +52,9 @@ export const registerProfile = async (req: Request, res: Response) => {
 
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));
+    const age = moment().diff(moment(dateOfBirth, "YYYY-MM-DD"), "years");
+    const friendsAgeMin = age - 8;
+    const friendsAgeMax = age + 8;
     const newProfile = new Profile({
       name,
       dateOfBirth,
@@ -58,6 +63,8 @@ export const registerProfile = async (req: Request, res: Response) => {
       gender,
       reasons,
       preferences,
+      friendsAgeMin,
+      friendsAgeMax,
       photos: uploadedFiles
     });
     await newProfile.save();

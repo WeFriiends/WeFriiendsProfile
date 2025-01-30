@@ -31,6 +31,9 @@ export interface ProfileDocument extends Document {
   gender: string;
   reasons: string[];
   preferences?: Preferences;
+  friendsAgeMin?: number;
+  friendsAgeMax?: number;
+  friendsDistance?: number;
 }
 
 const profileSchema = new Schema<ProfileDocument>({
@@ -58,6 +61,9 @@ const profileSchema = new Schema<ProfileDocument>({
     Pets: { type: [String], default: [] },
     Interests: { type: [String], default: [] },
   },
+  friendsAgeMin: { type: Number, default: 18 },
+  friendsAgeMax: { type: Number, default: 100 },
+  friendsDistance: { type: Number, default: 50 },
 });
 
 const Profile = mongoose.model<ProfileDocument>("Profile", profileSchema);
