@@ -53,8 +53,8 @@ export const registerProfile = async (req: Request, res: Response) => {
   try {
     const zodiacSign = dateToZodiac(new Date(dateOfBirth));
     const age = moment().diff(moment(dateOfBirth, "YYYY-MM-DD"), "years");
-    const friendsAgeMin = age - 8;
-    const friendsAgeMax = age + 8;
+    const friendsAgeMin = age - 6;
+    const friendsAgeMax = age + 6;
     const newProfile = new Profile({
       name,
       dateOfBirth,
