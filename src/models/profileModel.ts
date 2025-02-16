@@ -62,7 +62,7 @@ const profileSchema = new Schema<ProfileDocument>({
     Interests: { type: [String], default: [] },
   },
   friendsAgeMin: { type: Number, default: 18 },
-  friendsAgeMax: { type: Number, default: 100 },
+  friendsAgeMax: { type: Number },
   friendsDistance: { type: Number, default: 50 },
 });
 

@@ -6,7 +6,6 @@ import { dateToZodiac } from "../services/dateToZodiac";
 import fs from "fs";
 import moment from "moment";
 
-
 dotenv.config();
 
 const cloudinary = require('cloudinary').v2;
@@ -17,6 +16,7 @@ export const registerProfile = async (req: Request, res: Response) => {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_SECRET,
   });
+
   const { name, dateOfBirth, location, reasons, gender } = req.body;
   const preferences = JSON.parse(req.body.preferences);
   const token = req.headers.authorization?.split(" ")[1];
@@ -44,7 +44,6 @@ export const registerProfile = async (req: Request, res: Response) => {
         throw error;
       }
     }
-    
   } catch (error) {
     console.error("Error uploading files:", error);
     return res.status(500).json({ error: "Failed to upload files to Cloudinary" });
@@ -55,11 +54,18 @@ export const registerProfile = async (req: Request, res: Response) => {
     const age = moment().diff(moment(dateOfBirth, "YYYY-MM-DD"), "years");
     const friendsAgeMin = age - 6;
     const friendsAgeMax = age + 6;
+    
+    const parsedLocation = JSON.parse(location);
+    const geoLocation = {
+      type: "Point",
+      coordinates: [parsedLocation.lng, parsedLocation.lat],
+    };
+    console.log(friendsAgeMax, friendsAgeMin);
     const newProfile = new Profile({
       name,
       dateOfBirth,
       zodiacSign,
-      location: JSON.parse(location),
+      location: geoLocation,
       gender,
       reasons,
       preferences,
@@ -92,7 +98,7 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Error retrieving profile", error });
   }
 };
-// check up on updating name, dob, and zodiac sign. Is the code underneath correct?
+
 export const updateProfile = async (req: Request, res: Response) => {
   const { gender, reasons, location, zodiacSign } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
@@ -100,9 +106,14 @@ export const updateProfile = async (req: Request, res: Response) => {
   const userId = decodedToken.sub;
 
   try {
+    const parsedLocation = location ? JSON.parse(location) : null;
+    const geoLocation = parsedLocation
+      ? { type: "Point", coordinates: [parsedLocation.lng, parsedLocation.lat] }
+      : undefined;
+
     const updatedProfile = await Profile.findByIdAndUpdate(
       userId,
-      { gender, reasons, location, zodiacSign },
+      { gender, reasons, location: geoLocation, zodiacSign },
       { new: true }
     ).exec();
 
