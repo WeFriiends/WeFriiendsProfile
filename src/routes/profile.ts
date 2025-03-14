@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { upload } from "../middleware/upload";
 import { checkJwt } from "../middleware/checkJwt";
 import {
   registerProfile,
@@ -7,7 +8,6 @@ import {
   deleteProfile,
   getAllProfiles,
 } from "../controllers/profile";
-import { getAllUsers } from "../controllers/user";
 
 const router = Router();
 
@@ -62,7 +62,8 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post("/", checkJwt, registerProfile);
+//router.post("/", checkJwt, registerProfile);
+router.post("/", upload.any(), registerProfile);
 
 /**
  * @swagger
@@ -86,6 +87,7 @@ router.post("/", checkJwt, registerProfile);
  *                   type: string
  */
 router.get("/", checkJwt, getCurrentProfile);
+//router.get("/",getCurrentProfile);
 
 /**
  * @swagger
