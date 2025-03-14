@@ -8,7 +8,6 @@ import {
   deleteProfile,
   getAllProfiles,
 } from "../controllers/profile";
-import { getAllUsers } from "../controllers/user";
 
 const router = Router();
 
