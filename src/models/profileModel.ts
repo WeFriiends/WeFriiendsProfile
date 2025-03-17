@@ -35,7 +35,7 @@ export interface ProfileDocument extends Document {
   friendsAgeMin?: number;
   friendsAgeMax?: number;
   friendsDistance?: number;
-  profileCreated: Date;
+  blackList?: string[];
 }
 
 const profileSchema = new Schema<ProfileDocument>({
@@ -67,7 +67,9 @@ const profileSchema = new Schema<ProfileDocument>({
   friendsAgeMin: { type: Number, default: 18 },
   friendsAgeMax: { type: Number },
   friendsDistance: { type: Number, default: 50 },
-  profileCreated: { type: Date, default: () => new Date() },
+  blackList: { type: [String], default: [] },
+  createdAt: { type: Date, default: () => new Date() },
+  updatedAt: { type: Date, default: () => new Date() },
 });
 
 const Profile = mongoose.model<ProfileDocument>("Profile", profileSchema);
