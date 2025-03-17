@@ -128,12 +128,13 @@ export const updateProfile = async (req: Request, res: Response) => {
       {
         gender,
         reasons,
-        location: typeof location === "string" ? JSON.parse(location) : location,
+        location:
+          typeof location === "string" ? JSON.parse(location) : location,
         friendsDistance,
         friendsAgeMin,
         friendsAgeMax,
-        blackList: typeof blackList === "string" ? JSON.parse(blackList) : blackList,
-        updatedAt: new Date(),
+        blackList:
+          typeof blackList === "string" ? JSON.parse(blackList) : blackList,
       },
       { new: true }
     ).exec();
