@@ -136,6 +136,10 @@ router.get("/", checkJwt, getCurrentProfile);
  *                 type: array
  *                 items:
  *                   type: string
+ *               blackList:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
