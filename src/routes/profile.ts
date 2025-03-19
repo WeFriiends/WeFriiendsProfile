@@ -140,6 +140,10 @@ router.get("/", checkJwt, getCurrentProfile);
  *                 type: array
  *                 items:
  *                   type: string
+ *               friends:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
