@@ -120,6 +120,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     friendsAgeMin,
     friendsAgeMax,
     blackList,
+    friends,
   } = req.body;
 
   try {
@@ -135,6 +136,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         friendsAgeMax,
         blackList:
           typeof blackList === "string" ? JSON.parse(blackList) : blackList,
+        friends: typeof friends === "string" ? JSON.parse(friends) : friends,
       },
       { new: true }
     ).exec();

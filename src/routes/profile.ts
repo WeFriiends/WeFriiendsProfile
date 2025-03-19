@@ -87,7 +87,6 @@ router.post("/", upload.any(), registerProfile);
  *                   type: string
  */
 router.get("/", checkJwt, getCurrentProfile);
-//router.get("/",getCurrentProfile);
 
 /**
  * @swagger
@@ -140,6 +139,10 @@ router.get("/", checkJwt, getCurrentProfile);
  *                 type: array
  *                 items:
  *                   type: string
+ *               friends:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
@@ -163,7 +166,7 @@ router.patch("/", checkJwt, updateProfile);
  *         description: Bad request
  */
 router.delete("/", checkJwt, deleteProfile);
-router.get("/all", checkJwt, getAllProfiles);
+
 /**
  * @swagger
  * /api/profile/all:
@@ -212,5 +215,6 @@ router.get("/all", checkJwt, getAllProfiles);
  *                     items:
  *                       type: string
  */
+router.get("/all", checkJwt, getAllProfiles);
 
 export default router;
