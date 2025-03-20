@@ -5,6 +5,7 @@ import { dateToZodiac } from "../services/dateToZodiac";
 import fs from "fs";
 import moment from "moment";
 import { extractUserId } from "../utils/auth";
+import { searchingFriendsDto } from "../types/searchingFriends.dto";
 
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
@@ -170,5 +171,36 @@ export const getAllProfiles = async (req: Request, res: Response) => {
     res.status(200).json(profiles);
   } catch (error) {
     res.status(400).json({ message: "Error retrieving profiles", error });
+  }
+};
+
+export const searchFriends = async (req: Request, res: Response) => {
+  const { lat, lng, friendsAgeMin, friendsAgeMax, friendsDistance }: searchingFriendsDto =
+    req.body;
+
+  if (!lat || !lng || !friendsAgeMin || !friendsAgeMax || !friendsDistance) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const searchingResult = await Profile.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: friendsDistance * 1000,
+        },
+      },
+      dateOfBirth: {
+        $lte: moment().subtract(friendsAgeMin, "years").toDate(),
+        $gte: moment().subtract(friendsAgeMax, "years").toDate(),
+      },
+    });
+
+    res.status(200).json(searchingResult);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching friends", error });
   }
 };

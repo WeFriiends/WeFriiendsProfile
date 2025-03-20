@@ -7,6 +7,7 @@ import {
   updateProfile,
   deleteProfile,
   getAllProfiles,
+  searchFriends,
 } from "../controllers/profile";
 
 const router = Router();
@@ -212,5 +213,49 @@ router.get("/all", checkJwt, getAllProfiles);
  *                     items:
  *                       type: string
  */
+
+/**
+ * @swagger
+ * /api/profile/search:
+ *   put:
+ *     summary: Search for friends based on location and age criteria
+ *     tags: [Profile]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               lat:
+ *                 type: number
+ *                 description: Latitude coordinate
+ *               lng:
+ *                 type: number
+ *                 description: Longitude coordinate
+ *               friendsDistance:
+ *                 type: number
+ *                 description: Maximum distance to search for friends (in kilometers)
+ *               friendsAgeMin:
+ *                 type: number
+ *                 description: Minimum friend's age
+ *               friendsAgeMax:
+ *                 type: number
+ *                 description: Maximum friend's age
+ *             required:
+ *               - lat
+ *               - lng
+ *               - friendsDistance
+ *               - friendsAgeMin
+ *               - friendsAgeMax
+ *     responses:
+ *       200:
+ *         description: List of matching profiles found
+ *       400:
+ *         description: Bad request - invalid input parameters
+ *       500:
+ *         description: Error searching friends
+ */
+router.put("/search", checkJwt, searchFriends);
 
 export default router;
