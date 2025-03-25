@@ -105,6 +105,25 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
   }
 };
 
+export const getProfileById = async (req: Request, res: Response) => {
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  const { id } = req.params;
+
+  try {
+    const profile = await Profile.findById(id).exec();
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+    res.status(200).json(profile);
+  } catch (error) {
+    res.status(400).json({ message: "Error retrieving profile", error });
+  }
+};
+
 export const updateProfile = async (req: Request, res: Response) => {
   console.log("controller updateProfile");
 

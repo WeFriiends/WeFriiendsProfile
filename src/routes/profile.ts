@@ -8,6 +8,7 @@ import {
   deleteProfile,
   getAllProfiles,
   searchFriends,
+  getProfileById,
 } from "../controllers/profile";
 
 const router = Router();
@@ -89,6 +90,38 @@ router.post("/", upload.any(), registerProfile);
  */
 router.get("/", checkJwt, getCurrentProfile);
 //router.get("/",getCurrentProfile);
+
+/**
+ * @swagger
+ * /api/profile/{id}:
+ *   get:
+ *     summary: Get profile by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Chat ID
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *       404:
+ *         description: Profile not found
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.get("/:id", checkJwt, getProfileById);
 
 /**
  * @swagger
