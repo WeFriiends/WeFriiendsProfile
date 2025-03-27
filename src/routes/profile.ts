@@ -95,7 +95,7 @@ router.get("/", checkJwt, getCurrentProfile);
  * @swagger
  * /api/profile/{id}:
  *   get:
- *     summary: Get profile by ID
+ *     summary: Сheck profile existance by ID
  *     parameters:
  *       - in: path
  *         name: id
