@@ -105,11 +105,16 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfileById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+export const checkProfileExistsById = async (req: Request, res: Response) => {
+  console.log("controller checkProfileExistsById");
+
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
 
   try {
-    const profile = await Profile.findById(id).exec();
+    const profile = await Profile.findById(userId).exec();
     if (!profile) {
       return res.json(false);
     }

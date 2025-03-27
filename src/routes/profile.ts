@@ -8,7 +8,7 @@ import {
   deleteProfile,
   getAllProfiles,
   searchFriends,
-  getProfileById,
+  checkProfileExistsById,
 } from "../controllers/profile";
 
 const router = Router();
@@ -93,16 +93,9 @@ router.get("/", checkJwt, getCurrentProfile);
 
 /**
  * @swagger
- * /api/profile/{id}:
+ * /api/profile/check:
  *   get:
  *     summary: Сheck profile existance by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Chat ID
  *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
@@ -114,7 +107,7 @@ router.get("/", checkJwt, getCurrentProfile);
  *       400:
  *         description: Bad request
  */
-router.get("/:id", checkJwt, getProfileById);
+router.get("/:id", checkJwt, checkProfileExistsById);
 
 /**
  * @swagger
