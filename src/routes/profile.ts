@@ -107,7 +107,7 @@ router.get("/", checkJwt, getCurrentProfile);
  *       400:
  *         description: Bad request
  */
-router.get("/:id", checkJwt, checkProfileExistsById);
+router.get("/check", checkJwt, checkProfileExistsById);
 
 /**
  * @swagger
