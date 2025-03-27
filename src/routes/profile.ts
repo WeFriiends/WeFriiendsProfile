@@ -108,18 +108,11 @@ router.get("/", checkJwt, getCurrentProfile);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Profile retrieved successfully
+ *         description: true - Profile found
  *       404:
- *         description: Profile not found
+ *         description: false - Profile not found 
  *       400:
  *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
  */
 router.get("/:id", checkJwt, getProfileById);
 

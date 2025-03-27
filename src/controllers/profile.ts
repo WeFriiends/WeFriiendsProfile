@@ -106,19 +106,14 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
 };
 
 export const getProfileById = async (req: Request, res: Response) => {
-  const userId = extractUserId(req);
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-
   const { id } = req.params;
 
   try {
     const profile = await Profile.findById(id).exec();
     if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
+      return res.json(false);
     }
-    res.status(200).json(profile);
+    res.json(true);
   } catch (error) {
     res.status(400).json({ message: "Error retrieving profile", error });
   }
@@ -194,8 +189,13 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 };
 
 export const searchFriends = async (req: Request, res: Response) => {
-  const { lat, lng, friendsAgeMin, friendsAgeMax, friendsDistance }: searchingFriendsDto =
-    req.body;
+  const {
+    lat,
+    lng,
+    friendsAgeMin,
+    friendsAgeMax,
+    friendsDistance,
+  }: searchingFriendsDto = req.body;
 
   if (!lat || !lng || !friendsAgeMin || !friendsAgeMax || !friendsDistance) {
     return res.status(400).json({ message: "Missing required fields" });
