@@ -41,6 +41,6 @@ export const getFriends = async (req: Request, res: Response) => {
 
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving profile", error });
+    res.status(500).json({ message: "Error getting list of friends", error });
   }
 };
