@@ -121,6 +121,8 @@ export const updateProfile = async (req: Request, res: Response) => {
     friendsAgeMin,
     friendsAgeMax,
     blackList,
+    friends,
+    preferences,
   } = req.body;
 
   try {
@@ -136,6 +138,11 @@ export const updateProfile = async (req: Request, res: Response) => {
         friendsAgeMax,
         blackList:
           typeof blackList === "string" ? JSON.parse(blackList) : blackList,
+        friends: typeof friends === "string" ? JSON.parse(friends) : friends,
+        preferences:
+          typeof preferences === "string"
+            ? JSON.parse(preferences)
+            : preferences,
       },
       { new: true }
     ).exec();
@@ -175,8 +182,13 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 };
 
 export const searchFriends = async (req: Request, res: Response) => {
-  const { lat, lng, friendsAgeMin, friendsAgeMax, friendsDistance }: searchingFriendsDto =
-    req.body;
+  const {
+    lat,
+    lng,
+    friendsAgeMin,
+    friendsAgeMax,
+    friendsDistance,
+  }: searchingFriendsDto = req.body;
 
   if (!lat || !lng || !friendsAgeMin || !friendsAgeMax || !friendsDistance) {
     return res.status(400).json({ message: "Missing required fields" });

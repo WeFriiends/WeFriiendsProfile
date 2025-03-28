@@ -6,7 +6,8 @@ import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import profileRoutes from "./routes/profile";
 import photosRoutes from "./routes/photo";
-import chatsRoutes from './routes/chat'
+import chatsRoutes from "./routes/chat";
+import friendsRoutes from "./routes/friends";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Routes
+app.use("/api/friends", friendsRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/photos", photosRoutes);
 app.use("/api/chats", chatsRoutes);
