@@ -1,10 +1,7 @@
-import dotenv from "dotenv";
 import { Request, Response } from "express";
 import Profile from "../models/profileModel";
 import { extractUserId } from "../utils/auth";
 import { Friend } from "../types/Friend.dto";
-
-dotenv.config();
 
 export const getFriends = async (req: Request, res: Response) => {
   console.log("controller getFriends");
