@@ -5,13 +5,6 @@ import { extractUserId } from "../utils/auth";
 import { Friend } from "../types/Friend.dto";
 
 dotenv.config();
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
 
 export const getFriends = async (req: Request, res: Response) => {
   console.log("controller getFriends");
