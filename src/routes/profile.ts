@@ -63,8 +63,7 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-//router.post("/", checkJwt, registerProfile);
-router.post("/", upload.any(), registerProfile);
+router.post("/", checkJwt, upload.any(), registerProfile);
 
 /**
  * @swagger
@@ -88,7 +87,6 @@ router.post("/", upload.any(), registerProfile);
  *                   type: string
  */
 router.get("/", checkJwt, getCurrentProfile);
-//router.get("/",getCurrentProfile);
 
 /**
  * @swagger
@@ -141,6 +139,49 @@ router.get("/", checkJwt, getCurrentProfile);
  *                 type: array
  *                 items:
  *                   type: string
+ *               friends:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     dateOfFriendship:
+ *                       type: string
+ *                       format: date-time
+ *               preferences:
+ *                 type: object
+ *                 properties:
+ *                   aboutMe:
+ *                     type: string
+ *                   selectedLanguages:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   Smoking:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   EducationalLevel:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   Children:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   Drinking:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   Pets:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   Interests:
+ *                     type: array
+ *                     items:
+ *                       type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
@@ -164,7 +205,7 @@ router.patch("/", checkJwt, updateProfile);
  *         description: Bad request
  */
 router.delete("/", checkJwt, deleteProfile);
-router.get("/all", checkJwt, getAllProfiles);
+
 /**
  * @swagger
  * /api/profile/all:
@@ -213,6 +254,7 @@ router.get("/all", checkJwt, getAllProfiles);
  *                     items:
  *                       type: string
  */
+router.get("/all", checkJwt, getAllProfiles);
 
 /**
  * @swagger
