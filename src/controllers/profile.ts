@@ -105,6 +105,12 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
   }
 };
 
+const getProfileByID = async (userId: string) => {
+  console.log("controller getProfileByID");
+
+  return await Profile.findById(userId).exec();
+};
+
 export const updateProfile = async (req: Request, res: Response) => {
   console.log("controller updateProfile");
 
@@ -150,6 +156,71 @@ export const updateProfile = async (req: Request, res: Response) => {
     res.status(200).json(updatedProfile);
   } catch (error) {
     res.status(400).json({ message: "Error updating profile", error });
+  }
+};
+
+export const addFriend = async (req: Request, res: Response) => {
+  console.log("controller addFriend");
+
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  const newFriendID = req.body.id;
+  if (!newFriendID) {
+    return res.status(400).json({ message: "ID is required" });
+  }
+
+  if (userId === newFriendID) {
+    return res.status(400).json({ message: "Cannot add yourself as a friend" });
+  }
+
+  try {
+    const userProfile = await getProfileByID(userId);
+    const newFriendsProfile = await getProfileByID(newFriendID);
+
+    if (!newFriendsProfile) {
+      return res.status(404).json({ message: "Friend's profile not found" });
+    }
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "Your profile not found" });
+    }
+
+    if (userProfile.friends?.some((friend) => friend._id === newFriendID)) {
+      return res.status(400).json({ message: "Already in your friends list" });
+    }
+
+    if (newFriendsProfile.friends?.some((friend) => friend._id === userId)) {
+      return res.status(400).json({ message: "Already in their friends list" });
+    }
+
+    await Profile.findByIdAndUpdate(
+      userId,
+      {
+        friends: [
+          ...(userProfile.friends || []),
+          { _id: newFriendID, dateOfFriendship: new Date() },
+        ],
+      },
+      { new: true }
+    ).exec();
+
+    const friendUpdatedProfile = await Profile.findByIdAndUpdate(
+      newFriendID,
+      {
+        friends: [
+          ...(newFriendsProfile.friends || []),
+          { _id: userId, dateOfFriendship: new Date() },
+        ],
+      },
+      { new: true }
+    ).exec();
+
+    return res.status(200).json(friendUpdatedProfile);
+  } catch (error) {
+    return res.status(400).json({ message: "Error updating profile", error });
   }
 };
 
