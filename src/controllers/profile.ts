@@ -111,6 +111,25 @@ const getProfileByID = async (userId: string) => {
   return await Profile.findById(userId).exec();
 };
 
+export const checkProfileExistsById = async (req: Request, res: Response) => {
+  console.log("controller checkProfileExistsById");
+
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    const profile = await Profile.findById(userId).exec();
+    if (!profile) {
+      return res.json(false);
+    }
+    res.json(true);
+  } catch (error) {
+    res.status(400).json({ message: "Error retrieving profile", error });
+  }
+};
+
 export const updateProfile = async (req: Request, res: Response) => {
   console.log("controller updateProfile");
 

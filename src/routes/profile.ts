@@ -8,6 +8,7 @@ import {
   deleteProfile,
   getAllProfiles,
   searchFriends,
+  checkProfileExistsById,
 } from "../controllers/profile";
 
 const router = Router();
@@ -87,6 +88,24 @@ router.post("/", checkJwt, upload.any(), registerProfile);
  *                   type: string
  */
 router.get("/", checkJwt, getCurrentProfile);
+
+/**
+ * @swagger
+ * /api/profile/check:
+ *   get:
+ *     summary: Сheck profile existance by ID
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: true - Profile found
+ *       404:
+ *         description: false - Profile not found 
+ *       400:
+ *         description: Bad request
+ */
+router.get("/check", checkJwt, checkProfileExistsById);
 
 /**
  * @swagger
