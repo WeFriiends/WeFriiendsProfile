@@ -12,7 +12,9 @@ export default async function deleteCloudinaryImage(photoId: string) {
   }
 
   try {
-    const result = await cloudinary.uploader.destroy(photoId);
+    const result = await cloudinary.uploader.destroy(photoId, {
+      invalidate: true
+    });
 
     if (result.result === "ok") {
       console.log("Image deleted successfully:", result);
