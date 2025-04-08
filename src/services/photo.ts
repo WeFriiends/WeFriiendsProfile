@@ -62,7 +62,7 @@ export const removePhoto = async (
       .join("/")
       .replace(/\.[^/.]+$/, "");
 
-    deleteCloudinaryImage(publicId);
+    await deleteCloudinaryImage(publicId);
 
     const updatedProfile = await Profile.findOneAndUpdate(
       { _id: id },
