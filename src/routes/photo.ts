@@ -84,7 +84,7 @@ router.post("/", photoController.addPhoto);
  * @swagger
  * /api/photos:
  *   delete:
- *     summary: Remove a photo URL from a user's profile
+ *     summary: Remove a photo URL from a user's profile and from cloudinary
  *     requestBody:
  *       required: true
  *       content:
@@ -97,7 +97,7 @@ router.post("/", photoController.addPhoto);
  *                 description: User ID
  *               photoId:
  *                 type: string
- *                 description: Photo ID to remove
+ *                 description: Photo ID to remove (photoId is taken from the URL of the photo)
  *     responses:
  *       200:
  *         description: Successfully removed photo
