@@ -31,8 +31,11 @@ export class LikesController {
 
       const likes = await this.likesService.addLike(userId, liked_id);
       return res.status(200).json(likes);
-    } catch (error) {
-      return res.status(500).json({ message: "Failed to add a like" });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "An unknown error occurred" });
     }
   };
 
@@ -47,8 +50,11 @@ export class LikesController {
     try {
       const likes = await this.likesService.getLikes(userId);
       return res.status(200).json(likes);
-    } catch (error) {
-      return res.status(500).json({ message: "Failed to get likes" });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "An unknown error occurred" });
     }
   };
 
@@ -71,8 +77,11 @@ export class LikesController {
 
       const result = await this.likesService.removeLike(userId, liked_id);
       return res.status(200).json(result);
-    } catch (error) {
-      return res.status(500).json({ message: "Failed to remove like" });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "An unknown error occurred" });
     }
   };
 }

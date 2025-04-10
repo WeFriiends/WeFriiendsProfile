@@ -15,7 +15,10 @@ export class LikesService {
       ).exec();
 
       return likes;
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
       throw new Error("Error adding like");
     }
   };
@@ -27,7 +30,10 @@ export class LikesService {
         return await Likes.create({ liker_id, likes: [] });
       }
       return likes;
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
       throw new Error("Error getting likes");
     }
   };
@@ -45,7 +51,10 @@ export class LikesService {
       ).exec();
 
       return likes;
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
       throw new Error("Error removing like");
     }
   };
@@ -58,8 +67,11 @@ export class LikesService {
       }).exec();
 
       return !!likesDoc;
-    } catch (error) {
-      throw new Error("Error checking if user has liked");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error checking like");
     }
   };
 }
