@@ -26,7 +26,9 @@ export class MatchController {
 
       const isUser2Exist = await Profile.findById(user2_id);
       if (!isUser2Exist) {
-        return res.status(404).json({ message: "user2_id doesn't exist" });
+        return res
+          .status(404)
+          .json({ message: "User with this id doesn't exist" });
       }
 
       if (userId === user2_id) {
