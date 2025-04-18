@@ -14,6 +14,7 @@ node_modules/
 /dist
 
 # misc
+firebaseAdminsdk.json
 .DS_Store
 .env
 .env.local
