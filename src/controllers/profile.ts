@@ -6,6 +6,7 @@ import fs from "fs";
 import moment from "moment";
 import { extractUserId } from "../utils/auth";
 import { searchingFriendsDto } from "../types/searchingFriends.dto";
+import { haversineDistance } from "../utils/distance";
 
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
@@ -223,7 +224,20 @@ export const searchFriends = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json(searchingResult);
+    const resultWithDistances = searchingResult.map((friend) => {
+      const distance = haversineDistance(
+        lat,
+        lng,
+        friend.location.lat,
+        friend.location.lng
+      );
+      return {
+        ...friend.toObject(),
+        distance,
+      };
+    });
+
+    res.status(200).json(resultWithDistances);
   } catch (error) {
     res.status(500).json({ message: "Error searching friends", error });
   }
