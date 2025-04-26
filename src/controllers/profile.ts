@@ -1,11 +1,10 @@
 import dotenv from "dotenv";
 import { Request, Response } from "express";
-import Profile from "../models/profileModel";
-import { dateToZodiac } from "../services/dateToZodiac";
 import fs from "fs";
 import moment from "moment";
+import Profile from "../models/profileModel";
+import { dateToZodiac } from "../services/dateToZodiac";
 import { extractUserId } from "../utils/auth";
-import { searchingFriendsDto } from "../types/searchingFriends.dto";
 import { haversineDistance } from "../utils/distance";
 
 dotenv.config();
@@ -80,10 +79,10 @@ export const registerProfile = async (req: Request, res: Response) => {
 
   try {
     await newProfile.save();
-    res.status(201).json(newProfile);
+    return res.status(201).json(newProfile);
   } catch (error) {
     console.log(error);
-    res.status(400).json({ message: "Error creating user", error });
+    return res.status(400).json({ message: "Error creating user", error });
   }
 };
 
@@ -100,9 +99,9 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
     if (!profile) {
       return res.status(404).json({ message: "Profile not found" });
     }
-    res.status(200).json(profile);
+    return res.status(200).json(profile);
   } catch (error) {
-    res.status(400).json({ message: "Error retrieving profile", error });
+    return res.status(400).json({ message: "Error retrieving profile", error });
   }
 };
 
@@ -119,9 +118,9 @@ export const checkProfileExistsById = async (req: Request, res: Response) => {
     if (!profile) {
       return res.json(false);
     }
-    res.json(true);
+    return res.json(true);
   } catch (error) {
-    res.status(400).json({ message: "Error retrieving profile", error });
+    return res.status(400).json({ message: "Error retrieving profile", error });
   }
 };
 
@@ -160,13 +159,14 @@ export const updateProfile = async (req: Request, res: Response) => {
       { new: true }
     ).exec();
 
-    res.status(200).json(updatedProfile);
+    return res.status(200).json(updatedProfile);
   } catch (error) {
-    res.status(400).json({ message: "Error updating profile", error });
+    return res.status(400).json({ message: "Error updating profile", error });
   }
 };
 
 export const deleteProfile = async (req: Request, res: Response) => {
+  console.log("controller deleteProfile");
   const userId = extractUserId(req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -174,13 +174,14 @@ export const deleteProfile = async (req: Request, res: Response) => {
 
   try {
     await Profile.findByIdAndDelete(userId).exec();
-    res.status(200).json({ message: "Profile deleted successfully" });
+    return res.status(200).json({ message: "Profile deleted successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Error deleting profile", error });
+    return res.status(400).json({ message: "Error deleting profile", error });
   }
 };
 
 export const getAllProfiles = async (req: Request, res: Response) => {
+  console.log("controller getAllProfiles");
   const userId = extractUserId(req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -188,26 +189,38 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 
   try {
     const profiles = await Profile.find({ _id: { $ne: userId } });
-    res.status(200).json(profiles);
+    return res.status(200).json(profiles);
   } catch (error) {
-    res.status(400).json({ message: "Error retrieving profiles", error });
+    return res.status(400).json({ message: "Error retrieving profiles", error });
   }
 };
 
 export const searchFriends = async (req: Request, res: Response) => {
-  const {
-    lat,
-    lng,
-    friendsAgeMin,
-    friendsAgeMax,
-    friendsDistance,
-  }: searchingFriendsDto = req.body;
-
-  if (!lat || !lng || !friendsAgeMin || !friendsAgeMax || !friendsDistance) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-
+  console.log("controller searchFriends");
   try {
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+    const profile = await Profile.findById(userId).exec();
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    const lng = profile.location.lng;
+    const lat = profile.location.lat;
+    const friendsDistance = profile.friendsDistance;
+    const friendsAgeMin = profile.friendsAgeMin;
+    const friendsAgeMax = profile.friendsAgeMax;
+
+    if (!lng || !lat || !friendsDistance || !friendsAgeMin || !friendsAgeMax) {
+      return res
+        .status(400)
+        .json({ message: "Missing requiered fields in profile." });
+    }
+
     const searchingResult = await Profile.find({
       location: {
         $near: {
@@ -215,7 +228,7 @@ export const searchFriends = async (req: Request, res: Response) => {
             type: "Point",
             coordinates: [lng, lat],
           },
-          $maxDistance: friendsDistance * 1000,
+          $maxDistance: friendsDistance! * 1000,
         },
       },
       dateOfBirth: {
@@ -237,8 +250,8 @@ export const searchFriends = async (req: Request, res: Response) => {
       };
     });
 
-    res.status(200).json(resultWithDistances);
+    return res.status(200).json(resultWithDistances);
   } catch (error) {
-    res.status(500).json({ message: "Error searching friends", error });
+    return res.status(500).json({ message: "Error searching friends", error });
   }
 };
