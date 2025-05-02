@@ -6,9 +6,11 @@ import Profile from "../models/profileModel";
 import { dateToZodiac } from "../services/dateToZodiac";
 import { extractUserId } from "../utils/auth";
 import { haversineDistance } from "../utils/distance";
+import { LikesService } from "../services/likes.service";
 
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
+const likesService = new LikesService();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -191,7 +193,9 @@ export const getAllProfiles = async (req: Request, res: Response) => {
     const profiles = await Profile.find({ _id: { $ne: userId } });
     return res.status(200).json(profiles);
   } catch (error) {
-    return res.status(400).json({ message: "Error retrieving profiles", error });
+    return res
+      .status(400)
+      .json({ message: "Error retrieving profiles", error });
   }
 };
 
@@ -237,18 +241,24 @@ export const searchFriends = async (req: Request, res: Response) => {
       },
     });
 
-    const resultWithDistances = searchingResult.map((friend) => {
-      const distance = haversineDistance(
-        lat,
-        lng,
-        friend.location.lat,
-        friend.location.lng
-      );
-      return {
-        ...friend.toObject(),
-        distance,
-      };
-    });
+    const resultWithDistances = await Promise.all(
+      searchingResult.map(async (friend) => {
+        const likesDoc = await likesService.getLikes(friend._id);
+        const likedMe = likesDoc.likes.some((like) => like.liked_id === userId);
+
+        const distance = haversineDistance(
+          lat,
+          lng,
+          friend.location.lat,
+          friend.location.lng
+        );
+        return {
+          ...friend.toObject(),
+          likedMe,
+          distance,
+        };
+      })
+    );
 
     return res.status(200).json(resultWithDistances);
   } catch (error) {
