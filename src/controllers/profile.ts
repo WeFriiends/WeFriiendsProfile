@@ -213,55 +213,71 @@ export const searchFriends = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    const lng = profile.location.lng;
-    const lat = profile.location.lat;
+    const lng = profile.location?.lng;
+    const lat = profile.location?.lat;
     const friendsDistance = profile.friendsDistance;
     const friendsAgeMin = profile.friendsAgeMin;
     const friendsAgeMax = profile.friendsAgeMax;
+    const blackList = profile.blackList || [];
 
     if (!lng || !lat || !friendsDistance || !friendsAgeMin || !friendsAgeMax) {
       return res
         .status(400)
-        .json({ message: "Missing requiered fields in profile." });
+        .json({ message: "Missing required fields in profile." });
     }
 
-    const searchingResult = await Profile.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lng, lat],
-          },
-          $maxDistance: friendsDistance! * 1000,
-        },
-      },
+    const maxDate = moment().subtract(friendsAgeMin, "years").toDate();
+    const minDate = moment().subtract(friendsAgeMax, "years").toDate();
+
+    const allProfiles = await Profile.find({
+      _id: { $ne: userId, $nin: blackList },
       dateOfBirth: {
-        $lte: moment().subtract(friendsAgeMin, "years").toDate(),
-        $gte: moment().subtract(friendsAgeMax, "years").toDate(),
+        $lte: maxDate,
+        $gte: minDate,
       },
-    });
+    }).exec();
+
+    console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
     const resultWithDistances = await Promise.all(
-      searchingResult.map(async (friend) => {
-        const likesDoc = await likesService.getLikes(friend._id);
-        const likedMe = likesDoc.likes.some((like) => like.liked_id === userId);
+      allProfiles
+        .filter((friend) => {
+          if (!friend.location?.lat || !friend.location?.lng) return false;
 
-        const distance = haversineDistance(
-          lat,
-          lng,
-          friend.location.lat,
-          friend.location.lng
-        );
-        return {
-          ...friend.toObject(),
-          likedMe,
-          distance,
-        };
-      })
+          const distance = haversineDistance(
+            lat,
+            lng,
+            friend.location.lat,
+            friend.location.lng
+          );
+          return distance <= friendsDistance;
+        })
+        .map(async (friend) => {
+          const likesDoc = await likesService.getLikes(friend._id);
+          const likedMe =
+            likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
+
+          const distance = haversineDistance(
+            lat,
+            lng,
+            friend.location.lat,
+            friend.location.lng
+          );
+
+          return {
+            ...friend.toObject(),
+            likedMe,
+            distance,
+          };
+        })
     );
 
+    console.log(
+      `Returning ${resultWithDistances.length} profiles after distance filtering`
+    );
     return res.status(200).json(resultWithDistances);
   } catch (error) {
+    console.error("Error searching friends:", error);
     return res.status(500).json({ message: "Error searching friends", error });
   }
 };
