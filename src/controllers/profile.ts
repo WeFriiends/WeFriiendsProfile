@@ -285,6 +285,19 @@ export const searchFriends = async (req: Request, res: Response) => {
             likedMe,
             distance: Math.round(distance),
             city: friend.location.city,
+            photos: friend.photos?.map((photo) => ({ src: photo })),
+            preferences: {
+              questionary: {
+                smoking: friend.preferences?.Smoking,
+                education: friend.preferences?.EducationalLevel,
+                children: friend.preferences?.Children,
+                drinking: friend.preferences?.Drinking,
+                pets: friend.preferences?.Pets,
+                languages: friend.preferences?.selectedLanguages,
+              },
+              interests: friend.preferences?.Interests,
+              aboutMe: friend.preferences?.aboutMe,
+            },
             age: moment().diff(moment(friend.dateOfBirth), "years"),
           };
         })
