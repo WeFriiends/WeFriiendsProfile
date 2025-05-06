@@ -229,13 +229,29 @@ export const searchFriends = async (req: Request, res: Response) => {
     const maxDate = moment().subtract(friendsAgeMin, "years").toDate();
     const minDate = moment().subtract(friendsAgeMax, "years").toDate();
 
-    const allProfiles = await Profile.find({
-      _id: { $ne: userId, $nin: blackList },
-      dateOfBirth: {
-        $lte: maxDate,
-        $gte: minDate,
+    const projection = {
+      _id: 1,
+      name: 1,
+      dateOfBirth: 1,
+      zodiacSign: 1,
+      photos: 1,
+      "location.city": 1,
+      "location.lat": 1,
+      "location.lng": 1,
+      reasons: 1,
+      preferences: 1,
+    };
+
+    const allProfiles = await Profile.find(
+      {
+        _id: { $ne: userId, $nin: blackList },
+        dateOfBirth: {
+          $lte: maxDate,
+          $gte: minDate,
+        },
       },
-    }).exec();
+      projection
+    ).exec();
 
     console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
@@ -267,7 +283,9 @@ export const searchFriends = async (req: Request, res: Response) => {
           return {
             ...friend.toObject(),
             likedMe,
-            distance,
+            distance: Math.round(distance),
+            city: friend.location.city,
+            age: moment().diff(moment(friend.dateOfBirth), "years"),
           };
         })
     );
