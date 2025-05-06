@@ -7,6 +7,7 @@ import { dateToZodiac } from "../services/dateToZodiac";
 import { extractUserId } from "../utils/auth";
 import { haversineDistance } from "../utils/distance";
 import { LikesService } from "../services/likes.service";
+import { friendSearchProjection } from "../models/profileProjections";
 
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
@@ -229,19 +230,6 @@ export const searchFriends = async (req: Request, res: Response) => {
     const maxDate = moment().subtract(friendsAgeMin, "years").toDate();
     const minDate = moment().subtract(friendsAgeMax, "years").toDate();
 
-    const projection = {
-      _id: 1,
-      name: 1,
-      dateOfBirth: 1,
-      zodiacSign: 1,
-      photos: 1,
-      "location.city": 1,
-      "location.lat": 1,
-      "location.lng": 1,
-      reasons: 1,
-      preferences: 1,
-    };
-
     const allProfiles = await Profile.find(
       {
         _id: { $ne: userId, $nin: blackList },
@@ -250,7 +238,7 @@ export const searchFriends = async (req: Request, res: Response) => {
           $gte: minDate,
         },
       },
-      projection
+      friendSearchProjection
     ).exec();
 
     console.log(`Found ${allProfiles.length} profiles matching age criteria`);
@@ -280,25 +268,26 @@ export const searchFriends = async (req: Request, res: Response) => {
             friend.location.lng
           );
 
+          const friendObject = friend.toObject();
+
           return {
-            ...friend.toObject(),
             likedMe,
             distance: Math.round(distance),
-            city: friend.location.city,
-            photos: friend.photos?.map((photo) => ({ src: photo })),
+            city: friendObject.location.city,
+            photos: friendObject.photos?.map((photo) => ({ src: photo })),
             preferences: {
               questionary: {
-                smoking: friend.preferences?.Smoking,
-                education: friend.preferences?.EducationalLevel,
-                children: friend.preferences?.Children,
-                drinking: friend.preferences?.Drinking,
-                pets: friend.preferences?.Pets,
-                languages: friend.preferences?.selectedLanguages,
+                smoking: friendObject.preferences?.Smoking,
+                education: friendObject.preferences?.EducationalLevel,
+                children: friendObject.preferences?.Children,
+                drinking: friendObject.preferences?.Drinking,
+                pets: friendObject.preferences?.Pets,
+                languages: friendObject.preferences?.selectedLanguages,
               },
-              interests: friend.preferences?.Interests,
-              aboutMe: friend.preferences?.aboutMe,
+              interests: friendObject.preferences?.Interests,
+              aboutMe: friendObject.preferences?.aboutMe,
             },
-            age: moment().diff(moment(friend.dateOfBirth), "years"),
+            age: moment().diff(moment(friendObject.dateOfBirth), "years"),
           };
         })
     );
