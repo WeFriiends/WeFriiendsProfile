@@ -273,15 +273,15 @@ export const searchFriends = async (req: Request, res: Response) => {
           return {
             likedMe,
             distance: Math.round(distance),
-            city: friendObject.location?.city,
+            city: friendObject.location?.city || "",
             photos: friendObject.photos?.map((photo) => ({ src: photo })) || [],
             preferences: {
               questionary: {
-                smoking: friendObject.preferences?.Smoking,
-                education: friendObject.preferences?.EducationalLevel,
-                children: friendObject.preferences?.Children,
-                drinking: friendObject.preferences?.Drinking,
-                pets: friendObject.preferences?.Pets,
+                smoking: friendObject.preferences?.Smoking || [],
+                education: friendObject.preferences?.EducationalLevel || [],
+                children: friendObject.preferences?.Children || [],
+                drinking: friendObject.preferences?.Drinking || [],
+                pets: friendObject.preferences?.Pets || [],
                 languages: friendObject.preferences?.selectedLanguages || [],
               },
               interests: friendObject.preferences?.Interests || [],
