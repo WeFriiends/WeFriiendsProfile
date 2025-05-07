@@ -271,6 +271,10 @@ export const searchFriends = async (req: Request, res: Response) => {
           const friendObject = friend.toObject();
 
           return {
+            _id: friendObject._id,
+            reasons: friendObject.reasons,
+            name: friendObject.name,
+            zodiacSign: friendObject.zodiacSign,
             likedMe,
             distance: Math.round(distance),
             city: friendObject.location?.city || "",
