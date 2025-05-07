@@ -7,6 +7,7 @@ import cors from "cors";
 import profileRoutes from "./routes/profile";
 import photosRoutes from "./routes/photo";
 import chatsRoutes from "./routes/chat";
+import matchRoutes from "./routes/match.route";
 import likesRoutes from "./routes/likes.route";
 
 dotenv.config();
@@ -65,6 +66,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Routes
 app.use("/api/profile", profileRoutes);
+app.use("/api/matches", matchRoutes);
 app.use("/api/likes", likesRoutes);
 app.use("/api/photos", photosRoutes);
 app.use("/api/chats", chatsRoutes);
