@@ -1,23 +1,8 @@
-import dotenv from "dotenv";
 import { Request, Response } from "express";
-import fs from "fs";
-import moment from "moment";
-import Profile from "../../models/profileModel";
-import { dateToZodiac } from "../../utils/dateToZodiac";
 import { extractUserId } from "../../utils/extractUserId";
-import { haversineDistance } from "../../utils/haversineDistance";
-import { friendSearchProjection } from "../../models/profileProjections";
-import { LikesService } from "../likes/likes.service";
+import { ProfileService } from "./profile.service";
 
-dotenv.config();
-const cloudinary = require("cloudinary").v2;
-const likesService = new LikesService();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
+const profileService = new ProfileService();
 
 export const registerProfile = async (req: Request, res: Response) => {
   console.log("controller registerProfile");
@@ -32,7 +17,6 @@ export const registerProfile = async (req: Request, res: Response) => {
     typeof req.body.preferences === "string"
       ? JSON.parse(req.body.preferences)
       : req.body.preferences;
-  const uploadedFiles: string[] = [];
 
   try {
     if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
@@ -40,48 +24,17 @@ export const registerProfile = async (req: Request, res: Response) => {
     }
 
     const files = req.files as Express.Multer.File[];
+    const newProfile = await profileService.registerProfile(
+      userId,
+      name,
+      dateOfBirth,
+      location,
+      reasons,
+      gender,
+      preferences,
+      files
+    );
 
-    for (const file of files) {
-      try {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "profile_pics",
-        });
-        uploadedFiles.push(result.secure_url);
-        fs.unlinkSync(file.path);
-      } catch (error) {
-        console.error(`Failed to upload file ${file.filename}:`, error);
-      }
-    }
-  } catch (error) {
-    console.error("Error uploading files:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to upload files to Cloudinary" });
-  }
-
-  console.log("controller registerProfile: photos uploaded");
-
-  const zodiacSign = dateToZodiac(new Date(dateOfBirth));
-  const age = moment().diff(moment(dateOfBirth, "YYYY-MM-DD"), "years");
-  const friendsAgeMin = age - 6;
-  const friendsAgeMax = age + 6;
-
-  const newProfile = new Profile({
-    _id: userId,
-    name,
-    dateOfBirth,
-    zodiacSign,
-    location: typeof location === "string" ? JSON.parse(location) : location,
-    gender,
-    reasons,
-    preferences,
-    friendsAgeMin,
-    friendsAgeMax,
-    photos: uploadedFiles,
-  });
-
-  try {
-    await newProfile.save();
     return res.status(201).json(newProfile);
   } catch (error) {
     console.log(error);
@@ -98,10 +51,7 @@ export const getCurrentProfile = async (req: Request, res: Response) => {
   }
 
   try {
-    const profile = await Profile.findById(userId).exec();
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
+    const profile = await profileService.getProfileById(userId);
     return res.status(200).json(profile);
   } catch (error) {
     return res.status(400).json({ message: "Error retrieving profile", error });
@@ -117,11 +67,8 @@ export const checkProfileExistsById = async (req: Request, res: Response) => {
   }
 
   try {
-    const profile = await Profile.findById(userId).exec();
-    if (!profile) {
-      return res.json(false);
-    }
-    return res.json(true);
+    const exists = await profileService.checkProfileExists(userId);
+    return res.json(exists);
   } catch (error) {
     return res.status(400).json({ message: "Error retrieving profile", error });
   }
@@ -146,21 +93,16 @@ export const updateProfile = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updatedProfile = await Profile.findByIdAndUpdate(
+    const updatedProfile = await profileService.updateProfile(
       userId,
-      {
-        gender,
-        reasons,
-        location:
-          typeof location === "string" ? JSON.parse(location) : location,
-        friendsDistance,
-        friendsAgeMin,
-        friendsAgeMax,
-        blackList:
-          typeof blackList === "string" ? JSON.parse(blackList) : blackList,
-      },
-      { new: true }
-    ).exec();
+      gender,
+      reasons,
+      location,
+      friendsDistance,
+      friendsAgeMin,
+      friendsAgeMax,
+      blackList
+    );
 
     return res.status(200).json(updatedProfile);
   } catch (error) {
@@ -176,7 +118,7 @@ export const deleteProfile = async (req: Request, res: Response) => {
   }
 
   try {
-    await Profile.findByIdAndDelete(userId).exec();
+    await profileService.deleteProfile(userId);
     return res.status(200).json({ message: "Profile deleted successfully" });
   } catch (error) {
     return res.status(400).json({ message: "Error deleting profile", error });
@@ -191,7 +133,7 @@ export const getAllProfiles = async (req: Request, res: Response) => {
   }
 
   try {
-    const profiles = await Profile.find({ _id: { $ne: userId } });
+    const profiles = await profileService.getAllProfiles(userId);
     return res.status(200).json(profiles);
   } catch (error) {
     return res
@@ -202,106 +144,16 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 
 export const searchFriends = async (req: Request, res: Response) => {
   console.log("controller searchFriends");
+  
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
   try {
-    const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-    const profile = await Profile.findById(userId).exec();
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
-
-    const lng = profile.location?.lng;
-    const lat = profile.location?.lat;
-    const friendsDistance = profile.friendsDistance;
-    const friendsAgeMin = profile.friendsAgeMin;
-    const friendsAgeMax = profile.friendsAgeMax;
-    const blackList = profile.blackList || [];
-
-    if (!lng || !lat || !friendsDistance || !friendsAgeMin || !friendsAgeMax) {
-      return res
-        .status(400)
-        .json({ message: "Missing required fields in profile." });
-    }
-
-    const maxDate = moment().subtract(friendsAgeMin, "years").toDate();
-    const minDate = moment().subtract(friendsAgeMax, "years").toDate();
-
-    const allProfiles = await Profile.find(
-      {
-        _id: { $ne: userId, $nin: blackList },
-        dateOfBirth: {
-          $lte: maxDate,
-          $gte: minDate,
-        },
-      },
-      friendSearchProjection
-    ).exec();
-
-    console.log(`Found ${allProfiles.length} profiles matching age criteria`);
-
-    const resultWithDistances = await Promise.all(
-      allProfiles
-        .filter((friend) => {
-          if (!friend.location?.lat || !friend.location?.lng) return false;
-
-          const distance = haversineDistance(
-            lat,
-            lng,
-            friend.location.lat,
-            friend.location.lng
-          );
-          return distance <= friendsDistance;
-        })
-        .map(async (friend) => {
-          const likesDoc = await likesService.getLikes(friend._id);
-          const likedMe =
-            likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
-
-          const distance = haversineDistance(
-            lat,
-            lng,
-            friend.location.lat,
-            friend.location.lng
-          );
-
-          const friendObject = friend.toObject();
-
-          return {
-            _id: friendObject._id,
-            reasons: friendObject.reasons,
-            name: friendObject.name,
-            zodiacSign: friendObject.zodiacSign,
-            likedMe,
-            distance: Math.round(distance),
-            city: friendObject.location?.city || "",
-            photos: friendObject.photos?.map((photo) => ({ src: photo })) || [],
-            preferences: {
-              questionary: {
-                smoking: friendObject.preferences?.Smoking || [],
-                education: friendObject.preferences?.EducationalLevel || [],
-                children: friendObject.preferences?.Children || [],
-                drinking: friendObject.preferences?.Drinking || [],
-                pets: friendObject.preferences?.Pets || [],
-                languages: friendObject.preferences?.selectedLanguages || [],
-              },
-              interests: friendObject.preferences?.Interests || [],
-              aboutMe: friendObject.preferences?.aboutMe || "",
-            },
-            age: moment().diff(moment(friendObject.dateOfBirth), "years"),
-          };
-        })
-    );
-
-    console.log(
-      `Returning ${resultWithDistances.length} profiles after distance filtering`
-    );
-    return res.status(200).json(resultWithDistances);
+    const friendsProfiles = await profileService.searchFriends(userId);
+    return res.status(200).json(friendsProfiles);
   } catch (error) {
-    console.error("Error searching friends:", error);
-    return res.status(500).json({ message: "Error searching friends", error });
+    return res.status(400).json({ message: "Error searching friends", error });
   }
 };
