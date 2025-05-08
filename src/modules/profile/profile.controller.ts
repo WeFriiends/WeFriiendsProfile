@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { extractUserId } from "../../utils/extractUserId";
 import { ProfileService } from "./profile.service";
+import { Preferences } from "../../models/profileModel";
 
 const profileService = new ProfileService();
 
@@ -12,22 +13,47 @@ export const registerProfile = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  const { name, dateOfBirth, location, reasons, gender } = req.body;
-  const preferences =
-    typeof req.body.preferences === "string"
-      ? JSON.parse(req.body.preferences)
-      : req.body.preferences;
-
   try {
+    const { name, dateOfBirth, location, reasons, gender } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+
+    if (!dateOfBirth) {
+      return res.status(400).json({ error: "Date of birth is required" });
+    }
+
+    if (!gender) {
+      return res.status(400).json({ error: "Gender is required" });
+    }
+
+    if (!location) {
+      return res.status(400).json({ error: "Location is required" });
+    }
+
+    const preferences: Preferences =
+      typeof req.body.preferences === "string"
+        ? JSON.parse(req.body.preferences)
+        : req.body.preferences || {};
+
     if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
     const files = req.files as Express.Multer.File[];
+
+    const dateOfBirthObj = new Date(dateOfBirth);
+    if (isNaN(dateOfBirthObj.getTime())) {
+      return res
+        .status(400)
+        .json({ error: "Invalid date format for dateOfBirth" });
+    }
+
     const newProfile = await profileService.registerProfile(
       userId,
       name,
-      dateOfBirth,
+      dateOfBirthObj,
       location,
       reasons,
       gender,
@@ -82,25 +108,52 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  const {
-    gender,
-    reasons,
-    location,
-    friendsDistance,
-    friendsAgeMin,
-    friendsAgeMax,
-    blackList,
-  } = req.body;
-
   try {
-    const updatedProfile = await profileService.updateProfile(
-      userId,
+    const {
       gender,
       reasons,
       location,
       friendsDistance,
       friendsAgeMin,
       friendsAgeMax,
+      blackList,
+    } = req.body;
+
+    if (!gender) {
+      return res.status(400).json({ error: "Gender is required" });
+    }
+
+    if (!location) {
+      return res.status(400).json({ error: "Location is required" });
+    }
+
+    const friendsDistanceNum = friendsDistance
+      ? Number(friendsDistance)
+      : undefined;
+    const friendsAgeMinNum = friendsAgeMin ? Number(friendsAgeMin) : undefined;
+    const friendsAgeMaxNum = friendsAgeMax ? Number(friendsAgeMax) : undefined;
+
+    if (friendsDistanceNum !== undefined && isNaN(friendsDistanceNum)) {
+      return res
+        .status(400)
+        .json({ error: "friendsDistance must be a number" });
+    }
+
+    if (friendsAgeMinNum !== undefined && isNaN(friendsAgeMinNum)) {
+      return res.status(400).json({ error: "friendsAgeMin must be a number" });
+    }
+
+    if (friendsAgeMaxNum !== undefined && isNaN(friendsAgeMaxNum)) {
+      return res.status(400).json({ error: "friendsAgeMax must be a number" });
+    }
+
+    const updatedProfile = await profileService.updateProfile(
+      userId,
+      reasons,
+      location,
+      friendsDistanceNum,
+      friendsAgeMinNum,
+      friendsAgeMaxNum,
       blackList
     );
 
@@ -144,7 +197,7 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 
 export const searchFriends = async (req: Request, res: Response) => {
   console.log("controller searchFriends");
-  
+
   const userId = extractUserId(req);
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });

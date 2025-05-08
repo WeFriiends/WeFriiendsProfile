@@ -2,6 +2,11 @@ import dotenv from "dotenv";
 import fs from "fs";
 import moment from "moment";
 import Profile from "../../models/profileModel";
+import {
+  Location,
+  Preferences,
+  ProfileDocument,
+} from "../../models/profileModel";
 import { dateToZodiac } from "../../utils/dateToZodiac";
 import { friendSearchProjection } from "../../models/profileProjections";
 import { haversineDistance } from "../../utils/haversineDistance";
@@ -21,11 +26,11 @@ export class ProfileService {
   registerProfile = async (
     userId: string,
     name: string,
-    dateOfBirth: string,
-    location: any,
-    reasons: any,
+    dateOfBirth: Date,
+    location: Location,
+    reasons: string[],
     gender: string,
-    preferences: any,
+    preferences: Preferences,
     files: Express.Multer.File[]
   ) => {
     try {
@@ -50,20 +55,25 @@ export class ProfileService {
 
       console.log("ProfileService: photos uploaded");
 
-      const zodiacSign = dateToZodiac(new Date(dateOfBirth));
-      const age = moment().diff(moment(dateOfBirth, "YYYY-MM-DD"), "years");
+      const zodiacSign = dateToZodiac(dateOfBirth);
+      const age = moment().diff(moment(dateOfBirth), "years");
       const friendsAgeMin = age - 6;
       const friendsAgeMax = age + 6;
+
+      const parsedLocation: Location =
+        typeof location === "string" ? JSON.parse(location) : location;
+
+      const parsedReasons: string[] =
+        typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
       const newProfile = new Profile({
         _id: userId,
         name,
         dateOfBirth,
         zodiacSign,
-        location:
-          typeof location === "string" ? JSON.parse(location) : location,
+        location: parsedLocation,
         gender,
-        reasons,
+        reasons: parsedReasons,
         preferences,
         friendsAgeMin,
         friendsAgeMax,
@@ -79,7 +89,7 @@ export class ProfileService {
     }
   };
 
-  getProfileById = async (userId: string) => {
+  getProfileById = async (userId: string): Promise<ProfileDocument> => {
     try {
       const profile = await Profile.findById(userId).exec();
       if (!profile) {
@@ -108,28 +118,47 @@ export class ProfileService {
 
   updateProfile = async (
     userId: string,
-    gender: string,
-    reasons: any,
-    location: any,
-    friendsDistance: number,
-    friendsAgeMin: number,
-    friendsAgeMax: number,
-    blackList: string[]
-  ) => {
+    reasons: string[],
+    location: Location | string,
+    friendsDistance?: number,
+    friendsAgeMin?: number,
+    friendsAgeMax?: number,
+    blackList?: string[] | string
+  ): Promise<ProfileDocument> => {
     try {
+      const parsedReasons: string[] =
+        typeof reasons === "string" ? JSON.parse(reasons) : reasons;
+
+      const parsedLocation: Location =
+        typeof location === "string" ? JSON.parse(location) : location;
+
+      const parsedBlackList: string[] =
+        typeof blackList === "string" ? JSON.parse(blackList) : blackList;
+
+      const updateData: Partial<ProfileDocument> = {
+        reasons: parsedReasons,
+        location: parsedLocation,
+      };
+
+      if (friendsDistance !== undefined) {
+        updateData.friendsDistance = friendsDistance;
+      }
+
+      if (friendsAgeMin !== undefined) {
+        updateData.friendsAgeMin = friendsAgeMin;
+      }
+
+      if (friendsAgeMax !== undefined) {
+        updateData.friendsAgeMax = friendsAgeMax;
+      }
+
+      if (parsedBlackList.length > 0) {
+        updateData.blackList = parsedBlackList;
+      }
+
       const updatedProfile = await Profile.findByIdAndUpdate(
         userId,
-        {
-          gender,
-          reasons,
-          location:
-            typeof location === "string" ? JSON.parse(location) : location,
-          friendsDistance,
-          friendsAgeMin,
-          friendsAgeMax,
-          blackList:
-            typeof blackList === "string" ? JSON.parse(blackList) : blackList,
-        },
+        updateData,
         { new: true }
       ).exec();
 
@@ -161,7 +190,7 @@ export class ProfileService {
     }
   };
 
-  getAllProfiles = async (userId: string) => {
+  getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
       return await Profile.find({ _id: { $ne: userId } });
     } catch (error: unknown) {

@@ -150,8 +150,6 @@ router.get("/check", checkJwt, checkProfileExistsById);
  *                 type: array
  *                 items:
  *                   type: string
- *               gender:
- *                 type: string
  *               reasons:
  *                 type: array
  *                 items:
