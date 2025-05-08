@@ -5,6 +5,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import v1Routes from "./routes/v1Router";
+import { swaggerOptions } from "./config/swagger";
 
 dotenv.config();
 
@@ -29,33 +30,6 @@ mongoose
   .catch((err) => {
     console.error("Error connecting to MongoDB", err);
   });
-
-// Swagger Setup
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: "3.0.0",
-    info: {
-      title: "SPA Backend API",
-      version: "1.0.0",
-      description: "API for SPA backend",
-    },
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
-  },
-  apis: ["./src/routes/*.ts", "./src/modules/**/*.route.ts"],
-};
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
