@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { upload, uploadToCloudinary } from "../middleware/uploadPhoto";
-import { handleUploadToCloudinary } from "../controllers/photo";
-import * as photoController from "../controllers/photo";
+import { upload, uploadToCloudinary } from "../../middleware/uploadPhoto";
+import { handleUploadToCloudinary } from "./photo.controller";
+import * as photoController from "./photo.controller";
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { checkJwt } from "../middleware/checkJwt";
-import { MatchController } from "../controllers/match.controller";
-import { MatchService } from "../services/match.service";
+import { MatchController } from "./match.controller";
+import { checkJwt } from "../../middleware/checkJwt";
+import { MatchService } from "./match.service";
 
 const router = Router();
 

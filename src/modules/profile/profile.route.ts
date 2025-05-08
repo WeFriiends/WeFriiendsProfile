@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { upload } from "../middleware/upload";
-import { checkJwt } from "../middleware/checkJwt";
+import { upload } from "../../middleware/upload";
+import { checkJwt } from "../../middleware/checkJwt";
 import {
   registerProfile,
   getCurrentProfile,
@@ -9,7 +9,7 @@ import {
   getAllProfiles,
   searchFriends,
   checkProfileExistsById,
-} from "../controllers/profile";
+} from "./profile.controller";
 
 const router = Router();
 

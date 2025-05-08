@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { LikesService } from "../services/likes.service";
-import Profile from "../models/profileModel";
-import { extractUserId } from "../utils/auth";
+import Profile from "../../models/profileModel";
+import { extractUserId } from "../../utils/extractUserId";
+import { LikesService } from "./likes.service";
+
 
 export class LikesController {
   private likesService: LikesService;

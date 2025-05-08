@@ -2,12 +2,12 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import fs from "fs";
 import moment from "moment";
-import Profile from "../models/profileModel";
-import { dateToZodiac } from "../services/dateToZodiac";
-import { extractUserId } from "../utils/auth";
-import { haversineDistance } from "../utils/distance";
-import { LikesService } from "../services/likes.service";
-import { friendSearchProjection } from "../models/profileProjections";
+import Profile from "../../models/profileModel";
+import { dateToZodiac } from "../../utils/dateToZodiac";
+import { extractUserId } from "../../utils/extractUserId";
+import { haversineDistance } from "../../utils/haversineDistance";
+import { friendSearchProjection } from "../../models/profileProjections";
+import { LikesService } from "../likes/likes.service";
 
 dotenv.config();
 const cloudinary = require("cloudinary").v2;

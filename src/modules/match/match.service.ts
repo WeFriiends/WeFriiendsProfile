@@ -1,4 +1,4 @@
-import Match from "../models/match.model";
+import Match from "../../models/match.model";
 
 export class MatchService {
   addMatch = async (user1_id: string, user2_id: string) => {
@@ -22,10 +22,7 @@ export class MatchService {
   getMatches = async (user_id: string) => {
     try {
       const matches = await Match.find({
-        $or: [
-          { user1_id: user_id },
-          { user2_id: user_id }
-        ]
+        $or: [{ user1_id: user_id }, { user2_id: user_id }],
       }).exec();
       return matches;
     } catch (error: unknown) {
@@ -45,8 +42,8 @@ export class MatchService {
       const result = await Match.deleteOne({
         $or: [
           { user1_id, user2_id },
-          { user1_id: user2_id, user2_id: user1_id }
-        ]
+          { user1_id: user2_id, user2_id: user1_id },
+        ],
       }).exec();
       return result;
     } catch (error: unknown) {
@@ -62,8 +59,8 @@ export class MatchService {
       const hasMatch = await Match.findOne({
         $or: [
           { user1_id, user2_id },
-          { user1_id: user2_id, user2_id: user1_id }
-        ]
+          { user1_id: user2_id, user2_id: user1_id },
+        ],
       }).exec();
 
       return !!hasMatch;

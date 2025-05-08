@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Chat from "../models/chat";
+import Chat from "../../models/chat.model";
 
 export const getAllChats = async (req: Request, res: Response) => {
   try {
@@ -34,7 +34,9 @@ export const getChatById = async (req: Request, res: Response) => {
 
 export const updateChat = async (req: Request, res: Response) => {
   try {
-    const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!chat) {
       return res.status(404).send({ message: "Chat not found" });
     }

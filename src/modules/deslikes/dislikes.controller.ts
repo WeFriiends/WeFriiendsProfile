@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { DislikesService } from "../services/dislikes.service";
-import Profile from "../models/profileModel";
-import { extractUserId } from "../utils/auth";
+import Profile from "../../models/profileModel";
+import { extractUserId } from "../../utils/extractUserId";
+import { DislikesService } from "./dislikes.service";
 
 export class DislikesController {
   private dislikesService: DislikesService;

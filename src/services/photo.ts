@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Profile from "../models/profileModel";
 
 export const getPhotos = async (id: string): Promise<string[]> => {

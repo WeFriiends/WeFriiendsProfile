@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { MatchService } from "../services/match.service";
-import { extractUserId } from "../utils/auth";
-import Profile from "../models/profileModel";
+import Profile from "../../models/profileModel";
+import { extractUserId } from "../../utils/extractUserId";
+import { MatchService } from "./match.service";
 
 export class MatchController {
   private matchService: MatchService;
