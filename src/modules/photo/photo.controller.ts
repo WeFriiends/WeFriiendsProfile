@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import * as photoService from "../../services/photo";
+import * as photoService from "./photo.service";
 
 export const handleUploadToCloudinary = async (req: Request, res: Response) => {
   try {
