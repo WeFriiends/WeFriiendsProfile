@@ -32,19 +32,7 @@ A backend API service for the WeFriiends social platform that helps people conne
 
 ## 🔑 Environment Setup
 
-1. Create a `.env` file in the root directory based on the provided `.env.sample`:
-
-```
-PORT=8080
-MONGO_URI=mongodb://localhost:27017/wefriiends
-AUTH0_DOMAIN=your-auth0-domain.auth0.com
-AUTH0_AUDIENCE=your-auth0-audience
-```
-
-- `PORT`: The port on which the server will run
-- `MONGO_URI`: Your MongoDB connection string
-- `AUTH0_DOMAIN`: Your Auth0 domain
-- `AUTH0_AUDIENCE`: Your Auth0 API audience identifier
+1. Request the `.env` file from your teammates.
 
 ## 📥 Installation
 
@@ -134,7 +122,7 @@ WeFriiendsProfile/
 - **Authentication**: Auth0 (JWT)
 - **File Upload**: Multer, Cloudinary
 - **API Documentation**: Swagger (swagger-jsdoc, swagger-ui-express)
-- **Other Tools**: 
+- **Other Tools**:
   - Sharp (image processing)
   - Moment (date handling)
   - CORS (cross-origin resource sharing)
@@ -156,7 +144,9 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 ## 🔍 Core Features Explained
 
 ### Profile Management
+
 Users can create and update detailed profiles with personal information, preferences, and photos. The profile includes:
+
 - Basic info (name, date of birth, gender)
 - Location data for proximity-based matching
 - Zodiac sign (automatically calculated)
@@ -164,25 +154,32 @@ Users can create and update detailed profiles with personal information, prefere
 - Matching preferences (age range, distance)
 
 ### Friend Matching System
+
 The application uses several factors to suggest potential friends:
+
 - Geographic proximity (using haversine distance calculation)
 - Age preferences
 - Shared interests and preferences
 - Mutual likes
 
 ### Photo Management
+
 Users can upload and manage profile photos with:
+
 - Secure storage using Cloudinary
 - Image processing with Sharp
 - Multiple photo support
 
 ### Chat System
+
 Once users match (mutual likes), they can communicate through the built-in chat system:
+
 - Message history
 - Real-time communication
 - User-friendly interface
 
 ### Privacy Features
+
 - Blacklist functionality to block unwanted connections
 - Secure authentication through Auth0
 - Data protection measures
