@@ -1,109 +1,188 @@
-# SPA Backend API
+# WeFriiends Profile API
 
-This project is a backend API for a Single Page Application (SPA) built with Node.js, Express, TypeScript, and MongoDB. It uses OAuth for authentication via Auth0 and provides a REST API for managing users. The API is documented using Swagger.
+A backend API service for the WeFriiends social platform that helps people connect and make new friends based on shared interests, location, and compatibility. Built with Node.js, Express, TypeScript, and MongoDB.
 
-## Table of Contents
+## 🌟 Features
+
+- **User Profiles**: Create and manage detailed user profiles with personal information, preferences, and photos
+- **Friend Matching**: Advanced matching algorithm based on location, interests, and compatibility
+- **Chat System**: Real-time messaging between matched users
+- **Like/Dislike System**: Tinder-like functionality for finding potential friends
+- **Photo Management**: Upload and manage profile photos
+- **Authentication**: Secure OAuth authentication via Auth0
+- **API Documentation**: Complete Swagger documentation for all endpoints
+
+## 📋 Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Environment Variables](#environment-variables)
-- [Project Setup](#project-setup)
+- [Environment Setup](#environment-setup)
+- [Installation](#installation)
 - [Running the Application](#running-the-application)
-- [Accessing Swagger Documentation](#accessing-swagger-documentation)
-- [Docker Setup](#docker-setup)
+- [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Technologies](#technologies)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Prerequisites
-
-Make sure you have the following installed on your machine:
+## 🔧 Prerequisites
 
 - Node.js (v14 or later)
-- Docker (optional, for running the application with Docker)
-- Docker Compose (optional, for running the application with Docker Compose)
+- MongoDB (local installation or MongoDB Atlas account)
+- Auth0 account for authentication
 
-## Environment Variables
+## 🔑 Environment Setup
 
-Create a `.env` file in the root of the project and add the following environment variables:
+1. Create a `.env` file in the root directory based on the provided `.env.sample`:
 
-```env
+```
 PORT=8080
-MONGO_URI=mongodb://root:example@mongodb:27017/yourdbname?authSource=admin
-AUTH0_DOMAIN=your_auth0_domain
-AUTH0_AUDIENCE=your_auth0_audience
+MONGO_URI=mongodb://localhost:27017/wefriiends
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_AUDIENCE=your-auth0-audience
 ```
 
-Replace your_auth0_domain and your_auth0_audience with your Auth0 configuration details.
+- `PORT`: The port on which the server will run
+- `MONGO_URI`: Your MongoDB connection string
+- `AUTH0_DOMAIN`: Your Auth0 domain
+- `AUTH0_AUDIENCE`: Your Auth0 API audience identifier
 
-## Project Setup
+## 📥 Installation
 
-### 1. Clone the repository:
-Don't forget to fill out the [Environment Variables](#environment-variables).
-```
+1. Clone the repository:
+
+```bash
 git clone https://github.com/WeFriiends/WeFriiendsProfile.git
-cd WeFriiendsProfile 
+cd WeFriiendsProfile
 ```
 
-### 2. Install dependencies:
-```
+2. Install dependencies:
+
+```bash
 npm install
 ```
 
-### 3. Build the TypeScript code:
+3. Build the TypeScript code:
 
-```
+```bash
 npm run build
 ```
 
-## Running the Application
-### Running in Development Mode
+## 🚀 Running the Application
 
-To run the application in development mode with automatic server restarts on code changes:
+### Development Mode
 
-```
+Run the application with hot-reloading for development:
+
+```bash
 npm run dev
 ```
 
-### Running in Production Mode
+### Production Mode
 
-To run the compiled JavaScript code in production mode:
+Build and run the application for production:
 
-```
+```bash
+npm run build
 npm run start
 ```
 
-## Accessing Swagger Documentation
-Once the application is running, you can access the Swagger documentation at:
+The API will be available at `http://localhost:8080` (or the port specified in your `.env` file).
+
+## 📚 API Documentation
+
+Once the application is running, access the Swagger documentation at:
 
 ```
 http://localhost:8080/api-docs
 ```
-This URL will display the Swagger UI with all the API documentation.
 
-## Docker Setup
-### Using Docker Compose
-Build and run the containers:
+This provides interactive documentation for all available endpoints.
+
+## 📁 Project Structure
 
 ```
-docker-compose up --build
+WeFriiendsProfile/
+├── src/
+│   ├── config/         # Configuration files
+│   ├── middleware/     # Express middleware
+│   ├── models/         # MongoDB models
+│   ├── modules/        # Feature modules
+│   │   ├── chat/       # Chat functionality
+│   │   ├── deslikes/   # Dislike functionality
+│   │   ├── likes/      # Like functionality
+│   │   ├── match/      # Match functionality
+│   │   ├── photo/      # Photo management
+│   │   └── profile/    # User profile management
+│   ├── routes/         # API routes
+│   ├── types/          # TypeScript type definitions
+│   ├── utils/          # Utility functions
+│   ├── index.ts        # Application entry point
+│   └── server.ts       # Server configuration
+├── uploads/            # Uploaded files storage
+├── .env                # Environment variables (create from .env.sample)
+├── .env.sample         # Sample environment variables
+├── package.json        # Project dependencies
+├── tsconfig.json       # TypeScript configuration
+└── README.md           # Project documentation
 ```
 
-## Access the application:
+## 💻 Technologies
 
-The Node.js application will be available at `http://localhost:8080`.
-The MongoDB service will be accessible at `mongodb://localhost:27017`.
+- **Backend**: Node.js, Express
+- **Language**: TypeScript
+- **Database**: MongoDB with Mongoose
+- **Authentication**: Auth0 (JWT)
+- **File Upload**: Multer, Cloudinary
+- **API Documentation**: Swagger (swagger-jsdoc, swagger-ui-express)
+- **Other Tools**: 
+  - Sharp (image processing)
+  - Moment (date handling)
+  - CORS (cross-origin resource sharing)
 
-### Contributing
-If you would like to contribute to this project, please fork the repository and create a pull request with your changes. Make sure to follow the code style and include tests for any new features or bug fixes.
+## 👥 Contributing
 
-### License
-This project is licensed under the MIT License. See the LICENSE file for more information.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Summary
+## 📄 License
 
-This `README.md` file provides clear instructions on setting up and running the project, including both local and Docker-based setups. It also includes a section for accessing the Swagger documentation to help users easily test and understand the API endpoints. Feel free to customize it further to suit your project's needs.
+This project is licensed under the ISC License - see the LICENSE file for details.
 
-### Hotkeys:
-- Z: Write finished fully implemented code to files. Zip user files, download link
-- N: Netlify auto Deploy, instantly create static site
-- REPL: Replit auto Deploy, instantly export to replit.com
-- B: Use Search browser tool
+---
+
+## 🔍 Core Features Explained
+
+### Profile Management
+Users can create and update detailed profiles with personal information, preferences, and photos. The profile includes:
+- Basic info (name, date of birth, gender)
+- Location data for proximity-based matching
+- Zodiac sign (automatically calculated)
+- Preferences (languages, smoking habits, education level, etc.)
+- Matching preferences (age range, distance)
+
+### Friend Matching System
+The application uses several factors to suggest potential friends:
+- Geographic proximity (using haversine distance calculation)
+- Age preferences
+- Shared interests and preferences
+- Mutual likes
+
+### Photo Management
+Users can upload and manage profile photos with:
+- Secure storage using Cloudinary
+- Image processing with Sharp
+- Multiple photo support
+
+### Chat System
+Once users match (mutual likes), they can communicate through the built-in chat system:
+- Message history
+- Real-time communication
+- User-friendly interface
+
+### Privacy Features
+- Blacklist functionality to block unwanted connections
+- Secure authentication through Auth0
+- Data protection measures
