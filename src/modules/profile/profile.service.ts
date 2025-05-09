@@ -1,15 +1,13 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import moment from "moment";
-import Profile from "../../models/profileModel";
+import { Profile, friendSearchProjection } from "../../models";
 import {
   Location,
   Preferences,
   ProfileDocument,
-} from "../../models/profileModel";
-import { dateToZodiac } from "../../utils/dateToZodiac";
-import { friendSearchProjection } from "../../models/profileProjections";
-import { haversineDistance } from "../../utils/haversineDistance";
+} from "../../models/profile.model";
+import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikesService } from "../likes/likes.service";
 
 dotenv.config();

@@ -1,4 +1,4 @@
-import Profile from "../../models/profileModel";
+import { Profile } from "../../models";
 
 export const getPhotos = async (id: string): Promise<string[]> => {
   try {

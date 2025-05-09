@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { checkJwt } from "../../middleware/checkJwt";
+import { checkJwt } from "../../middleware";
 import { LikesController } from "./likes.controller";
 import { LikesService } from "./likes.service";
-
 
 const router = Router();
 

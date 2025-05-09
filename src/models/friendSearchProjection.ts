@@ -1,4 +1,4 @@
-export const friendSearchProjection = {
+export default {
   _id: 1,
   name: 1,
   dateOfBirth: 1,

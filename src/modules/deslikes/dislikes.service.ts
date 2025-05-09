@@ -1,4 +1,4 @@
-import Dislikes from "../../models/dislikes.model";
+import { Dislikes } from "../../models";
 
 export class DislikesService {
   addDislike = async (disliker_id: string, disliked_id: string) => {

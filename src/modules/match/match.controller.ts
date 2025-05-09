@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Profile from "../../models/profileModel";
+import Profile from "../../models/profile.model";
 import { extractUserId } from "../../utils/extractUserId";
 import { MatchService } from "./match.service";
 

@@ -1,4 +1,4 @@
-import Match from "../../models/match.model";
+import { Match } from "../../models";
 
 export class MatchService {
   addMatch = async (user1_id: string, user2_id: string) => {

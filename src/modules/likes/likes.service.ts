@@ -1,4 +1,4 @@
-import Likes from "../../models/likes.model";
+import { Likes } from "../../models";
 
 export class LikesService {
   addLike = async (liker_id: string, liked_id: string) => {
