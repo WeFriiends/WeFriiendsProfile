@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Profile from "../../models/profile.model";
+import { Profile } from "../../models";
 import { extractUserId } from "../../utils/extractUserId";
 import { DislikesService } from "./dislikes.service";
 

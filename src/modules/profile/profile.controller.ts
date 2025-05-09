@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { extractUserId } from "../../utils/extractUserId";
 import { ProfileService } from "./profile.service";
-import { Preferences } from "../../models/profile.model";
+import { Preferences } from "../../models";
 
 const profileService = new ProfileService();
 
