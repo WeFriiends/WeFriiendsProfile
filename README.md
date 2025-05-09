@@ -19,7 +19,6 @@ A backend API service for the WeFriiends social platform that helps people conne
 - [Installation](#installation)
 - [Running the Application](#running-the-application)
 - [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
 - [Technologies](#technologies)
 - [Contributing](#contributing)
 - [License](#license)
@@ -85,34 +84,6 @@ http://localhost:8080/api-docs
 ```
 
 This provides interactive documentation for all available endpoints.
-
-## 📁 Project Structure
-
-```
-WeFriiendsProfile/
-├── src/
-│   ├── config/         # Configuration files
-│   ├── middleware/     # Express middleware
-│   ├── models/         # MongoDB models
-│   ├── modules/        # Feature modules
-│   │   ├── chat/       # Chat functionality
-│   │   ├── deslikes/   # Dislike functionality
-│   │   ├── likes/      # Like functionality
-│   │   ├── match/      # Match functionality
-│   │   ├── photo/      # Photo management
-│   │   └── profile/    # User profile management
-│   ├── routes/         # API routes
-│   ├── types/          # TypeScript type definitions
-│   ├── utils/          # Utility functions
-│   ├── index.ts        # Application entry point
-│   └── server.ts       # Server configuration
-├── uploads/            # Uploaded files storage
-├── .env                # Environment variables (create from .env.sample)
-├── .env.sample         # Sample environment variables
-├── package.json        # Project dependencies
-├── tsconfig.json       # TypeScript configuration
-└── README.md           # Project documentation
-```
 
 ## 💻 Technologies
 
