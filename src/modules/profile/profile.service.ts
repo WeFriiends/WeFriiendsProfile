@@ -119,9 +119,11 @@ export class ProfileService {
     userId: string,
     reasons: string[],
     location: Location | string,
+    photos?: string[],
     friendsDistance?: number,
     friendsAgeMin?: number,
     friendsAgeMax?: number,
+    preferences?: Preferences,
     blackList?: string[] | string
   ): Promise<ProfileDocument> => {
     try {
@@ -139,8 +141,16 @@ export class ProfileService {
         location: parsedLocation,
       };
 
+      if (photos && photos.length > 0) {
+        updateData.photos = photos;
+      }
+
       if (friendsDistance !== undefined) {
         updateData.friendsDistance = friendsDistance;
+      }
+
+      if (preferences !== undefined) {
+        updateData.preferences = preferences;
       }
 
       if (friendsAgeMin !== undefined) {

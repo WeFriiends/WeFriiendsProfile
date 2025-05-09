@@ -110,18 +110,15 @@ export const updateProfile = async (req: Request, res: Response) => {
 
   try {
     const {
-      gender,
       reasons,
+      preferences,
       location,
+      photos,
       friendsDistance,
       friendsAgeMin,
       friendsAgeMax,
       blackList,
     } = req.body;
-
-    if (!gender) {
-      return res.status(400).json({ error: "Gender is required" });
-    }
 
     if (!location) {
       return res.status(400).json({ error: "Location is required" });
@@ -151,9 +148,11 @@ export const updateProfile = async (req: Request, res: Response) => {
       userId,
       reasons,
       location,
+      photos,
       friendsDistanceNum,
       friendsAgeMinNum,
       friendsAgeMaxNum,
+      preferences,
       blackList
     );
 

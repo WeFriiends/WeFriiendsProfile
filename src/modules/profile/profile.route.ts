@@ -121,13 +121,6 @@ router.get("/check", checkJwt, checkProfileExistsById);
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
- *               dateOfBirth:
- *                 type: string
- *                 format: date
- *               zodiacSign:
- *                 type: string
  *               location:
  *                 type: object
  *                 properties:
@@ -143,6 +136,39 @@ router.get("/check", checkJwt, checkProfileExistsById);
  *                     type: string
  *                   houseNumber:
  *                     type: string
+ *               preferences:
+ *                 type: object
+ *                 properties:
+ *                   aboutMe:
+ *                     type: string
+ *                   selectedLanguages:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   smoking:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   educationalLevel:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   children:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   drinking:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   pets:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   interests:
+ *                     type: array
+ *                     items:
+ *                       type: string
  *               photos:
  *                 type: array
  *                 items:
@@ -155,6 +181,12 @@ router.get("/check", checkJwt, checkProfileExistsById);
  *                 type: array
  *                 items:
  *                   type: string
+ *               friendsAgeMin:
+ *                 type: number
+ *               friendsAgeMax:
+ *                 type: number
+ *               friendsDistance:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Profile updated successfully
