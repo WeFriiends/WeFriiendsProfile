@@ -144,6 +144,9 @@ export const updateProfile = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "friendsAgeMax must be a number" });
     }
 
+    const parsedPreferences =
+      typeof preferences === "string" ? JSON.parse(preferences) : preferences;
+
     const updatedProfile = await profileService.updateProfile(
       userId,
       reasons,
@@ -152,7 +155,7 @@ export const updateProfile = async (req: Request, res: Response) => {
       friendsDistanceNum,
       friendsAgeMinNum,
       friendsAgeMaxNum,
-      preferences,
+      parsedPreferences,
       blackList
     );
 

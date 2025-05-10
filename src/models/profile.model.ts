@@ -12,12 +12,12 @@ export interface Location {
 export interface Preferences {
   aboutMe?: string;
   selectedLanguages?: string[];
-  Smoking?: string[];
-  EducationalLevel?: string[];
-  Children?: string[];
-  Drinking?: string[];
-  Pets?: string[];
-  Interests?: string[];
+  smoking?: string[];
+  educationalLevel?: string[];
+  children?: string[];
+  drinking?: string[];
+  pets?: string[];
+  interests?: string[];
 }
 
 export interface ProfileDocument extends Document {
@@ -56,12 +56,12 @@ const profileSchema = new Schema<ProfileDocument>(
     preferences: {
       aboutMe: { type: String },
       selectedLanguages: { type: [String], default: [] },
-      Smoking: { type: [String], default: [] },
-      EducationalLevel: { type: [String], default: [] },
-      Children: { type: [String], default: [] },
-      Drinking: { type: [String], default: [] },
-      Pets: { type: [String], default: [] },
-      Interests: { type: [String], default: [] },
+      smoking: { type: [String], default: [] },
+      educationalLevel: { type: [String], default: [] },
+      children: { type: [String], default: [] },
+      drinking: { type: [String], default: [] },
+      pets: { type: [String], default: [] },
+      interests: { type: [String], default: [] },
     },
     friendsAgeMin: { type: Number, default: 18 },
     friendsAgeMax: { type: Number, default: 60 },

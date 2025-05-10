@@ -127,6 +127,11 @@ export class ProfileService {
     blackList?: string[] | string
   ): Promise<ProfileDocument> => {
     try {
+      const existingProfile = await Profile.findById(userId).exec();
+      if (!existingProfile) {
+        throw new Error("Profile not found");
+      }
+
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
@@ -150,7 +155,25 @@ export class ProfileService {
       }
 
       if (preferences !== undefined) {
-        updateData.preferences = preferences;
+        const parsedPreferences =
+          typeof preferences === "string"
+            ? JSON.parse(preferences)
+            : preferences;
+
+        const updatedPreferences: Preferences = {
+          aboutMe: existingProfile.preferences?.aboutMe || "",
+          selectedLanguages:
+            existingProfile.preferences?.selectedLanguages || [],
+          smoking: existingProfile.preferences?.smoking || [],
+          educationalLevel: existingProfile.preferences?.educationalLevel || [],
+          children: existingProfile.preferences?.children || [],
+          drinking: existingProfile.preferences?.drinking || [],
+          Pets: existingProfile.preferences?.pets || [],
+          interests: existingProfile.preferences?.interests || [],
+          ...(parsedPreferences || {}),
+        };
+
+        updateData.preferences = updatedPreferences;
       }
 
       if (friendsAgeMin !== undefined) {
@@ -161,7 +184,7 @@ export class ProfileService {
         updateData.friendsAgeMax = friendsAgeMax;
       }
 
-      if (parsedBlackList.length > 0) {
+      if (parsedBlackList && parsedBlackList.length > 0) {
         updateData.blackList = parsedBlackList;
       }
 
@@ -290,14 +313,14 @@ export class ProfileService {
                 friendObject.photos?.map((photo) => ({ src: photo })) || [],
               preferences: {
                 questionary: {
-                  smoking: friendObject.preferences?.Smoking || [],
-                  education: friendObject.preferences?.EducationalLevel || [],
-                  children: friendObject.preferences?.Children || [],
-                  drinking: friendObject.preferences?.Drinking || [],
-                  pets: friendObject.preferences?.Pets || [],
+                  smoking: friendObject.preferences?.smoking || [],
+                  education: friendObject.preferences?.educationalLevel || [],
+                  children: friendObject.preferences?.children || [],
+                  drinking: friendObject.preferences?.drinking || [],
+                  pets: friendObject.preferences?.pets || [],
                   languages: friendObject.preferences?.selectedLanguages || [],
                 },
-                interests: friendObject.preferences?.Interests || [],
+                interests: friendObject.preferences?.interests || [],
                 aboutMe: friendObject.preferences?.aboutMe || "",
               },
               age: moment().diff(moment(friendObject.dateOfBirth), "years"),
