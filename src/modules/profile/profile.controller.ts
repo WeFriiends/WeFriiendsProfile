@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { extractUserId } from "../../utils/extractUserId";
+import { extractUserId } from "../../utils";
 import { ProfileService } from "./profile.service";
 import { Preferences } from "../../models";
 

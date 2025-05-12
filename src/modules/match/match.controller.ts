@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
-import { extractUserId } from "../../utils/extractUserId";
+import { extractUserId } from "../../utils";
 import { MatchService } from "./match.service";
 
 export class MatchController {

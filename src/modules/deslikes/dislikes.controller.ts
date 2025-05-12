@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
-import { extractUserId } from "../../utils/extractUserId";
+import { extractUserId } from "../../utils";
 import { DislikesService } from "./dislikes.service";
 
 export class DislikesController {
