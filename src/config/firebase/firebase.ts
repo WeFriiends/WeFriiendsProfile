@@ -16,3 +16,4 @@ try {
 const db = admin.firestore();
 
 export default db;
+
