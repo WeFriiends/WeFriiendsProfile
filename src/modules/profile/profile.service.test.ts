@@ -75,7 +75,10 @@ test("ProfileService - registerProfile should create a new profile", async () =>
   // Mock the checkProfileExists method to return false (profile doesn't exist)
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
 
-  const userId = "TestID";
+  // Mock the checkProfileExists method to return false (profile doesn't exist)
+  jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
+
+  const userId = "Test141ID";
   const name = "Test user";
   const dateOfBirth = new Date("1990-01-01");
   const location: Location = {
@@ -134,7 +137,10 @@ test("ProfileService - registerProfile should throw error (Profile already exist
   // Mock the checkProfileExists method to return true (profile exists)
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
 
-  const userId = "TestID";
+  // Mock the checkProfileExists method to return true (profile exists)
+  jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
+
+  const userId = "Test141ID";
   const name = "Test user";
   const dateOfBirth = new Date();
   const location = {} as Location;
