@@ -13,4 +13,6 @@ try {
   console.error("Error initializing Firebase Admin SDK:", error);
 }
 
-export default admin;
+const db = admin.firestore();
+
+export default db;
