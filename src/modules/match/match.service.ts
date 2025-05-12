@@ -1,6 +1,17 @@
-import { Match } from "../../models";
+import { IMatchRepository, MongoMatchRepository, FirestoreMatchRepository } from "./match.repository";
 
 export class MatchService {
+  private mongoRepository: IMatchRepository;
+  private firestoreRepository: IMatchRepository;
+
+  constructor(
+    mongoRepository: IMatchRepository = new MongoMatchRepository(),
+    firestoreRepository: IMatchRepository = new FirestoreMatchRepository()
+  ) {
+    this.mongoRepository = mongoRepository;
+    this.firestoreRepository = firestoreRepository;
+  }
+
   addMatch = async (user1_id: string, user2_id: string) => {
     try {
       const hasMatch = await this.hasMatch(user1_id, user2_id);
@@ -8,7 +19,11 @@ export class MatchService {
         throw new Error("Users are already in match");
       }
 
-      const newMatch = await Match.create({ user1_id, user2_id });
+      // Store in MongoDB
+      const newMatch = await this.mongoRepository.create(user1_id, user2_id);
+      
+      // Store in Firestore
+      await this.firestoreRepository.create(user1_id, user2_id);
 
       return newMatch;
     } catch (error: unknown) {
@@ -21,9 +36,8 @@ export class MatchService {
 
   getMatches = async (user_id: string) => {
     try {
-      const matches = await Match.find({
-        $or: [{ user1_id: user_id }, { user2_id: user_id }],
-      }).exec();
+      // Get matches from MongoDB
+      const matches = await this.mongoRepository.findByUserId(user_id);
       return matches;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -39,13 +53,14 @@ export class MatchService {
       if (!hasMatch) {
         throw new Error("There is no such match");
       }
-      const result = await Match.deleteOne({
-        $or: [
-          { user1_id, user2_id },
-          { user1_id: user2_id, user2_id: user1_id },
-        ],
-      }).exec();
-      return result;
+      
+      // Remove from MongoDB
+      const mongoResult = await this.mongoRepository.deleteMatch(user1_id, user2_id);
+      
+      // Remove from Firestore
+      await this.firestoreRepository.deleteMatch(user1_id, user2_id);
+      
+      return mongoResult;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -56,13 +71,8 @@ export class MatchService {
 
   hasMatch = async (user1_id: string, user2_id: string): Promise<boolean> => {
     try {
-      const hasMatch = await Match.findOne({
-        $or: [
-          { user1_id, user2_id },
-          { user1_id: user2_id, user2_id: user1_id },
-        ],
-      }).exec();
-
+      // Check in MongoDB
+      const hasMatch = await this.mongoRepository.findMatch(user1_id, user2_id);
       return !!hasMatch;
     } catch (error: unknown) {
       if (error instanceof Error) {
