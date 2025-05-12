@@ -10,16 +10,9 @@ import {
 } from "../../models";
 import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikesService } from "../likes/likes.service";
+import cloudinary from "../../config/cloudinary";
 
-dotenv.config();
-const cloudinary = require("cloudinary").v2;
 const likesService = new LikesService();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
 
 export class ProfileService {
   registerProfile = async (

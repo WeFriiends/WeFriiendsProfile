@@ -1,21 +1,12 @@
-import dotenv from "dotenv";
 import multer, { Multer } from "multer";
 import {
-  v2 as cloudinary,
   UploadApiResponse,
   UploadApiErrorResponse,
   UploadApiOptions,
 } from "cloudinary";
 import sharp from "sharp";
 import { Request, NextFunction } from "express";
-
-dotenv.config();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
+import cloudinary from "../config/cloudinary";
 
 interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer;
