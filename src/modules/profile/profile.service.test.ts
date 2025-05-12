@@ -72,7 +72,10 @@ test("ProfileService - registerProfile should create a new profile", async () =>
   // Arrange
   const profileService = new ProfileService();
 
-  const userId = "TestID";
+  // Mock the checkProfileExists method to return false (profile doesn't exist)
+  jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
+
+  const userId = "Test141ID";
   const name = "Test user";
   const dateOfBirth = new Date("1990-01-01");
   const location: Location = {
@@ -124,18 +127,28 @@ test("ProfileService - registerProfile should create a new profile", async () =>
 });
 
 // Test error handling
-test("ProfileService - registerProfile should throw error with no files", async () => {
+test("ProfileService - registerProfile should throw error (Profile already exists)", async () => {
   // Arrange
   const profileService = new ProfileService();
 
-  const userId = "TestID";
+  // Mock the checkProfileExists method to return true (profile exists)
+  jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
+
+  const userId = "Test141ID";
   const name = "Test user";
   const dateOfBirth = new Date();
   const location = {} as Location;
   const reasons = ["Test reason"];
   const gender = "Women";
   const preferences = {} as Preferences;
-  const files = [] as unknown as Express.Multer.File[];
+
+  // Mock file object
+  const files = [
+    {
+      path: "temp/test-image.jpg",
+      filename: "test-image.jpg",
+    },
+  ] as unknown as Express.Multer.File[];
 
   // Act & Assert
   try {
@@ -152,6 +165,6 @@ test("ProfileService - registerProfile should throw error with no files", async 
     // If we get here, the test should fail
     expect(true).toBe(false); // This should not be reached
   } catch (error: any) {
-    expect(error.message).toBe("No files uploaded");
+    expect(error.message).toBe("Profile already exists");
   }
 });
