@@ -8,7 +8,6 @@ const startServer = async (): Promise<void> => {
   const app = createApp();
   const PORT = process.env.PORT || 8080;
   
-  // Connect to database
   await connectDatabase();
   
   app.listen(PORT, () => {
