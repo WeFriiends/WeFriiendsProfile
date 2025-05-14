@@ -62,7 +62,6 @@ test("ProfileService - should be defined", () => {
   expect(profileService).toBeDefined();
 });
 
-// Test the registerProfile method
 test("ProfileService - registerProfile should create a new profile", async () => {
   const profileService = new ProfileService();
 
