@@ -2,7 +2,6 @@ import { expect, test, jest, beforeEach } from "@jest/globals";
 import { ProfileService } from "./profile.service";
 import { Location, Preferences } from "../../models";
 
-// Mock the modules before importing the service
 jest.mock("cloudinary", () => {
   return {
     v2: {
@@ -22,9 +21,7 @@ jest.mock("fs", () => ({
   unlinkSync: jest.fn(),
 }));
 
-// Mock the Profile model
 jest.mock("../../models", () => {
-  // Create a mock Profile constructor
   const mockProfile = function (data: any) {
     return {
       _id: data._id,
@@ -56,12 +53,10 @@ jest.mock("../../utils", () => ({
   haversineDistance: jest.fn(),
 }));
 
-// Clear mocks before each test
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// Basic test to verify the service exists
 test("ProfileService - should be defined", () => {
   const profileService = new ProfileService();
   expect(profileService).toBeDefined();
@@ -69,10 +64,8 @@ test("ProfileService - should be defined", () => {
 
 // Test the registerProfile method
 test("ProfileService - registerProfile should create a new profile", async () => {
-  // Arrange
   const profileService = new ProfileService();
 
-  // Mock the checkProfileExists method to return false (profile doesn't exist)
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
 
   const userId = "Test141ID";
@@ -99,7 +92,6 @@ test("ProfileService - registerProfile should create a new profile", async () =>
     interests: ["Test"],
   };
 
-  // Mock file object
   const files = [
     {
       path: "temp/test-image.jpg",
@@ -107,7 +99,6 @@ test("ProfileService - registerProfile should create a new profile", async () =>
     },
   ] as unknown as Express.Multer.File[];
 
-  // Act
   const result = await profileService.registerProfile(
     userId,
     name,
@@ -119,19 +110,15 @@ test("ProfileService - registerProfile should create a new profile", async () =>
     files
   );
 
-  // Assert
   expect(result).toBeDefined();
   expect(result._id).toEqual(userId);
   expect(result.name).toEqual(name);
   expect(result.zodiacSign).toEqual("Aries");
 });
 
-// Test error handling
 test("ProfileService - registerProfile should throw error (Profile already exists)", async () => {
-  // Arrange
   const profileService = new ProfileService();
 
-  // Mock the checkProfileExists method to return true (profile exists)
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
 
   const userId = "Test141ID";
@@ -142,7 +129,6 @@ test("ProfileService - registerProfile should throw error (Profile already exist
   const gender = "Women";
   const preferences = {} as Preferences;
 
-  // Mock file object
   const files = [
     {
       path: "temp/test-image.jpg",
@@ -150,7 +136,6 @@ test("ProfileService - registerProfile should throw error (Profile already exist
     },
   ] as unknown as Express.Multer.File[];
 
-  // Act & Assert
   try {
     await profileService.registerProfile(
       userId,
@@ -162,7 +147,7 @@ test("ProfileService - registerProfile should throw error (Profile already exist
       preferences,
       files
     );
-    // If we get here, the test should fail
+
     expect(true).toBe(false); // This should not be reached
   } catch (error: any) {
     expect(error.message).toBe("Profile already exists");
