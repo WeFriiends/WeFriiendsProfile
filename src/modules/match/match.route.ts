@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { MatchController } from "./match.controller";
 import { checkJwt } from "../../middleware";
-import { MatchService } from "./match.service";
+import { MatchService } from "./match.fb.service";
 
 const router = Router();
 
