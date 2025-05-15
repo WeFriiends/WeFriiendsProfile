@@ -25,6 +25,11 @@ export class ProfileService {
     files: Express.Multer.File[]
   ) => {
     try {
+      const profileExists = await this.checkProfileExists(userId);
+      if (profileExists) {
+        throw new Error("Profile already exists");
+      }
+
       const uploadedFiles: string[] = [];
 
       if (!files || files.length === 0) {
@@ -97,6 +102,10 @@ export class ProfileService {
 
   checkProfileExists = async (userId: string): Promise<boolean> => {
     try {
+      if (typeof Profile.findById !== "function") {
+        console.error("Profile.findById is not a function");
+        return false;
+      }
       const profile = await Profile.findById(userId).exec();
       return !!profile;
     } catch (error: unknown) {
