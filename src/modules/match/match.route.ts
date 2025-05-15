@@ -5,7 +5,9 @@ import { MatchService } from "./match.service";
 
 const router = Router();
 
-const matchController = new MatchController(new MatchService());
+const matchController: MatchController = new MatchController(
+  new MatchService()
+);
 
 /**
  * @swagger

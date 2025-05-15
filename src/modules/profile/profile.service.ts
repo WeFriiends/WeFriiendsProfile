@@ -11,9 +11,13 @@ import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikesService } from "../likes/likes.service";
 import cloudinary from "../../config/cloudinary";
 
-const likesService = new LikesService();
-
 export class ProfileService {
+  private likesService: LikesService;
+
+  constructor(likesService: LikesService) {
+    this.likesService = likesService;
+  }
+
   registerProfile = async (
     userId: string,
     name: string,
@@ -288,7 +292,7 @@ export class ProfileService {
             return distance <= friendsDistance;
           })
           .map(async (friend) => {
-            const likesDoc = await likesService.getLikes(friend._id);
+            const likesDoc = await this.likesService.getLikes(friend._id);
             const likedMe =
               likesDoc?.likes?.some((like) => like.liked_id === userId) ||
               false;

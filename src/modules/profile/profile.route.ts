@@ -1,16 +1,14 @@
 import { Router } from "express";
 import { upload, checkJwt } from "../../middleware";
-import {
-  registerProfile,
-  getCurrentProfile,
-  updateProfile,
-  deleteProfile,
-  getAllProfiles,
-  searchFriends,
-  checkProfileExistsById,
-} from "./profile.controller";
+import { ProfileController } from "./profile.controller";
+import { ProfileService } from "./profile.service";
+import { LikesService } from "../likes/likes.service";
 
 const router = Router();
+
+const profileController: ProfileController = new ProfileController(
+  new ProfileService(new LikesService())
+);
 
 /**
  * @swagger
@@ -63,7 +61,7 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post("/", checkJwt, upload.any(), registerProfile);
+router.post("/", checkJwt, upload.any(), profileController.registerProfile);
 
 /**
  * @swagger
@@ -86,7 +84,7 @@ router.post("/", checkJwt, upload.any(), registerProfile);
  *                 message:
  *                   type: string
  */
-router.get("/", checkJwt, getCurrentProfile);
+router.get("/", checkJwt, profileController.getCurrentProfile);
 
 /**
  * @swagger
@@ -104,7 +102,7 @@ router.get("/", checkJwt, getCurrentProfile);
  *       400:
  *         description: Bad request
  */
-router.get("/check", checkJwt, checkProfileExistsById);
+router.get("/check", checkJwt, profileController.checkProfileExistsById);
 
 /**
  * @swagger
@@ -193,7 +191,7 @@ router.get("/check", checkJwt, checkProfileExistsById);
  *       400:
  *         description: Bad request
  */
-router.patch("/", checkJwt, updateProfile);
+router.patch("/", checkJwt, profileController.updateProfile);
 
 /**
  * @swagger
@@ -209,7 +207,7 @@ router.patch("/", checkJwt, updateProfile);
  *       400:
  *         description: Bad request
  */
-router.delete("/", checkJwt, deleteProfile);
+router.delete("/", checkJwt, profileController.deleteProfile);
 
 /**
  * @swagger
@@ -259,7 +257,7 @@ router.delete("/", checkJwt, deleteProfile);
  *                     items:
  *                       type: string
  */
-router.get("/all", checkJwt, getAllProfiles);
+router.get("/all", checkJwt, profileController.getAllProfiles);
 
 /**
  * @swagger
@@ -275,6 +273,6 @@ router.get("/all", checkJwt, getAllProfiles);
  *       500:
  *         description: Error searching friends
  */
-router.get("/search", checkJwt, searchFriends);
+router.get("/search", checkJwt, profileController.searchFriends);
 
 export default router;

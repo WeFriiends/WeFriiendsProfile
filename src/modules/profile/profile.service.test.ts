@@ -1,5 +1,6 @@
 import { expect, test, jest, beforeEach } from "@jest/globals";
 import { ProfileService } from "./profile.service";
+import { LikesService } from "../likes/likes.service";
 import { Location, Preferences } from "../../models";
 
 jest.mock("cloudinary", () => {
@@ -58,12 +59,12 @@ beforeEach(() => {
 });
 
 test("ProfileService - should be defined", () => {
-  const profileService = new ProfileService();
+  const profileService = new ProfileService(new LikesService());
   expect(profileService).toBeDefined();
 });
 
 test("ProfileService - registerProfile should create a new profile", async () => {
-  const profileService = new ProfileService();
+  const profileService = new ProfileService(new LikesService());
 
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
 
@@ -116,7 +117,7 @@ test("ProfileService - registerProfile should create a new profile", async () =>
 });
 
 test("ProfileService - registerProfile should throw error (Profile already exists)", async () => {
-  const profileService = new ProfileService();
+  const profileService = new ProfileService(new LikesService());
 
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
 
