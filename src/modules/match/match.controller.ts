@@ -90,4 +90,35 @@ export class MatchController {
       return res.status(500).json({ message: "An unknown error occurred" });
     }
   };
+
+  listen = (req: Request, res: Response) => {
+    console.log("match controller listen");
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    // Set headers for SSE
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    // Send initial data
+    res.write("data: connected\n\n");
+
+    // Set up listener
+    const unsubscribe = this.matchService.setupMatchesListener(
+      userId,
+      (matches) => {
+        res.write(`data: ${JSON.stringify(matches)}\n\n`);
+      }
+    );
+
+    // Clean up when client disconnects
+    req.on("close", () => {
+      unsubscribe();
+    });
+  };
 }

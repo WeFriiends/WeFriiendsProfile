@@ -38,7 +38,7 @@ export class MongoMatchRepository implements IMatchRepository {
   }
 }
 
-export class RealtimeDBMatchRepository implements IMatchRepository {
+export class RealtimeDBMatchRepository {
   private path: string;
 
   constructor(
@@ -195,5 +195,58 @@ export class RealtimeDBMatchRepository implements IMatchRepository {
 
     // Return function to unsubscribe from updates
     return () => matchesRef.off("value", listener);
+  }
+
+  // Listen for updates to a specific match
+  listenForMatchUpdates(
+    matchId: string,
+    callback: (matchData: any | null) => void
+  ): () => void {
+    if (!adminDb) {
+      throw new Error("Firebase Admin DB not initialized");
+    }
+
+    const matchRef = adminDb.ref(`${this.path}/${matchId}`);
+
+    // Set up the listener
+    const listener = matchRef.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        callback({
+          id: snapshot.key,
+          ...snapshot.val(),
+        });
+      } else {
+        callback(null); // Match was deleted
+      }
+    });
+
+    // Return function to unsubscribe
+    return () => matchRef.off("value", listener);
+  }
+
+  // Listen for new matches being created
+  listenForNewMatches(
+    userId: string,
+    callback: (newMatch: any) => void
+  ): () => void {
+    if (!adminDb) {
+      throw new Error("Firebase Admin DB not initialized");
+    }
+
+    const matchesRef = adminDb.ref(this.path);
+
+    // Set up the listener for child_added event
+    const listener = matchesRef.on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      if (data.user1_id === userId || data.user2_id === userId) {
+        callback({
+          id: snapshot.key,
+          ...data,
+        });
+      }
+    });
+
+    // Return function to unsubscribe
+    return () => matchesRef.off("child_added", listener);
   }
 }

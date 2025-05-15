@@ -29,6 +29,24 @@ router.get("/", checkJwt, matchController.getMatches);
 
 /**
  * @swagger
+ * /api/matches/stream:
+ *   get:
+ *     summary: listen to updates
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: matches got successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Failed to add a match
+ */
+router.get("/stream", checkJwt, matchController.listen);
+
+/**
+ * @swagger
  * /api/matches:
  *   post:
  *     summary: Add a match
