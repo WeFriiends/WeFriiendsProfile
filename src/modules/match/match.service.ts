@@ -1,4 +1,7 @@
-import { IMatchRepository, MongoMatchRepository, FirestoreMatchRepository } from "./match.repository";
+import {
+  IMatchRepository,
+  RealtimeDBMatchRepository,
+} from "./match.repository";
 
 export class MatchService {
   // private mongoRepository: IMatchRepository;
@@ -6,10 +9,10 @@ export class MatchService {
 
   constructor(
     // mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    firestoreRepository: IMatchRepository = new FirestoreMatchRepository()
+    realtimeDBMatchRepository: IMatchRepository = new RealtimeDBMatchRepository()
   ) {
     // this.mongoRepository = mongoRepository;
-    this.firestoreRepository = firestoreRepository;
+    this.firestoreRepository = realtimeDBMatchRepository;
   }
 
   addMatch = async (user1_id: string, user2_id: string) => {
@@ -21,9 +24,12 @@ export class MatchService {
 
       // Store in MongoDB
       // const newMatch = await this.mongoRepository.create(user1_id, user2_id);
-      
+
       // Store in Firestore
-      const newMatch =  await this.firestoreRepository.create(user1_id, user2_id);
+      const newMatch = await this.firestoreRepository.create(
+        user1_id,
+        user2_id
+      );
 
       return newMatch;
     } catch (error: unknown) {
@@ -57,13 +63,16 @@ export class MatchService {
       if (!hasMatch) {
         throw new Error("There is no such match");
       }
-      
+
       // Remove from MongoDB
       // const mongoResult = await this.mongoRepository.deleteMatch(user1_id, user2_id);
-      
+
       // Remove from Firestore
-      const firestoreResult = await this.firestoreRepository.deleteMatch(user1_id, user2_id);
-      
+      const firestoreResult = await this.firestoreRepository.deleteMatch(
+        user1_id,
+        user2_id
+      );
+
       return firestoreResult;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -79,8 +88,11 @@ export class MatchService {
       // const mongoResult = await this.mongoRepository.findMatch(user1_id, user2_id);
 
       // Check in Firestore
-      const firestoreResult = await this.firestoreRepository.findMatch(user1_id, user2_id);
-      
+      const firestoreResult = await this.firestoreRepository.findMatch(
+        user1_id,
+        user2_id
+      );
+
       return !!firestoreResult;
     } catch (error: unknown) {
       if (error instanceof Error) {
