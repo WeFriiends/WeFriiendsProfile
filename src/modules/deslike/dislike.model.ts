@@ -5,11 +5,11 @@ const dislikedUserSchema = new Schema({
   disliked_at: { type: Date, required: true },
 });
 
-const dislikesSchema = new Schema({
+const dislikeSchema = new Schema({
   disliker_id: { type: String, required: true },
   dislikes: { type: [dislikedUserSchema], required: true },
 });
 
-const Dislikes = mongoose.model("Dislikes", dislikesSchema);
+const Dislike = mongoose.model("Dislike", dislikeSchema);
 
-export default Dislikes;
+export default Dislike;

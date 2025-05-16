@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { checkJwt } from "../../middleware";
-import { DislikesController } from "./dislikes.controller";
-import { DislikesService } from "./dislikes.service";
+import { DislikeController } from "./dislike.controller";
+import { DislikeService } from "./dislike.service";
 
 const router = Router();
 
-const dislikesController = new DislikesController(new DislikesService());
+const dislikeController = new DislikeController(new DislikeService());
 
 /**
  * @swagger
@@ -25,7 +25,7 @@ const dislikesController = new DislikesController(new DislikesService());
  *       500:
  *         description: Failed to add a dislike
  */
-router.get("/", checkJwt, dislikesController.getDislikes);
+router.get("/", checkJwt, dislikeController.getDislikes);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.get("/", checkJwt, dislikesController.getDislikes);
  *       500:
  *         description: Failed to add a dislike
  */
-router.post("/", checkJwt, dislikesController.addDislike);
+router.post("/", checkJwt, dislikeController.addDislike);
 
 /**
  * @swagger
@@ -87,6 +87,6 @@ router.post("/", checkJwt, dislikesController.addDislike);
  *       500:
  *         description: Failed to remove dislike
  */
-router.delete("/", checkJwt, dislikesController.removeDislike);
+router.delete("/", checkJwt, dislikeController.removeDislike);
 
 export default router;

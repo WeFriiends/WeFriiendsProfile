@@ -1,6 +1,6 @@
-import { Dislikes } from "../../models";
+import { Dislike } from "../../models";
 
-export class DislikesService {
+export class DislikeService {
   addDislike = async (disliker_id: string, disliked_id: string) => {
     try {
       const hasDisliked = await this.hasDisliked(disliker_id, disliked_id);
@@ -8,7 +8,7 @@ export class DislikesService {
         throw new Error("User is already in dislikes");
       }
 
-      const dislikes = await Dislikes.findOneAndUpdate(
+      const dislikes = await Dislike.findOneAndUpdate(
         { disliker_id },
         { $addToSet: { dislikes: { disliked_id, disliked_at: new Date() } } },
         { new: true, upsert: true }
@@ -25,9 +25,9 @@ export class DislikesService {
 
   getDislikes = async (disliker_id: string) => {
     try {
-      const dislikes = await Dislikes.findOne({ disliker_id }).exec();
+      const dislikes = await Dislike.findOne({ disliker_id }).exec();
       if (!dislikes) {
-        return await Dislikes.create({ disliker_id, dislikes: [] });
+        return await Dislike.create({ disliker_id, dislikes: [] });
       }
       return dislikes;
     } catch (error: unknown) {
@@ -44,7 +44,7 @@ export class DislikesService {
       if (!hasDisLiked) {
         throw new Error("User is not in dislikes");
       }
-      const dislikes = await Dislikes.findOneAndUpdate(
+      const dislikes = await Dislike.findOneAndUpdate(
         { disliker_id },
         { $pull: { dislikes: { disliked_id } } },
         { new: true }
@@ -64,7 +64,7 @@ export class DislikesService {
     disliked_id: string
   ): Promise<boolean> => {
     try {
-      const dislikesDoc = await Dislikes.findOne({
+      const dislikesDoc = await Dislike.findOne({
         disliker_id,
         "dislikes.disliked_id": disliked_id,
       }).exec();

@@ -2,12 +2,12 @@ import { Router } from "express";
 import { upload, checkJwt } from "../../middleware";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
-import { LikesService } from "../likes/likes.service";
+import { LikeService } from "../like/like.service";
 
 const router = Router();
 
 const profileController: ProfileController = new ProfileController(
-  new ProfileService(new LikesService())
+  new ProfileService(new LikeService())
 );
 
 /**

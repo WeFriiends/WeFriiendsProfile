@@ -5,11 +5,11 @@ const LikedUserSchema = new Schema({
   liked_at: { type: Date, required: true },
 });
 
-const likesSchema = new Schema({
+const likeSchema = new Schema({
   liker_id: { type: String, required: true },
   likes: { type: [LikedUserSchema], required: true },
 });
 
-const Likes = mongoose.model("Likes", likesSchema);
+const Like = mongoose.model("Like", likeSchema);
 
-export default Likes;
+export default Like;

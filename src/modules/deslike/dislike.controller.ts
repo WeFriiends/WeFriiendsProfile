@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
 import { extractUserId } from "../../utils";
-import { DislikesService } from "./dislikes.service";
+import { DislikeService } from "./dislike.service";
 
-export class DislikesController {
-  private dislikesService: DislikesService;
+export class DislikeController {
+  private dislikeService: DislikeService;
 
-  constructor(dislikesService: DislikesService) {
-    this.dislikesService = dislikesService;
+  constructor(dislikeService: DislikeService) {
+    this.dislikeService = dislikeService;
   }
 
   addDislike = async (req: Request, res: Response) => {
@@ -29,7 +29,7 @@ export class DislikesController {
         return res.status(404).json({ message: "Disliked Profile not found" });
       }
 
-      const dislikes = await this.dislikesService.addDislike(
+      const dislikes = await this.dislikeService.addDislike(
         userId,
         disliked_id
       );
@@ -51,7 +51,7 @@ export class DislikesController {
         .json({ message: "Unauthorized: No token provided" });
     }
     try {
-      const dislikes = await this.dislikesService.getDislikes(userId);
+      const dislikes = await this.dislikeService.getDislikes(userId);
       return res.status(200).json(dislikes);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -78,7 +78,7 @@ export class DislikesController {
           .json({ message: "Both disliker_id and disliked_id are required" });
       }
 
-      const result = await this.dislikesService.removeDislike(
+      const result = await this.dislikeService.removeDislike(
         userId,
         disliked_id
       );

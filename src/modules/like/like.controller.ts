@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
 import { extractUserId } from "../../utils";
-import { LikesService } from "./likes.service";
+import { LikeService } from "./like.service";
 
-export class LikesController {
-  private likesService: LikesService;
+export class LikeController {
+  private likeService: LikeService;
 
-  constructor(likesService: LikesService) {
-    this.likesService = likesService;
+  constructor(likeService: LikeService) {
+    this.likeService = likeService;
   }
 
   addLike = async (req: Request, res: Response) => {
@@ -29,7 +29,7 @@ export class LikesController {
         return res.status(404).json({ message: "Liked Profile not found" });
       }
 
-      const likes = await this.likesService.addLike(userId, liked_id);
+      const likes = await this.likeService.addLike(userId, liked_id);
       return res.status(200).json(likes);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -48,7 +48,7 @@ export class LikesController {
         .json({ message: "Unauthorized: No token provided" });
     }
     try {
-      const likes = await this.likesService.getLikes(userId);
+      const likes = await this.likeService.getLikes(userId);
       return res.status(200).json(likes);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -75,7 +75,7 @@ export class LikesController {
           .json({ message: "Both liker_id and liked_id are required" });
       }
 
-      const result = await this.likesService.removeLike(userId, liked_id);
+      const result = await this.likeService.removeLike(userId, liked_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
       if (error instanceof Error) {

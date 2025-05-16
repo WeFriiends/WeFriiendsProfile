@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { checkJwt } from "../../middleware";
-import { LikesController } from "./likes.controller";
-import { LikesService } from "./likes.service";
+import { LikeController } from "./like.controller";
+import { LikeService } from "./like.service";
 
 const router = Router();
 
-const likesController = new LikesController(new LikesService());
+const likeController = new LikeController(new LikeService());
 
 /**
  * @swagger
@@ -25,7 +25,7 @@ const likesController = new LikesController(new LikesService());
  *       500:
  *         description: Failed to add a like
  */
-router.get("/", checkJwt, likesController.getLikes);
+router.get("/", checkJwt, likeController.getLikes);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.get("/", checkJwt, likesController.getLikes);
  *       500:
  *         description: Failed to add a like
  */
-router.post("/", checkJwt, likesController.addLike);
+router.post("/", checkJwt, likeController.addLike);
 
 /**
  * @swagger
@@ -87,6 +87,6 @@ router.post("/", checkJwt, likesController.addLike);
  *       500:
  *         description: Failed to remove like
  */
-router.delete("/", checkJwt, likesController.removeLike);
+router.delete("/", checkJwt, likeController.removeLike);
 
 export default router;
