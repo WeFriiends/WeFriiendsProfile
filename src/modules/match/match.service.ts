@@ -138,12 +138,10 @@ export class MatchService {
 
   private sendMatchNotification = async (recipientId: string, matchedUserId: string) => {
     try {
-      // Find the subscription for the recipient
       const subscriptionData = await this.subscriptionRepository.findSubscription(recipientId);
       if (!subscriptionData) return; // User hasn't subscribed to notifications
       
-      // Get the matched user's profile to include in notification
-      const matchedUserProfile = await Profile.findOne({ _id: matchedUserId }).exec();
+        const matchedUserProfile = await Profile.findOne({ _id: matchedUserId }).exec();
       if (!matchedUserProfile) return;
       
       const payload = JSON.stringify({
