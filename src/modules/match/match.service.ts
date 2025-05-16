@@ -1,5 +1,5 @@
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
-import { ISubscriptionRepository, MongoSubscriptionRepository } from "./subscription.repository";
+import { ISubscriptionRepository, MongoSubscriptionRepository } from "../subscription/subscription.repository";
 import webPush from "../../config/webpush";
 import { Profile } from "../../models";
 
