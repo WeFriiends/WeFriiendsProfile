@@ -22,8 +22,6 @@ const matchController: MatchController = new MatchController(
  *         description: matches got successfully
  *       401:
  *         description: Unauthorized
- *       500:
- *         description: Failed to add a match
  */
 router.get("/", checkJwt, matchController.getMatches);
 
@@ -90,5 +88,67 @@ router.post("/", checkJwt, matchController.addMatch);
  *         description: Failed to remove a match
  */
 router.delete("/", checkJwt, matchController.removeMatch);
+
+/**
+ * @swagger
+ * /api/matches/notifications/public-key:
+ *   get:
+ *     summary: Get the VAPID public key for push notifications
+ *     tags: [Notifications]
+ *     responses:
+ *       200:
+ *         description: VAPID public key
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 publicKey:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
+router.get("/notifications/public-key", matchController.getPublicKey);
+
+/**
+ * @swagger
+ * /api/matches/notifications/subscribe:
+ *   post:
+ *     summary: Subscribe to push notifications
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - endpoint
+ *               - keys
+ *             properties:
+ *               endpoint:
+ *                 type: string
+ *               expirationTime:
+ *                 type: number
+ *                 nullable: true
+ *               keys:
+ *                 type: object
+ *                 required:
+ *                   - p256dh
+ *                   - auth
+ *                 properties:
+ *                   p256dh:
+ *                     type: string
+ *                   auth:
+ *                     type: string
+ *     responses:
+ *       201:
+ *         description: Subscription saved successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post("/notifications/subscribe", checkJwt, matchController.subscribe);
 
 export default router;
