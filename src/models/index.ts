@@ -5,6 +5,10 @@ export { default as Like } from "../modules/like/like.model";
 export { default as Match } from "../modules/match/match.model";
 export { default as Profile } from "../modules/profile/profile.model";
 export {
+  default as Subscription,
+  PushSubscription,
+} from "../modules/subscription/subscription.model";
+export {
   Location,
   Preferences,
   ProfileDocument,
