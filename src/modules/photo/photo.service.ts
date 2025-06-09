@@ -1,8 +1,9 @@
 import { Profile } from "../../models";
+import { deleteCloudinaryImage } from "../../utils";
 
 export const getPhotos = async (id: string): Promise<string[]> => {
   try {
-    const profile = await Profile.findOne({ userId: id }).exec();
+    const profile = await Profile.findOne({ _id: id }).exec();
     if (profile && profile.photos) {
       return profile.photos;
     }
@@ -17,11 +18,11 @@ export const addPhoto = async (
   photoUrl: string
 ): Promise<string[]> => {
   try {
-    const profile = await Profile.findOne({ userId: id }).exec();
+    const profile = await Profile.findOne({ _id: id }).exec();
     if (profile && profile.photos) {
       if (profile.photos?.length < 10) {
         const updatedProfile = await Profile.findOneAndUpdate(
-          { userId: id },
+          { _id: id },
           { $addToSet: { photos: photoUrl } },
           { new: true }
         ).exec();
@@ -45,11 +46,30 @@ export const removePhoto = async (
   photoId: string
 ): Promise<string[]> => {
   try {
+    const profile = await Profile.findOne({ _id: id }).exec();
+    if (!profile) {
+      throw new Error(`Profile not found for user with id: ${id}`);
+    }
+
+    const photoUrl = profile.photos?.find((photo) => photo.includes(photoId));
+    if (!photoUrl) {
+      throw new Error(`Photo not found in profile`);
+    }
+
+    const urlParts = photoUrl.split("/");
+    const publicId = urlParts
+      .slice(urlParts.indexOf("upload") + 2)
+      .join("/")
+      .replace(/\.[^/.]+$/, "");
+
+    await deleteCloudinaryImage(publicId);
+
     const updatedProfile = await Profile.findOneAndUpdate(
-      { userId: id },
-      { $pull: { photos: photoId } },
+      { _id: id },
+      { $pull: { photos: photoUrl } },
       { new: true }
     ).exec();
+
     if (updatedProfile) {
       return updatedProfile.photos || [];
     }
