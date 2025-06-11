@@ -1,10 +1,17 @@
+import { LikeService } from "../like/like.service";
+import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
+  private profileService: ProfileService;
 
-  constructor(mongoRepository: IMatchRepository = new MongoMatchRepository()) {
+  constructor(
+    mongoRepository: IMatchRepository = new MongoMatchRepository(),
+    profileService: ProfileService = new ProfileService(new LikeService())
+  ) {
     this.mongoRepository = mongoRepository;
+    this.profileService = profileService;
   }
 
   addMatch = async (user1_id: string, user2_id: string) => {
@@ -28,8 +35,29 @@ export class MatchService {
   getMatches = async (user_id: string) => {
     try {
       const matches = await this.mongoRepository.findByUserId(user_id);
+      if (matches.length === 0) {
+        return [];
+      }
+      const friendsIds: string[] = matches.map((match) =>
+        match.user1_id === user_id ? match.user2_id : match.user1_id
+      );
 
-      return matches;
+      const friends = await Promise.all(
+        friendsIds.map((friendId) =>
+          this.profileService.getProfileById(friendId)
+        )
+      );
+
+      const modifiedFriens = friends.map((friend) => {
+        return {
+          id: friend.id,
+          name: friend.name,
+          age: new Date().getFullYear() - friend.dateOfBirth.getFullYear(),
+          photo: friend.photos?.[0] || null,
+        };
+      });
+
+      return modifiedFriens;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
