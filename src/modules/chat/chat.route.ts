@@ -7,6 +7,7 @@ const router = Router();
  * @swagger
  * /api/chats:
  *   get:
+ *     tags: [Chat]
  *     summary: Get all chats
  *     responses:
  *       200:
@@ -20,6 +21,7 @@ router.get("/", chatController.getAllChats);
  * @swagger
  * /api/chats:
  *   post:
+ *     tags: [Chat]
  *     summary: Create a new chat
  *     requestBody:
  *       required: true
@@ -67,6 +69,7 @@ router.post("/", chatController.createChat);
  * @swagger
  * /api/chats/{id}:
  *   get:
+ *     tags: [Chat]
  *     summary: Get a chat by ID
  *     parameters:
  *       - in: path
@@ -89,6 +92,7 @@ router.get("/:id", chatController.getChatById);
  * @swagger
  * /api/chats/{id}:
  *   put:
+ *     tags: [Chat]
  *     summary: Update a chat by ID
  *     parameters:
  *       - in: path
@@ -144,6 +148,7 @@ router.put("/:id", chatController.updateChat);
  * @swagger
  * /api/chats/{id}:
  *   delete:
+ *     tags: [Chat]
  *     summary: Delete a chat by ID
  *     parameters:
  *       - in: path

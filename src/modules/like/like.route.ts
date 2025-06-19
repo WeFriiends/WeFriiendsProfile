@@ -12,7 +12,7 @@ const likeController = new LikeController(new LikeService());
  * /api/likes:
  *   get:
  *     summary: Get likes
- *     tags: [Likes]
+ *     tags: [Like]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -32,7 +32,7 @@ router.get("/", checkJwt, likeController.getLikes);
  * /api/likes:
  *   post:
  *     summary: Add a like
- *     tags: [Likes]
+ *     tags: [Like]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -63,7 +63,7 @@ router.post("/", checkJwt, likeController.addLike);
  * /api/likes:
  *   delete:
  *     summary: Remove a like
- *     tags: [Likes]
+ *     tags: [Like]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

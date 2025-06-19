@@ -9,6 +9,7 @@ const router = Router();
  * @swagger
  * /api/photos:
  *   post:
+ *     tags: [Photo]
  *     summary: Upload images to Cloudinary
  *     consumes:
  *       - multipart/form-data
@@ -38,6 +39,7 @@ router.post(
  * @swagger
  * /api/photos:/{id}:
  *   get:
+ *     tags: [Photo]
  *     summary: Get profile photos by user ID
  *     parameters:
  *       - in: path
@@ -58,6 +60,7 @@ router.get("/:id", photoController.getPhotos);
  * @swagger
  * /api/photos:
  *   post:
+ *     tags: [Photo]
  *     summary: Add a new photo URL to a user's profile
  *     requestBody:
  *       required: true
@@ -84,6 +87,7 @@ router.post("/", photoController.addPhoto);
  * @swagger
  * /api/photos:
  *   delete:
+ *     tags: [Photo]
  *     summary: Remove a photo URL from a user's profile
  *     requestBody:
  *       required: true

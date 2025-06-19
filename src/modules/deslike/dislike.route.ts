@@ -12,7 +12,7 @@ const dislikeController = new DislikeController(new DislikeService());
  * /api/dislikes:
  *   get:
  *     summary: Get dislikes
- *     tags: [Dislikes]
+ *     tags: [Dislike]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -32,7 +32,7 @@ router.get("/", checkJwt, dislikeController.getDislikes);
  * /api/dislikes:
  *   post:
  *     summary: Add a dislike
- *     tags: [Dislikes]
+ *     tags: [Dislike]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -63,7 +63,7 @@ router.post("/", checkJwt, dislikeController.addDislike);
  * /api/dislikes:
  *   delete:
  *     summary: Remove a dislike
- *     tags: [Dislikes]
+ *     tags: [Dislike]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

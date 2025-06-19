@@ -14,7 +14,7 @@ const matchController: MatchController = new MatchController(
  * /api/matches:
  *   get:
  *     summary: Get matches
- *     tags: [Matches]
+ *     tags: [Matche]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -32,7 +32,7 @@ router.get("/", checkJwt, matchController.getMatches);
  * /api/matches:
  *   post:
  *     summary: Add a match
- *     tags: [Matches]
+ *     tags: [Matche]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -63,7 +63,7 @@ router.post("/", checkJwt, matchController.addMatch);
  * /api/matches:
  *   delete:
  *     summary: Remove a match
- *     tags: [Matches]
+ *     tags: [Matche]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
