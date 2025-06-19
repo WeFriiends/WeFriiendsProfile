@@ -37,24 +37,17 @@ router.post(
 
 /**
  * @swagger
- * /api/photos:/{id}:
+ * /api/photos:
  *   get:
  *     tags: [Photo]
- *     summary: Get profile photos by user ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
+ *     summary: Get profile photos
  *     responses:
  *       200:
  *         description: List of profile photos
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", photoController.getPhotos);
+router.get("/", photoController.getPhotos);
 
 /**
  * @swagger
@@ -69,10 +62,7 @@ router.get("/:id", photoController.getPhotos);
  *           schema:
  *             type: object
  *             properties:
- *               id:
- *                 type: string
- *                 description: User ID
- *               photoUrl:
+ *                photoUrl:
  *                 type: string
  *                 description: Photo URL to add
  *     responses:
@@ -96,12 +86,9 @@ router.post("/", photoController.addPhoto);
  *           schema:
  *             type: object
  *             properties:
- *               id:
+ *               photoUrl:
  *                 type: string
- *                 description: User ID
- *               photoId:
- *                 type: string
- *                 description: Photo ID to remove
+ *                 description: Photo URL to remove
  *     responses:
  *       200:
  *         description: Successfully removed photo

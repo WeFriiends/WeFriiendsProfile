@@ -1,21 +1,21 @@
 import { Profile } from "../../models";
 import { deleteCloudinaryImage } from "../../utils";
 
-export const getPhotos = async (id: string): Promise<string[]> => {
-  const profile = await Profile.findOne({ _id: id }).exec();
+export const getPhotos = async (userId: string): Promise<string[]> => {
+  const profile = await Profile.findOne({ _id: userId }).exec();
   if (!profile) {
-    throw new Error(`Profile not found for user with id: ${id}`);
+    throw new Error(`Profile not found for user with id: ${userId}`);
   }
   return profile.photos || [];
 };
 
 export const addPhoto = async (
-  id: string,
+  userId: string,
   photoUrl: string
 ): Promise<string[]> => {
   const updatedProfile = await Profile.findOneAndUpdate(
     { 
-      _id: id,
+      _id: userId,
       $expr: { $lt: [{ $size: { $ifNull: ["$photos", []] } }, 10] }
     },
     { $addToSet: { photos: photoUrl } },
@@ -23,26 +23,26 @@ export const addPhoto = async (
   ).exec();
 
   if (!updatedProfile) {
-    const profile = await Profile.findOne({ _id: id }).exec();
+    const profile = await Profile.findOne({ _id: userId }).exec();
     if (!profile) {
-      throw new Error(`Profile not found for user with id: ${id}`);
+      throw new Error(`Profile not found for user with id: ${userId}`);
     }
-    throw new Error(`Max allowed amount of photos is already added for user with id: ${id}`);
+    throw new Error(`Max allowed amount of photos is already added for user with id: ${userId}`);
   }
 
   return updatedProfile.photos || [];
 };
 
 export const removePhoto = async (
-  id: string,
-  photoId: string
+  userId: string,
+  passedPhotoUrl: string
 ): Promise<string[]> => {
-  const profile = await Profile.findOne({ _id: id }).exec();
+  const profile = await Profile.findOne({ _id: userId }).exec();
   if (!profile) {
-    throw new Error(`Profile not found for user with id: ${id}`);
+    throw new Error(`Profile not found for user with id: ${userId}`);
   }
 
-  const photoUrl = profile.photos?.find((photo) => photo.includes(photoId));
+  const photoUrl = profile.photos?.find((photo) => photo.includes(passedPhotoUrl));
   if (!photoUrl) {
     throw new Error(`Photo not found in profile`);
   }
@@ -56,7 +56,7 @@ export const removePhoto = async (
   await deleteCloudinaryImage(publicId);
 
   const updatedProfile = await Profile.findOneAndUpdate(
-    { _id: id },
+    { _id: userId },
     { $pull: { photos: photoUrl } },
     { new: true }
   ).exec();
