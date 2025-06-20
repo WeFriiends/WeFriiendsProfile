@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { uploadToCloudinary } from "../../middleware";
 import { upload } from "../../middleware/uploadPhoto";
-import { handleUploadToCloudinary } from "./photo.controller";
 import * as photoController from "./photo.controller";
 
 const router = Router();
@@ -44,7 +43,7 @@ router.post(
   upload.array("images", 5),
   // @ts-ignore
   uploadToCloudinary,
-  handleUploadToCloudinary
+  photoController.handleUploadToCloudinary
 );
 
 /**
