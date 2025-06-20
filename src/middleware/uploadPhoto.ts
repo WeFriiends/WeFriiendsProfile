@@ -20,16 +20,16 @@ interface CustomRequest extends Request {
 }
 
 const storage = multer.memoryStorage();
-export const upload: Multer = multer({ 
+export const upload: Multer = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'));
+      cb(new Error("Only image files are allowed"));
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
 export const uploadToCloudinary = async (
@@ -38,9 +38,6 @@ export const uploadToCloudinary = async (
   next: NextFunction
 ) => {
   try {
-    console.log('Files received:', req.files);
-    console.log('Body:', req.body);
-    
     const files: CloudinaryFile[] = req.files as CloudinaryFile[];
     if (!files || files.length === 0) {
       return next(new Error("No files provided"));
@@ -48,9 +45,9 @@ export const uploadToCloudinary = async (
 
     const uploadPromises = files.map(async (file) => {
       if (!file.buffer || file.buffer.length === 0) {
-        throw new Error('File buffer is empty');
+        throw new Error("File buffer is empty");
       }
-      
+
       const resizedBuffer: Buffer = await sharp(file.buffer)
         .resize({ width: 450, height: 535 })
         .jpeg({ quality: 80 })
@@ -64,7 +61,10 @@ export const uploadToCloudinary = async (
 
         const uploadStream = cloudinary.uploader.upload_stream(
           options,
-          (err: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+          (
+            err: UploadApiErrorResponse | undefined,
+            result: UploadApiResponse | undefined
+          ) => {
             if (err) return reject(err);
             if (!result) return reject(new Error("Upload result is undefined"));
             resolve(result.secure_url);
