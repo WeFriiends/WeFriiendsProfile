@@ -12,19 +12,30 @@ const router = Router();
  *   post:
  *     tags: [Photo]
  *     summary: Upload images to Cloudinary
- *     consumes:
- *       - multipart/form-data
- *     parameters:
- *       - in: formData
- *         name: images
- *         type: array
- *         items:
- *           type: string
- *           format: binary
- *         description: Array of images to upload
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Array of images to upload (max 5 files)
  *     responses:
  *       200:
  *         description: Successfully uploaded images
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *       400:
+ *         description: No files provided or invalid file type
  *       500:
  *         description: Internal server error
  */
