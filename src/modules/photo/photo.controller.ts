@@ -7,7 +7,7 @@ export const handleUploadToCloudinary = async (req: Request, res: Response) => {
   if (!cloudinaryUrls?.length) {
     return res.status(400).json({ error: "No Cloudinary URLs provided" });
   }
-  res.json(cloudinaryUrls);
+  return res.json(cloudinaryUrls);
 };
 
 export const getPhotos = async (
