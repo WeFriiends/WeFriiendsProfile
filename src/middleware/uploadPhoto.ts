@@ -5,7 +5,7 @@ import {
   UploadApiOptions,
 } from "cloudinary";
 import sharp from "sharp";
-import { Request, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/cloudinary";
 
 interface CloudinaryFile extends Express.Multer.File {
@@ -24,6 +24,7 @@ export const upload: Multer = multer({ storage: storage });
 
 export const uploadToCloudinary = async (
   req: CustomRequest,
+  res: Response,
   next: NextFunction
 ) => {
   try {
@@ -31,44 +32,33 @@ export const uploadToCloudinary = async (
     if (!files || files.length === 0) {
       return next(new Error("No files provided"));
     }
-    const cloudinaryUrls: string[] = [];
-    let processedFiles = 0;
 
-    for (const file of files) {
+    const uploadPromises = files.map(async (file) => {
       const resizedBuffer: Buffer = await sharp(file.buffer)
         .resize({ width: 450, height: 535 })
         .toBuffer();
 
-      const options: UploadApiOptions = {
-        resource_type: "auto",
-        folder: "profile-photos",
-      };
+      return new Promise<string>((resolve, reject) => {
+        const options: UploadApiOptions = {
+          resource_type: "auto",
+          folder: "profile-photos",
+        };
 
-      const uploadStream = cloudinary.uploader.upload_stream(
-        options,
-        (
-          err: UploadApiErrorResponse | undefined,
-          result: UploadApiResponse | undefined
-        ) => {
-          if (err) {
-            console.error("Cloudinary upload error:", err);
-            return next(err);
+        const uploadStream = cloudinary.uploader.upload_stream(
+          options,
+          (err: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+            if (err) return reject(err);
+            if (!result) return reject(new Error("Upload result is undefined"));
+            resolve(result.secure_url);
           }
-          if (!result) {
-            console.error("Cloudinary upload error: Result is undefined");
-            return next(new Error("Cloudinary upload result is undefined"));
-          }
-          cloudinaryUrls.push(result.secure_url);
-          processedFiles++;
+        );
+        uploadStream.end(resizedBuffer);
+      });
+    });
 
-          if (processedFiles === files.length) {
-            req.body.cloudinaryUrls = cloudinaryUrls;
-            next();
-          }
-        }
-      );
-      uploadStream.end(resizedBuffer);
-    }
+    const cloudinaryUrls = await Promise.all(uploadPromises);
+    req.body.cloudinaryUrls = cloudinaryUrls;
+    next();
   } catch (error) {
     console.error("Error in uploadToCloudinary middleware:", error);
     next(error);
