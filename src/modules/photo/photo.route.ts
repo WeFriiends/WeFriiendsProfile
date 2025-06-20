@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { upload, uploadToCloudinary } from "../../middleware";
+import { uploadToCloudinary } from "../../middleware";
+import { upload } from "../../middleware/uploadPhoto";
 import { handleUploadToCloudinary } from "./photo.controller";
 import * as photoController from "./photo.controller";
 
