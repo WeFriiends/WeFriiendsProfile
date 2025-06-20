@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/photos:
+ * /api/photos/upload:
  *   post:
  *     tags: [Photo]
  *     summary: Upload images to Cloudinary
@@ -28,7 +28,7 @@ const router = Router();
  *         description: Internal server error
  */
 router.post(
-  "/",
+  "/upload",
   upload.array("images", 5),
   // @ts-ignore
   uploadToCloudinary,
