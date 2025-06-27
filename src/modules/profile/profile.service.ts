@@ -278,8 +278,15 @@ export class ProfileService {
 
       console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
+      const userLikes = await this.likeService.getLikes(userId);
+
       const resultWithDistances = await Promise.all(
         allProfiles
+          .filter((friend) => {
+            return !userLikes?.likes?.some(
+              (like) => like.liked_id === friend.id
+            );
+          })
           .filter((friend) => {
             if (!friend.location?.lat || !friend.location?.lng) return false;
 
