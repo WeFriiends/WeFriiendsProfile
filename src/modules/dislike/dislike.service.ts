@@ -5,7 +5,9 @@ export class DislikeService {
     try {
       const hasDisliked = await this.hasDisliked(disliker_id, disliked_id);
       if (hasDisliked) {
-        throw new Error("User is already in dislikes");
+        return {
+          message: "User is already in dislikes",
+        };
       }
 
       const dislikes = await Dislike.findOneAndUpdate(
