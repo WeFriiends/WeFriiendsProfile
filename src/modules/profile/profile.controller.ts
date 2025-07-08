@@ -137,10 +137,6 @@ export class ProfileController {
         blackList,
       } = req.body;
 
-      if (!location) {
-        return res.status(400).json({ error: "Location is required" });
-      }
-
       const friendsDistanceNum = friendsDistance
         ? Number(friendsDistance)
         : undefined;
