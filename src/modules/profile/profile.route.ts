@@ -3,12 +3,16 @@ import { upload, checkJwt } from "../../middleware";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
+import { MatchService } from "../match/match.service";
 
 const router = Router();
 
-const profileController: ProfileController = new ProfileController(
-  new ProfileService(new LikeService())
-);
+const likeService = new LikeService();
+const profileService = new ProfileService(likeService);
+const matchService = new MatchService(undefined, profileService);
+profileService['matchService'] = matchService;
+
+const profileController: ProfileController = new ProfileController(profileService);
 
 /**
  * @swagger

@@ -9,13 +9,16 @@ import {
 } from "../../models";
 import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikeService } from "../like/like.service";
+import { MatchService } from "../match/match.service";
 import cloudinary from "../../config/cloudinary";
 
 export class ProfileService {
   private likeService: LikeService;
+  private matchService?: MatchService;
 
-  constructor(likeService: LikeService) {
+  constructor(likeService: LikeService, matchService?: MatchService) {
     this.likeService = likeService;
+    this.matchService = matchService;
   }
 
   registerProfile = async (
@@ -279,12 +282,14 @@ export class ProfileService {
       console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
       const userLikes = await this.likeService.getLikes(userId);
+      const userMatches = this.matchService ? await this.matchService.getMatches(userId) : [];
 
       const resultWithDistances = await Promise.all(
         allProfiles
           .filter((friend) => {
-            return !userLikes?.likes?.some(
-              (like) => like.liked_id === friend.id
+            return (
+              !userLikes?.likes?.some((like) => like.liked_id === friend.id) &&
+              !userMatches?.some((match) => match.id === friend.id)
             );
           })
           .filter((friend) => {
