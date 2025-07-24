@@ -45,14 +45,16 @@ export class ProfileService {
 
       for (const file of files) {
         try {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "profile_pics",
-          });
+          const result = await cloudinary.uploader.upload(
+            `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+            {
+              folder: "profile_pics",
+            }
+          );
           uploadedFiles.push(result.secure_url);
-          fs.unlinkSync(file.path);
         } catch (error) {
-          console.error(`Failed to upload file ${file.filename}:`, error);
-          throw new Error(`Failed to upload file ${file.filename}`);
+          console.error(`Failed to upload file ${file.originalname}:`, error);
+          throw new Error(`Failed to upload file ${file.originalname}`);
         }
       }
 
@@ -282,7 +284,9 @@ export class ProfileService {
       console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
       const userLikes = await this.likeService.getLikes(userId);
-      const userMatches = this.matchService ? await this.matchService.getMatches(userId) : [];
+      const userMatches = this.matchService
+        ? await this.matchService.getMatches(userId)
+        : [];
 
       const resultWithDistances = await Promise.all(
         allProfiles
