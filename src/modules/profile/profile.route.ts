@@ -10,9 +10,12 @@ const router = Router();
 const likeService = new LikeService();
 const profileService = new ProfileService(likeService);
 const matchService = new MatchService(undefined, profileService);
-profileService['matchService'] = matchService;
+profileService["matchService"] = matchService;
 
-const profileController: ProfileController = new ProfileController(profileService);
+const profileController: ProfileController = new ProfileController(
+  profileService,
+  likeService
+);
 
 /**
  * @swagger
@@ -107,6 +110,102 @@ router.get("/", checkJwt, profileController.getCurrentProfile);
  *         description: Bad request
  */
 router.get("/check", checkJwt, profileController.checkProfileExistsById);
+
+/**
+ * @swagger
+ * /api/profile/search:
+ *   get:
+ *     summary: Search for friends
+ *     tags: [Profile]
+ *     responses:
+ *       200:
+ *         description: List of matching profiles found
+ *       400:
+ *         description: Bad request - invalid input parameters
+ *       500:
+ *         description: Error searching friends
+ */
+router.get("/search", checkJwt, profileController.searchFriends);
+
+/**
+ * @swagger
+ * /api/profile/all:
+ *   get:
+ *     summary: Get all profiles
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profiles retrieved successfully
+ *       404:
+ *         description: Profiles not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   age:
+ *                     type: string
+ *                   zodiacSign:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   distance:
+ *                     type: string
+ *                   likedUsers:
+ *                     type: array
+ *                     items:
+ *                        _id: string
+ *                   photos:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         src:
+ *                           type: string
+ *                   reasons:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ */
+router.get("/all", checkJwt, profileController.getAllProfiles);
+
+/**
+ * @swagger
+ * /api/profile/{userId}:
+ *   get:
+ *     summary: Get current profile
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *          - name: userId
+ *            in: path
+ *            required: true
+ *            description: The ID of the user to retrieve
+ *            schema:
+ *              type: string
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *       404:
+ *         description: Profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.get("/:userId", checkJwt, profileController.getProfileById);
 
 /**
  * @swagger
@@ -212,71 +311,5 @@ router.patch("/", checkJwt, profileController.updateProfile);
  *         description: Bad request
  */
 router.delete("/", checkJwt, profileController.deleteProfile);
-
-/**
- * @swagger
- * /api/profile/all:
- *   get:
- *     summary: Get all profiles
- *     tags: [Profile]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Profiles retrieved successfully
- *       404:
- *         description: Profiles not found
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   age:
- *                     type: string
- *                   zodiacSign:
- *                     type: string
- *                   city:
- *                     type: string
- *                   distance:
- *                     type: string
- *                   likedUsers:
- *                     type: array
- *                     items:
- *                        _id: string
- *                   photos:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         src:
- *                           type: string
- *                   reasons:
- *                     type: array
- *                     items:
- *                       type: string
- */
-router.get("/all", checkJwt, profileController.getAllProfiles);
-
-/**
- * @swagger
- * /api/profile/search:
- *   get:
- *     summary: Search for friends
- *     tags: [Profile]
- *     responses:
- *       200:
- *         description: List of matching profiles found
- *       400:
- *         description: Bad request - invalid input parameters
- *       500:
- *         description: Error searching friends
- */
-router.get("/search", checkJwt, profileController.searchFriends);
 
 export default router;

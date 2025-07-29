@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import { extractUserId } from "../../utils";
 import { ProfileService } from "./profile.service";
+import { LikeService } from "../like/like.service";
 import { Preferences } from "../../models";
 
 export class ProfileController {
   private profileService: ProfileService;
+  private likeService: LikeService;
 
-  constructor(profileService: ProfileService) {
+  constructor(profileService: ProfileService, likeService: LikeService) {
     this.profileService = profileService;
+    this.likeService = likeService;
   }
 
   registerProfile = async (req: Request, res: Response) => {
@@ -91,6 +94,45 @@ export class ProfileController {
     } catch (error) {
       return res
         .status(400)
+        .json({ message: "Error retrieving profile", error });
+    }
+  };
+
+  getProfileById = async (req: Request, res: Response) => {
+    console.log("controller getProfileById");
+
+    try {
+      const userId = extractUserId(req);
+      if (!userId) {
+        return res
+          .status(401)
+          .json({ message: "Unauthorized: No token provided" });
+      }
+
+      const targetUserId = req.params.userId;
+      if (!targetUserId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+
+      const exists = await this.profileService.checkProfileExists(targetUserId);
+      if (!exists) {
+        return res
+          .status(404)
+          .json({ message: "User with provided ID doesn't exist" });
+      }
+
+      const targetUser = await this.profileService.getProfileById(targetUserId);
+
+      const likesDoc = await this.likeService.getLikes(targetUser._id);
+      const likedMe =
+        likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
+
+      const targetUserObject = targetUser.toObject();
+
+      return res.status(200).json({ ...targetUserObject, likedMe });
+    } catch (error) {
+      return res
+        .status(500)
         .json({ message: "Error retrieving profile", error });
     }
   };
