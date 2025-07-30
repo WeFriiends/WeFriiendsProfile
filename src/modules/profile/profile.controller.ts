@@ -134,8 +134,9 @@ export class ProfileController {
       const performedUser = {
         _id: targetUserObject._id,
         name: targetUserObject.name,
-        age:
-          new Date().getFullYear() - targetUserObject.dateOfBirth.getFullYear(),
+        age: Math.round(
+          new Date().getFullYear() - targetUserObject.dateOfBirth.getFullYear()
+        ),
         zodiacSign: targetUserObject.zodiacSign,
         city: targetUserObject.location.city,
         distance: haversineDistance(
