@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { extractUserId } from "../../utils";
+import { extractUserId, haversineDistance } from "../../utils";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
 import { Preferences } from "../../models";
@@ -122,14 +122,46 @@ export class ProfileController {
       }
 
       const targetUser = await this.profileService.getProfileById(targetUserId);
+      const currentUser = await this.profileService.getProfileById(userId);
 
       const likesDoc = await this.likeService.getLikes(targetUser._id);
       const likedMe =
         likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
 
       const targetUserObject = targetUser.toObject();
+      const currentUserObject = currentUser.toObject();
 
-      return res.status(200).json({ ...targetUserObject, likedMe });
+      const performedUser = {
+        _id: targetUserObject._id,
+        name: targetUserObject.name,
+        age:
+          new Date().getFullYear() - targetUserObject.dateOfBirth.getFullYear(),
+        zodiacSign: targetUserObject.zodiacSign,
+        city: targetUserObject.location.city,
+        distance: haversineDistance(
+          targetUserObject.location.lat,
+          targetUserObject.location.lng,
+          currentUserObject.location.lat,
+          currentUserObject.location.lng
+        ),
+        likedMe,
+        photos: targetUserObject.photos,
+        reasons: targetUserObject.reasons,
+        preferences: {
+          questionary: {
+            smoking: targetUserObject.preferences?.smoking[0] || "",
+            education: targetUserObject.preferences?.educationalLevel,
+            children: targetUserObject.preferences?.children[0] || "",
+            drinking: targetUserObject.preferences?.drinking[0] || "",
+            pets: targetUserObject.preferences?.pets,
+            language: targetUserObject.preferences?.selectedLanguages,
+          },
+          interests: targetUserObject.preferences?.interests,
+          aboutMe: targetUserObject.preferences?.aboutMe,
+        },
+      };
+
+      return res.status(200).json(performedUser);
     } catch (error) {
       return res
         .status(500)
