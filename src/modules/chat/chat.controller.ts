@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 import { ChatService } from "./chat.service";
 import { extractUserId } from "../../utils";
+import { MatchService } from "../match/match.service";
 
 export class ChatController {
   private chatService: ChatService;
+  private MatchService: MatchService;
 
   constructor(chatService: ChatService) {
     this.chatService = chatService;
+    this.MatchService = new MatchService();
   }
 
   getAllChats = async (req: Request, res: Response) => {
@@ -33,6 +36,11 @@ export class ChatController {
         return res
           .status(400)
           .send({ message: "You cannot chat with yourself" });
+      }
+
+      const hasMatch = await this.MatchService.hasMatch(userId, friendId);
+      if (!hasMatch) {
+        return res.status(400).send({ message: "You are not friends" });
       }
 
       const newChat = await this.chatService.createChat(userId, friendId);
