@@ -1,59 +1,64 @@
 import { Request, Response } from "express";
-import { Chat } from "../../models";
+import { ChatService } from "./chat.service";
 
-export const getAllChats = async (req: Request, res: Response) => {
-  try {
-    const chats = await Chat.find();
-    res.send(chats);
-  } catch (err) {
-    res.status(500).send(err);
+export class ChatController {
+  private chatService: ChatService;
+
+  constructor(chatService: ChatService) {
+    this.chatService = chatService;
   }
-};
 
-export const createChat = async (req: Request, res: Response) => {
-  try {
-    const newChat = new Chat(req.body);
-    await newChat.save();
-    res.send(newChat);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
-
-export const getChatById = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findById(req.params.id);
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
+  getAllChats = async (req: Request, res: Response) => {
+    try {
+      const chats = await this.chatService.getAllChats();
+      res.send(chats);
+    } catch (err) {
+      res.status(500).send(err);
     }
-    res.send(chat);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+  };
 
-export const updateChat = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
+  createChat = async (req: Request, res: Response) => {
+    try {
+      const newChat = await this.chatService.createChat(req.body);
+      res.send(newChat);
+    } catch (err) {
+      res.status(400).send(err);
     }
-    res.send(chat);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
+  };
 
-export const deleteChat = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findByIdAndDelete(req.params.id);
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
+  getChatById = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.getChatById(req.params.id);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      res.send(chat);
+    } catch (err) {
+      res.status(500).send(err);
     }
-    res.send({ message: "Chat deleted" });
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+  };
+
+  updateChat = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.updateChat(req.params.id, req.body);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      res.send(chat);
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  };
+
+  deleteChat = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.deleteChat(req.params.id);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      res.send({ message: "Chat deleted" });
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  };
+}

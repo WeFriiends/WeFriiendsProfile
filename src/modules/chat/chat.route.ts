@@ -1,7 +1,10 @@
 import { Router } from "express";
-import * as chatController from "./chat.controller";
+import { ChatController } from "./chat.controller";
+import { ChatService } from "./chat.service";
 
 const router = Router();
+const chatService = new ChatService();
+const chatController = new ChatController(chatService);
 
 /**
  * @swagger
