@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ChatService } from "./chat.service";
+import { extractUserId } from "../../utils";
 
 export class ChatController {
   private chatService: ChatService;
@@ -11,18 +12,33 @@ export class ChatController {
   getAllChats = async (req: Request, res: Response) => {
     try {
       const chats = await this.chatService.getAllChats();
-      res.send(chats);
+      return res.send(chats);
     } catch (err) {
-      res.status(500).send(err);
+      return res.status(500).send(err);
     }
   };
 
   createChat = async (req: Request, res: Response) => {
     try {
-      const newChat = await this.chatService.createChat(req.body);
-      res.send(newChat);
+      const { friendId } = req.body;
+      if (!friendId) {
+        return res.status(400).send({ message: "Friend ID is required" });
+      }
+      const userId = extractUserId(req);
+      if (!userId) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+
+      if (userId === friendId) {
+        return res
+          .status(400)
+          .send({ message: "You cannot chat with yourself" });
+      }
+
+      const newChat = await this.chatService.createChat(userId, friendId);
+      return res.send(newChat);
     } catch (err) {
-      res.status(400).send(err);
+      return res.status(400).send(err);
     }
   };
 
@@ -32,9 +48,9 @@ export class ChatController {
       if (!chat) {
         return res.status(404).send({ message: "Chat not found" });
       }
-      res.send(chat);
+      return res.send(chat);
     } catch (err) {
-      res.status(500).send(err);
+      return res.status(500).send(err);
     }
   };
 
@@ -44,9 +60,9 @@ export class ChatController {
       if (!chat) {
         return res.status(404).send({ message: "Chat not found" });
       }
-      res.send(chat);
+      return res.send(chat);
     } catch (err) {
-      res.status(400).send(err);
+      return res.status(400).send(err);
     }
   };
 
@@ -56,9 +72,9 @@ export class ChatController {
       if (!chat) {
         return res.status(404).send({ message: "Chat not found" });
       }
-      res.send({ message: "Chat deleted" });
+      return res.send({ message: "Chat deleted" });
     } catch (err) {
-      res.status(500).send(err);
+      return res.status(500).send(err);
     }
   };
 }

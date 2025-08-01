@@ -5,8 +5,11 @@ export class ChatService {
     return await Chat.find();
   }
 
-  async createChat(chatData: Partial<IChat>): Promise<IChat> {
-    const newChat = new Chat(chatData);
+  async createChat(userId: string, friendId: string): Promise<IChat> {
+    const chat = {
+      participants: [userId, friendId],
+    };
+    const newChat = new Chat(chat);
     return await newChat.save();
   }
 
@@ -14,7 +17,10 @@ export class ChatService {
     return await Chat.findById(id);
   }
 
-  async updateChat(id: string, updateData: Partial<IChat>): Promise<IChat | null> {
+  async updateChat(
+    id: string,
+    updateData: Partial<IChat>
+  ): Promise<IChat | null> {
     return await Chat.findByIdAndUpdate(id, updateData, { new: true });
   }
 

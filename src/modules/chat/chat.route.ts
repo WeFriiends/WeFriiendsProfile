@@ -39,13 +39,9 @@ router.get("/", checkJwt, chatController.getAllChats);
  *           schema:
  *             type: object
  *             properties:
- *               participants:
- *                 type: array
- *                 items:
- *                   type: string
- *                 minItems: 2
- *                 maxItems: 2
- *                 description: Array of two participant IDs
+ *               friendId:
+ *                 type: string
+ *                 description: ID of the friend
  *     responses:
  *       201:
  *         description: Chat created successfully
