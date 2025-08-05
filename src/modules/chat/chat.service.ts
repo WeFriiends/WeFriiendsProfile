@@ -13,6 +13,12 @@ export class ChatService {
     return await newChat.save();
   }
 
+  async getChatByParticipants(userId: string, friendId: string): Promise<IChat | null> {
+    return await Chat.findOne({
+      participants: { $all: [userId, friendId] },
+    });
+  }
+
   async getChatById(id: string): Promise<IChat | null> {
     return await Chat.findById(id);
   }
