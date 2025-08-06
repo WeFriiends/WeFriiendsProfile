@@ -28,45 +28,49 @@ const profileController: ProfileController = new ProfileController(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - dateOfBirth
+ *               - location
+ *               - gender
+ *               - reasons
+ *               - files
  *             properties:
  *               name:
  *                 type: string
+ *                 description: User's full name
  *               dateOfBirth:
  *                 type: string
  *                 format: date
+ *                 description: User's date of birth (YYYY-MM-DD)
  *               location:
- *                 type: object
- *                 properties:
- *                   lat:
- *                     type: number
- *                   lng:
- *                     type: number
- *                   country:
- *                     type: string
- *                   city:
- *                     type: string
- *                   street:
- *                     type: string
- *                   houseNumber:
- *                     type: string
- *               photos:
- *                 type: array
- *                 items:
- *                   type: string
+ *                 type: string
+ *                 description: JSON string containing location object with lat, lng, country, city, street (optional), houseNumber (optional)
  *               gender:
  *                 type: string
+ *                 description: User's gender
  *               reasons:
+ *                 type: string
+ *                 description: JSON string array of reasons for joining
+ *               preferences:
+ *                 type: string
+ *                 description: Optional JSON string containing user preferences (aboutMe, selectedLanguages, smoking, educationalLevel, children, drinking, pets, interests)
+ *               files:
  *                 type: array
  *                 items:
  *                   type: string
+ *                   format: binary
+ *                 description: Profile photos (at least one required)
  *     responses:
  *       201:
  *         description: Profile created successfully
  *       400:
- *         description: Bad request
+ *         description: Bad request - missing required fields or invalid data
+ *       401:
+ *         description: Unauthorized - no token provided
  */
 router.post("/", checkJwt, upload.any(), profileController.registerProfile);
 
