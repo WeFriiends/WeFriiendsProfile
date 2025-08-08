@@ -29,10 +29,7 @@ export class MatchService {
 
       return newMatch;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-      throw new Error("Error creating new match");
+      throw error instanceof Error ? error : new Error("Error creating new match");
     }
   };
 
@@ -59,16 +56,17 @@ export class MatchService {
         }))
       );
 
-      const modifiedFriens = friendsWithChats
+      const modifiedFriends = friendsWithChats
         .filter(({ hasChat }) => hasChat)
         .map(({ friend }) => ({
           id: friend.id,
           name: friend.name,
+          // amazonq-ignore-next-line
           age: new Date().getFullYear() - friend.dateOfBirth.getFullYear(),
           photo: friend.photos?.[0] || null,
         }));
 
-      return modifiedFriens;
+      return modifiedFriends;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);

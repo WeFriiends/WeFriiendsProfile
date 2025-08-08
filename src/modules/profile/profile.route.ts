@@ -181,7 +181,7 @@ router.get("/all", checkJwt, profileController.getAllProfiles);
  * @swagger
  * /api/profile/{userId}:
  *   get:
- *     summary: Get current profile
+ *     summary: Get profile by ID
  *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
