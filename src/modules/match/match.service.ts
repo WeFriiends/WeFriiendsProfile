@@ -57,7 +57,7 @@ export class MatchService {
       );
 
       const modifiedFriends = friendsWithChats
-        .filter(({ hasChat }) => hasChat)
+        .filter(({ hasChat }) => !hasChat)
         .map(({ friend }) => ({
           id: friend.id,
           name: friend.name,
