@@ -18,5 +18,5 @@ export const haversineDistance = (
       Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in kilometers
+  return Math.round(R * c); // Distance in kilometers
 };

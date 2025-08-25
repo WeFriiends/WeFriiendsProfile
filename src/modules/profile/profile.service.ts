@@ -46,7 +46,7 @@ export class ProfileService {
       for (const file of files) {
         try {
           const result = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
             {
               folder: "profile_pics",
             }
@@ -328,7 +328,7 @@ export class ProfileService {
               name: friendObject.name,
               zodiacSign: friendObject.zodiacSign,
               likedMe,
-              distance: Math.round(distance),
+              distance,
               city: friendObject.location?.city || "",
               photos:
                 friendObject.photos?.map((photo) => ({ src: photo })) || [],
