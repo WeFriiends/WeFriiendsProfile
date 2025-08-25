@@ -146,7 +146,9 @@ export class ProfileController {
           currentUserObject.location.lng
         ),
         likedMe,
-        photos: targetUserObject.photos,
+        photos: targetUserObject.photos.map((photo: string) => ({
+          src: photo,
+        })),
         reasons: targetUserObject.reasons,
         preferences: {
           questionary: {
