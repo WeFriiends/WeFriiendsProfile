@@ -1,59 +1,88 @@
 import { Request, Response } from "express";
-import { Chat } from "../../models";
+import { ChatService } from "./chat.service";
+import { extractUserId } from "../../utils";
+import { MatchService } from "../match/match.service";
 
-export const getAllChats = async (req: Request, res: Response) => {
-  try {
-    const chats = await Chat.find();
-    res.send(chats);
-  } catch (err) {
-    res.status(500).send(err);
+export class ChatController {
+  private chatService: ChatService;
+  private MatchService: MatchService;
+
+  constructor(chatService: ChatService) {
+    this.chatService = chatService;
+    this.MatchService = new MatchService();
   }
-};
 
-export const createChat = async (req: Request, res: Response) => {
-  try {
-    const newChat = new Chat(req.body);
-    await newChat.save();
-    res.send(newChat);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
-
-export const getChatById = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findById(req.params.id);
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
+  getAllChats = async (req: Request, res: Response) => {
+    try {
+      const chats = await this.chatService.getAllChats();
+      return res.send(chats);
+    } catch (err) {
+      return res.status(500).send(err);
     }
-    res.send(chat);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+  };
 
-export const updateChat = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
-    }
-    res.send(chat);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
+  createChat = async (req: Request, res: Response) => {
+    try {
+      const { friendId } = req.body;
+      if (!friendId) {
+        return res.status(400).send({ message: "Friend ID is required" });
+      }
+      const userId = extractUserId(req);
+      if (!userId) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
 
-export const deleteChat = async (req: Request, res: Response) => {
-  try {
-    const chat = await Chat.findByIdAndDelete(req.params.id);
-    if (!chat) {
-      return res.status(404).send({ message: "Chat not found" });
+      if (userId === friendId) {
+        return res
+          .status(400)
+          .send({ message: "You cannot chat with yourself" });
+      }
+
+      const hasMatch = await this.MatchService.hasMatch(userId, friendId);
+      if (!hasMatch) {
+        return res.status(400).send({ message: "You are not friends" });
+      }
+
+      const newChat = await this.chatService.createChat(userId, friendId);
+      return res.send(newChat);
+    } catch (err) {
+      return res.status(400).send(err);
     }
-    res.send({ message: "Chat deleted" });
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+  };
+
+  getChatById = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.getChatById(req.params.id);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      return res.send(chat);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  };
+
+  updateChat = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.updateChat(req.params.id, req.body);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      return res.send(chat);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  };
+
+  deleteChat = async (req: Request, res: Response) => {
+    try {
+      const chat = await this.chatService.deleteChat(req.params.id);
+      if (!chat) {
+        return res.status(404).send({ message: "Chat not found" });
+      }
+      return res.send({ message: "Chat deleted" });
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  };
+}

@@ -1,3 +1,4 @@
+import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
@@ -5,13 +6,16 @@ import { IMatchRepository, MongoMatchRepository } from "./match.repository";
 export class MatchService {
   private mongoRepository: IMatchRepository;
   private profileService: ProfileService;
+  private chatService: ChatService;
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(new LikeService())
+    profileService: ProfileService = new ProfileService(new LikeService()),
+    chatService: ChatService = new ChatService()
   ) {
     this.mongoRepository = mongoRepository;
     this.profileService = profileService;
+    this.chatService = chatService;
   }
 
   addMatch = async (user1_id: string, user2_id: string) => {
@@ -25,10 +29,7 @@ export class MatchService {
 
       return newMatch;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-      throw new Error("Error creating new match");
+      throw error instanceof Error ? error : new Error("Error creating new match");
     }
   };
 
@@ -48,16 +49,24 @@ export class MatchService {
         )
       );
 
-      const modifiedFriens = friends.map((friend) => {
-        return {
+      const friendsWithChats = await Promise.all(
+        friends.map(async (friend) => ({
+          friend,
+          hasChat: !!(await this.chatService.getChatByParticipants(user_id, friend.id))
+        }))
+      );
+
+      const modifiedFriends = friendsWithChats
+        .filter(({ hasChat }) => !hasChat)
+        .map(({ friend }) => ({
           id: friend.id,
           name: friend.name,
+          // amazonq-ignore-next-line
           age: new Date().getFullYear() - friend.dateOfBirth.getFullYear(),
           photo: friend.photos?.[0] || null,
-        };
-      });
+        }));
 
-      return modifiedFriens;
+      return modifiedFriends;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
