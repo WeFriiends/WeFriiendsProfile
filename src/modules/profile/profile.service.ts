@@ -323,7 +323,7 @@ export class ProfileService {
             const friendObject = friend.toObject();
 
             return {
-              _id: friendObject._id,
+              id: friendObject._id,
               reasons: friendObject.reasons,
               name: friendObject.name,
               zodiacSign: friendObject.zodiacSign,
