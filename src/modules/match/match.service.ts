@@ -29,7 +29,9 @@ export class MatchService {
 
       return newMatch;
     } catch (error: unknown) {
-      throw error instanceof Error ? error : new Error("Error creating new match");
+      throw error instanceof Error
+        ? error
+        : new Error("Error creating new match");
     }
   };
 
@@ -52,7 +54,10 @@ export class MatchService {
       const friendsWithChats = await Promise.all(
         friends.map(async (friend) => ({
           friend,
-          hasChat: !!(await this.chatService.getChatByParticipants(user_id, friend.id))
+          hasChat: !!(await this.chatService.getChatByParticipants(
+            user_id,
+            friend.id
+          )),
         }))
       );
 
@@ -102,7 +107,6 @@ export class MatchService {
         user1_id,
         user2_id
       );
-
       return !!mongoResult;
     } catch (error: unknown) {
       if (error instanceof Error) {

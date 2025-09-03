@@ -1,4 +1,3 @@
-import fs from "fs";
 import moment from "moment";
 import {
   Profile,
@@ -284,69 +283,74 @@ export class ProfileService {
       console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
       const userLikes = await this.likeService.getLikes(userId);
-      const userMatches = this.matchService
-        ? await this.matchService.getMatches(userId)
-        : [];
+
+      const filteredProfiles = await Promise.all(
+        allProfiles.map(async (friend) => {
+          const hasLiked = userLikes?.likes?.some(
+            (like) => like.liked_id === friend.id
+          );
+          const hasMatch = await this.matchService?.hasMatch(userId, friend.id);
+          const hasValidLocation = friend.location?.lat && friend.location?.lng;
+
+          if (hasLiked || hasMatch || !hasValidLocation) return null;
+
+          const distance = haversineDistance(
+            lat,
+            lng,
+            friend.location.lat,
+            friend.location.lng
+          );
+
+          if (distance > friendsDistance) return null;
+
+          return friend;
+        })
+      );
+
+      const validProfiles = filteredProfiles.filter((friend): friend is NonNullable<typeof friend> => friend !== null);
+      if (validProfiles.length === 0) {
+        return [];
+      }
 
       const resultWithDistances = await Promise.all(
-        allProfiles
-          .filter((friend) => {
-            return (
-              !userLikes?.likes?.some((like) => like.liked_id === friend.id) &&
-              !userMatches?.some((match) => match.id === friend.id)
-            );
-          })
-          .filter((friend) => {
-            if (!friend.location?.lat || !friend.location?.lng) return false;
+        validProfiles.map(async (friend) => {
+          const likesDoc = await this.likeService.getLikes(friend._id);
+          const likedMe =
+            likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
 
-            const distance = haversineDistance(
-              lat,
-              lng,
-              friend.location.lat,
-              friend.location.lng
-            );
-            return distance <= friendsDistance;
-          })
-          .map(async (friend) => {
-            const likesDoc = await this.likeService.getLikes(friend._id);
-            const likedMe =
-              likesDoc?.likes?.some((like) => like.liked_id === userId) ||
-              false;
+          const distance = haversineDistance(
+            lat,
+            lng,
+            friend.location.lat,
+            friend.location.lng
+          );
 
-            const distance = haversineDistance(
-              lat,
-              lng,
-              friend.location.lat,
-              friend.location.lng
-            );
+          const friendObject = friend.toObject();
 
-            const friendObject = friend.toObject();
-
-            return {
-              id: friendObject._id,
-              reasons: friendObject.reasons,
-              name: friendObject.name,
-              zodiacSign: friendObject.zodiacSign,
-              likedMe,
-              distance,
-              city: friendObject.location?.city || "",
-              photos:
-                friendObject.photos?.map((photo) => ({ src: photo })) || [],
-              preferences: {
-                questionary: {
-                  smoking: friendObject.preferences?.smoking || [],
-                  education: friendObject.preferences?.educationalLevel || [],
-                  children: friendObject.preferences?.children || [],
-                  drinking: friendObject.preferences?.drinking || [],
-                  pets: friendObject.preferences?.pets || [],
-                  languages: friendObject.preferences?.selectedLanguages || [],
-                },
-                interests: friendObject.preferences?.interests || [],
-                aboutMe: friendObject.preferences?.aboutMe || "",
+          return {
+            id: friendObject._id,
+            reasons: friendObject.reasons,
+            name: friendObject.name,
+            zodiacSign: friendObject.zodiacSign,
+            likedMe,
+            distance,
+            city: friendObject.location?.city || "",
+            photos: friendObject.photos?.map((photo) => ({ src: photo })) || [],
+            preferences: {
+              questionary: {
+                smoking: friendObject.preferences?.smoking || [],
+                education: friendObject.preferences?.educationalLevel || [],
+                children: friendObject.preferences?.children || [],
+                drinking: friendObject.preferences?.drinking || [],
+                pets: friendObject.preferences?.pets || [],
+                languages: friendObject.preferences?.selectedLanguages || [],
               },
-              age: moment().diff(moment(friendObject.dateOfBirth), "years"),
-            };
-          })
+              interests: friendObject.preferences?.interests || [],
+              aboutMe: friendObject.preferences?.aboutMe || "",
+            },
+            age: moment().diff(moment(friendObject.dateOfBirth), "years"),
+          };
+        })
       );
 
       return resultWithDistances;
