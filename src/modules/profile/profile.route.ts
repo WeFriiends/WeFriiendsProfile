@@ -48,7 +48,7 @@ const profileController: ProfileController = new ProfileController(
  *                 description: User's date of birth (YYYY-MM-DD)
  *               location:
  *                 type: string
- *                 description: JSON string containing location object with lat, lng, country, city, street (optional), houseNumber (optional)
+ *                 description: JSON string containing GeoJSON location object with type='Point', coordinates=[lng,lat], country, city, street (optional), houseNumber (optional)
  *               gender:
  *                 type: string
  *                 description: User's gender
@@ -130,6 +130,20 @@ router.get("/check", checkJwt, profileController.checkProfileExistsById);
  *         description: Error searching friends
  */
 router.get("/search", checkJwt, profileController.searchFriends);
+
+/**
+ * @swagger
+ * /api/profile/nearby:
+ *   get:
+ *     summary: Get near by profiles
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Near by profiles retrieved successfully
+ */
+router.get("/nearby", checkJwt, profileController.nearByProfiles);
 
 /**
  * @swagger
@@ -229,10 +243,16 @@ router.get("/:userId", checkJwt, profileController.getProfileById);
  *               location:
  *                 type: object
  *                 properties:
- *                   lat:
- *                     type: number
- *                   lng:
- *                     type: number
+ *                   type:
+ *                     type: string
+ *                     enum: ['Point']
+ *                   coordinates:
+ *                     type: array
+ *                     items:
+ *                       type: number
+ *                     minItems: 2
+ *                     maxItems: 2
+ *                     description: '[longitude, latitude]'
  *                   country:
  *                     type: string
  *                   city:

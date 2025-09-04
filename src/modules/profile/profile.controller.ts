@@ -318,4 +318,23 @@ export class ProfileController {
         .json({ message: "Error searching friends", error });
     }
   };
+
+  nearByProfiles = async (req: Request, res: Response) => {
+    console.log("controller nearByProfiles");
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    try {
+      const nearByProfiles = await this.profileService.nearByProfiles(userId);
+      return res.status(200).json(nearByProfiles);
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ message: "Error retrieving near by profiles", error });
+    }
+  };
 }

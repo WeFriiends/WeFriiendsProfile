@@ -249,8 +249,8 @@ export class ProfileService {
         throw new Error("Profile not found");
       }
 
-      const lng = profile.location?.lng;
-      const lat = profile.location?.lat;
+      const lng = profile.location?.coordinates[0];
+      const lat = profile.location?.coordinates[1];
       const friendsDistance = profile.friendsDistance;
       const friendsAgeMin = profile.friendsAgeMin;
       const friendsAgeMax = profile.friendsAgeMax;
@@ -290,15 +290,16 @@ export class ProfileService {
             (like) => like.liked_id === friend.id
           );
           const hasMatch = await this.matchService?.hasMatch(userId, friend.id);
-          const hasValidLocation = friend.location?.lat && friend.location?.lng;
+          const hasValidLocation =
+            friend.location?.coordinates[0] && friend.location?.coordinates[1];
 
           if (hasLiked || hasMatch || !hasValidLocation) return null;
 
           const distance = haversineDistance(
             lat,
             lng,
-            friend.location.lat,
-            friend.location.lng
+            friend.location.coordinates[1],
+            friend.location.coordinates[0]
           );
 
           if (distance > friendsDistance) return null;
@@ -307,7 +308,9 @@ export class ProfileService {
         })
       );
 
-      const validProfiles = filteredProfiles.filter((friend): friend is NonNullable<typeof friend> => friend !== null);
+      const validProfiles = filteredProfiles.filter(
+        (friend): friend is NonNullable<typeof friend> => friend !== null
+      );
       if (validProfiles.length === 0) {
         return [];
       }
@@ -321,8 +324,8 @@ export class ProfileService {
           const distance = haversineDistance(
             lat,
             lng,
-            friend.location.lat,
-            friend.location.lng
+            friend.location.coordinates[1],
+            friend.location.coordinates[0]
           );
 
           const friendObject = friend.toObject();
@@ -359,6 +362,41 @@ export class ProfileService {
         throw new Error(error.message);
       }
       throw new Error("Error searching friends");
+    }
+  };
+
+  nearByProfiles = async (userId: string) => {
+    try {
+      const profile = await Profile.findById(userId).exec();
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+
+      const lng = profile.location?.coordinates?.[0];
+      const lat = profile.location?.coordinates?.[1];
+      const friendsDistance = profile.friendsDistance;
+
+      if (!lng || !lat || !friendsDistance) {
+        throw new Error("Missing required fields in profile");
+      }
+
+      const nearByProfiles = await Profile.find({
+        _id: { $ne: userId },
+        location: {
+          $near: {
+            $geometry: { type: "Point", coordinates: [lng, lat] },
+            $maxDistance: friendsDistance,
+          },
+        },
+      }).exec();
+
+      return nearByProfiles;
+    } catch (error: unknown) {
+      console.error("nearByProfiles error:", error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error retrieving near by profiles");
     }
   };
 }

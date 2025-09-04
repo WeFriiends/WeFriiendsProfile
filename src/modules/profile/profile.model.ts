@@ -1,8 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface Location {
-  lat: number;
-  lng: number;
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
   country: string;
   city: string;
   street?: string;
@@ -43,8 +43,8 @@ const profileSchema = new Schema<ProfileDocument>(
     dateOfBirth: { type: Date, required: true },
     zodiacSign: { type: String },
     location: {
-      lat: { type: Number },
-      lng: { type: Number },
+      type: { type: String, enum: ['Point'], required: true },
+      coordinates: { type: [Number], required: true },
       country: { type: String },
       city: { type: String },
       street: { type: String },
@@ -70,6 +70,8 @@ const profileSchema = new Schema<ProfileDocument>(
   },
   { timestamps: true }
 );
+
+profileSchema.index({ location: '2dsphere' });
 
 const Profile = mongoose.model<ProfileDocument>("Profile", profileSchema);
 
