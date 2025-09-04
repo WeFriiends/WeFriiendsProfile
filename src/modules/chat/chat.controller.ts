@@ -52,7 +52,6 @@ export class ChatController {
         return res.status(400).send({ message: "Chat already exists" });
       }
 
-      console.log("hasMatch", hasMatch);
       const newChat = await this.chatService.createChat(userId, friendId);
       return res.send(newChat);
     } catch (err) {
