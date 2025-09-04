@@ -13,6 +13,7 @@ export class ChatController {
   }
 
   getAllChats = async (req: Request, res: Response) => {
+    console.log("controller getAllChats");
     try {
       const chats = await this.chatService.getAllChats();
       return res.send(chats);
@@ -22,6 +23,7 @@ export class ChatController {
   };
 
   createChat = async (req: Request, res: Response) => {
+    console.log("controller createChat");
     try {
       const { friendId } = req.body;
       if (!friendId) {
@@ -42,7 +44,15 @@ export class ChatController {
       if (!hasMatch) {
         return res.status(400).send({ message: "You are not friends" });
       }
+      const existingChat = await this.chatService.getChatByParticipants(
+        userId,
+        friendId
+      );
+      if (existingChat) {
+        return res.status(400).send({ message: "Chat already exists" });
+      }
 
+      console.log("hasMatch", hasMatch);
       const newChat = await this.chatService.createChat(userId, friendId);
       return res.send(newChat);
     } catch (err) {
@@ -51,6 +61,7 @@ export class ChatController {
   };
 
   getChatById = async (req: Request, res: Response) => {
+    console.log("controller getChatById");
     try {
       const chat = await this.chatService.getChatById(req.params.id);
       if (!chat) {
@@ -63,6 +74,7 @@ export class ChatController {
   };
 
   updateChat = async (req: Request, res: Response) => {
+    console.log("controller updateChat");
     try {
       const chat = await this.chatService.updateChat(req.params.id, req.body);
       if (!chat) {
@@ -75,6 +87,7 @@ export class ChatController {
   };
 
   deleteChat = async (req: Request, res: Response) => {
+    console.log("controller deleteChat");
     try {
       const chat = await this.chatService.deleteChat(req.params.id);
       if (!chat) {
