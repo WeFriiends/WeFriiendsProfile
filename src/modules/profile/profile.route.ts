@@ -133,6 +133,42 @@ router.get("/search", checkJwt, profileController.searchFriends);
 
 /**
  * @swagger
+ * /api/profile/nearest:
+ *   get:
+ *     summary: Get nearest profiles within user's distance preference
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of nearest profiles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   distance:
+ *                     type: number
+ *                   picture:
+ *                     type: string
+ *                     nullable: true
+ *                   likedUsers:
+ *                     type: boolean
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/nearest", checkJwt, profileController.getNearestProfiles);
+
+/**
+ * @swagger
  * /api/profile/all:
  *   get:
  *     summary: Get all profiles

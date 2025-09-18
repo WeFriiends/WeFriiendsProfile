@@ -10,6 +10,7 @@ import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import cloudinary from "../../config/cloudinary";
+import NearestProfileDto from "./nearestProfile.dto";
 
 export class ProfileService {
   private likeService: LikeService;
@@ -307,7 +308,9 @@ export class ProfileService {
         })
       );
 
-      const validProfiles = filteredProfiles.filter((friend): friend is NonNullable<typeof friend> => friend !== null);
+      const validProfiles = filteredProfiles.filter(
+        (friend): friend is NonNullable<typeof friend> => friend !== null
+      );
       if (validProfiles.length === 0) {
         return [];
       }
@@ -359,6 +362,55 @@ export class ProfileService {
         throw new Error(error.message);
       }
       throw new Error("Error searching friends");
+    }
+  };
+
+  getNearestProfiles = async (userId: string) => {
+    try {
+      const currentProfile = await Profile.findById(userId).exec();
+      if (
+        !currentProfile ||
+        !currentProfile.location?.lat ||
+        !currentProfile.location?.lng
+      ) {
+        throw new Error("Profile or location not found");
+      }
+
+      const allProfiles = await this.getAllProfiles(userId);
+
+      const nearestProfiles = await Promise.all(
+        allProfiles
+          .filter((profile) => profile.location?.lat && profile.location?.lng)
+          .map(async (profile) => {
+            const distance = haversineDistance(
+              currentProfile.location.lat,
+              currentProfile.location.lng,
+              profile.location.lat,
+              profile.location.lng
+            );
+
+            if (distance <= currentProfile.friendsDistance!) {
+              const profileLikes = await this.likeService.getLikes(profile.id);
+              return {
+                id: profile.id,
+                name: profile.name,
+                distance,
+                picture: profile.photos?.[0] || null,
+                likedUsers: profileLikes.likes.some(
+                  (obj) => obj.liked_id === currentProfile.id
+                ),
+              };
+            }
+            return null;
+          })
+      );
+
+      return nearestProfiles.filter((profile) => profile !== null);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error retrieving nearest profiles");
     }
   };
 }
