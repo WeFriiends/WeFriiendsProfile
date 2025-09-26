@@ -318,4 +318,26 @@ export class ProfileController {
         .json({ message: "Error searching friends", error });
     }
   };
+
+  getNearestProfiles = async (req: Request, res: Response) => {
+    console.log("controller getNearestProfiles");
+
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    try {
+      const nearestProfiles = await this.profileService.getNearestProfiles(
+        userId
+      );
+      return res.status(200).json(nearestProfiles);
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ message: "Error getting nearest profiles", error });
+    }
+  };
 }
