@@ -399,7 +399,7 @@ export class ProfileService {
                 likedUsers: profileLikes.likes.some(
                   (obj) => obj.liked_id === currentProfile.id
                 ),
-              };
+              } as NearestProfileDto;
             }
             return null;
           })
