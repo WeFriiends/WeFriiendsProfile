@@ -58,6 +58,24 @@ export class LikeController {
     }
   };
 
+  getLikesOnMe = async (req: Request, res: Response) => {
+    console.log("controller getLikesOnMe");
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+    try {
+      const likesOnMe = await this.likeService.getLikesOnMe(userId);
+      return res.status(200).json(likesOnMe);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "An unknown error occurred" });
+    }
+  };
   removeLike = async (req: Request, res: Response) => {
     console.log("controller removeLike");
     const userId = extractUserId(req);

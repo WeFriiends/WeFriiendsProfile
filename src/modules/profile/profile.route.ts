@@ -7,7 +7,7 @@ import { MatchService } from "../match/match.service";
 
 const router = Router();
 
-const likeService = new LikeService();
+const likeService = new LikeService(new ProfileService());
 const profileService = new ProfileService(likeService);
 const matchService = new MatchService(undefined, profileService);
 profileService["matchService"] = matchService;

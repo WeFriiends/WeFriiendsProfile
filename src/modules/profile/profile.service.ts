@@ -13,10 +13,10 @@ import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
 
 export class ProfileService {
-  private likeService: LikeService;
+  private likeService?: LikeService;
   private matchService?: MatchService;
 
-  constructor(likeService: LikeService, matchService?: MatchService) {
+  constructor(likeService?: LikeService, matchService?: MatchService) {
     this.likeService = likeService;
     this.matchService = matchService;
   }
@@ -283,7 +283,7 @@ export class ProfileService {
 
       console.log(`Found ${allProfiles.length} profiles matching age criteria`);
 
-      const userLikes = await this.likeService.getLikes(userId);
+      const userLikes = this.likeService ? await this.likeService.getLikes(userId) : null;
 
       const filteredProfiles = await Promise.all(
         allProfiles.map(async (friend) => {
@@ -317,7 +317,7 @@ export class ProfileService {
 
       const resultWithDistances = await Promise.all(
         validProfiles.map(async (friend) => {
-          const likesDoc = await this.likeService.getLikes(friend._id);
+          const likesDoc = this.likeService ? await this.likeService.getLikes(friend._id) : null;
           const likedMe =
             likesDoc?.likes?.some((like) => like.liked_id === userId) || false;
 
@@ -390,7 +390,7 @@ export class ProfileService {
             );
 
             if (distance <= currentProfile.friendsDistance!) {
-              const profileLikes = await this.likeService.getLikes(profile.id);
+              const profileLikes = this.likeService ? await this.likeService.getLikes(profile.id) : { likes: [] };
               return {
                 id: profile.id,
                 name: profile.name,
