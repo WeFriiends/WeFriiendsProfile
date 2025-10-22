@@ -22,8 +22,6 @@ export class MatchController {
         return res.status(400).json({ message: "user_id is required" });
       }
 
-      const match = await this.matchService.addMatch(user1_id, user2_id);
-
       const newMatch = await this.matchService.addMatch(user1_id, user2_id);
       return res.status(200).json(newMatch);
     } catch (error: unknown) {
