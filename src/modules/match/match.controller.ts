@@ -11,6 +11,7 @@ export class MatchController {
   }
 
   addMatch = async (req: Request, res: Response) => {
+    console.log("controller addMatch")
     try {
       const user1_id = extractUserId(req);
       const { user2_id } = req.body;
@@ -33,6 +34,7 @@ export class MatchController {
   };
 
   getMatches = async (req: Request, res: Response) => {
+    console.log("controller getMatches")
     try {
       const user_id = extractUserId(req);
 
@@ -48,6 +50,7 @@ export class MatchController {
   };
 
   removeMatch = async (req: Request, res: Response) => {
+    console.log("controller removeMatch")
     try {
       const user1_id = extractUserId(req);
       const { user2_id } = req.params;
@@ -67,6 +70,7 @@ export class MatchController {
   };
 
   hasMatch = async (req: Request, res: Response) => {
+    console.log("controller hasMatch")
     try {
       const user1_id = extractUserId(req);
       const { user2_id } = req.params;
@@ -87,6 +91,7 @@ export class MatchController {
 
   // Endpoint to get the VAPID public key for the client
   getPublicKey = async (_req: Request, res: Response) => {
+    console.log("controller getPublicKey")
     try {
       return res.status(200).json({ publicKey: getPublicKey() });
     } catch (error: any) {
@@ -96,6 +101,7 @@ export class MatchController {
 
   // Endpoint to subscribe to push notifications
   subscribe = async (req: Request, res: Response) => {
+    console.log("controller subscribe")
     try {
       const userId = extractUserId(req);
       const subscription = req.body;

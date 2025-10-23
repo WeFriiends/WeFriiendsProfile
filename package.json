@@ -24,7 +24,7 @@
     "mongoose": "^8.5.1",
     "multer": "^1.4.5-lts.1",
     "sharp": "^0.33.4",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^3.7.0",
     "swagger-ui-express": "^5.0.1",
     "web-push": "^3.6.7",
     "zodiac-signs": "^1.5.0"
