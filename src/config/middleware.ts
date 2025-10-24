@@ -7,7 +7,7 @@ import { swaggerOptions } from "./swagger";
 export const setupMiddleware = (app: Express): void => {
   app.use(
     cors({
-      origin: "http://localhost:3000", // Replace with your frontend's URL
+      origin: ["http://localhost:3000", "https://wefriiends.com", "https://www.wefriiends.com", "https://warm-frangollo-93bfd5.netlify.app"], // Allow both local and production domains
     })
   );
 

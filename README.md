@@ -18,6 +18,7 @@ A backend API service for the WeFriiends social platform that helps people conne
 - [Environment Setup](#environment-setup)
 - [Installation](#installation)
 - [Running the Application](#running-the-application)
+- [Deployment](#deployment)
 - [API Documentation](#api-documentation)
 - [Technologies](#technologies)
 - [Contributing](#contributing)
@@ -74,6 +75,102 @@ npm run start
 ```
 
 The API will be available at `http://localhost:8080` (or the port specified in your `.env` file).
+
+## 🚀 Deployment
+
+### Deploying to Namecheap Shared Hosting
+
+Follow these steps to deploy the application to Namecheap shared hosting:
+
+1. **Prepare your project for deployment**:
+
+   ```bash
+   npm run build
+   ```
+
+2. **Create a ZIP archive of the following files/folders**:
+   - `dist/` folder (compiled JavaScript)
+   - `package.json` and `package-lock.json`
+   - `.env` file (make sure to update the environment variables for production)
+   - Any other necessary files (e.g., static assets)
+
+3. **Set up your Namecheap hosting account**:
+   - Log in to your Namecheap account
+   - Go to cPanel for your hosting account
+   - Find the "File Manager" tool
+
+4. **Upload and extract your files**:
+   - Navigate to the directory where you want to deploy your application (usually `public_html` or a subdirectory)
+   - Upload your ZIP archive
+   - Extract the ZIP archive
+
+5. **Set up Node.js environment**:
+   - In cPanel, find the "Setup Node.js App" tool
+   - Create a new Node.js application
+   - Set the application path to your uploaded files
+   - Set the application URL
+   - Set the Node.js version (v14 or later)
+   - Set the application startup file to `dist/index.js`
+   - Save the configuration
+
+6. **Install dependencies**:
+   - Connect to your server via SSH (if available) or use the Terminal in cPanel
+   - Navigate to your application directory
+   - Run `npm install --production` to install only production dependencies
+
+7. **Configure environment variables**:
+   - Make sure your `.env` file is properly configured for production
+   - Update the `MONGO_URI` to point to your production MongoDB instance
+   - Update the CORS settings in `src/config/middleware.ts` to allow requests from your production frontend URL
+   - Rebuild the application if you made changes to the source code
+
+8. **Start your application**:
+   - If using the Node.js App setup in cPanel, restart the application
+   - If using SSH, you can use a process manager like PM2:
+     ```bash
+     npm install -g pm2
+     pm2 start dist/index.js
+     ```
+
+9. **Set up a custom domain or subdomain** (if needed):
+   - In cPanel, use the "Domains" or "Subdomains" tool to set up your domain
+   - Point the domain to your application directory
+
+10. **Test your deployment**:
+    - Visit your application URL to make sure it's working
+    - Test the API endpoints using the Swagger documentation or a tool like Postman
+
+### Troubleshooting
+
+- If you encounter a 500 error, check the error logs in cPanel
+- Make sure your Node.js version is compatible with your code
+- Verify that all environment variables are correctly set
+- Check that the MongoDB connection is working
+- Ensure that the port specified in your code is allowed by the hosting provider
+
+#### Common Deployment Issues
+
+1. **"Cannot GET /" Error**:
+   - Check that the `.htaccess` file has the correct `PassengerStartupFile` path (should be `dist/index.js`)
+   - Ensure there are no duplicate Passenger configurations in the `.htaccess` file
+   - Verify that the root route ("/") is properly handled in your application
+
+2. **Swagger Shows No Endpoints**:
+   - Make sure the Swagger configuration is looking for JavaScript files in the `dist` directory
+   - Update the `apis` property in `src/config/swagger.ts` to include both TypeScript and JavaScript files:
+     ```javascript
+     apis: ["./src/routes/*.ts", "./src/modules/**/*.route.ts", "./dist/routes/*.js", "./dist/modules/**/*.route.js"]
+     ```
+   - Rebuild the application after making changes
+
+3. **CORS Issues**:
+   - Update the CORS configuration in `src/config/middleware.ts` to allow requests from your production domain:
+     ```javascript
+     cors({
+       origin: ["http://localhost:3000", "https://yourdomain.com", "https://www.yourdomain.com"]
+     })
+     ```
+   - Rebuild the application after making changes
 
 ## 📚 API Documentation
 
