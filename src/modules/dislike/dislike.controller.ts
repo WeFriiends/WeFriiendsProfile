@@ -35,7 +35,7 @@ export class DislikeController {
       );
       return res.status(200).json(dislikes);
     } catch (error: unknown) {
-      handleServiceError(error, "Error addDislike");
+      return handleServiceError(error, "Error addDislike", res);
     }
   };
 
@@ -51,7 +51,7 @@ export class DislikeController {
       const dislikes = await this.dislikeService.getDislikes(userId);
       return res.status(200).json(dislikes);
     } catch (error: unknown) {
-      handleServiceError(error, "Error getDislikes");
+      return handleServiceError(error, "Error getDislikes", res);
     }
   };
 
@@ -78,7 +78,7 @@ export class DislikeController {
       );
       return res.status(200).json(result);
     } catch (error: unknown) {
-      handleServiceError(error, "Error removeDislike");
+      return handleServiceError(error, "Error removeDislike", res);
     }
   };
 }

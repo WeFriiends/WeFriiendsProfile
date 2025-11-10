@@ -32,7 +32,7 @@ export class LikeController {
       const likes = await this.likeService.addLike(userId, liked_id);
       return res.status(200).json(likes);
     } catch (error: unknown) {
-      handleServiceError(error, "Error addLike");
+      return handleServiceError(error, "Error addLike", res);
     }
   };
 
@@ -48,7 +48,7 @@ export class LikeController {
       const likes = await this.likeService.getLikes(userId);
       return res.status(200).json(likes);
     } catch (error: unknown) {
-      handleServiceError(error, "Error getLikes");
+      return handleServiceError(error, "Error getLikes", res);
     }
   };
 
@@ -64,7 +64,7 @@ export class LikeController {
       const likesOnMe = await this.likeService.getLikesOnMe(userId);
       return res.status(200).json(likesOnMe);
     } catch (error: unknown) {
-      handleServiceError(error, "Error getLikesOnMe");
+      return handleServiceError(error, "Error getLikesOnMe", res);
     }
   };
 
@@ -88,7 +88,7 @@ export class LikeController {
       const result = await this.likeService.removeLike(userId, liked_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
-      handleServiceError(error, "Error removeLike");
+      return handleServiceError(error, "Error removeLike", res);
     }
   };
 }

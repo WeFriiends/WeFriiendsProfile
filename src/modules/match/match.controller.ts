@@ -40,7 +40,7 @@ export class MatchController {
       const newMatch = await this.matchService.addMatch(userId, user2_id);
       return res.status(200).json(newMatch);
     } catch (error: unknown) {
-      handleServiceError(error, "Error addMatch");
+      return handleServiceError(error, "Error addMatch", res, 400);
     }
   };
 
@@ -56,7 +56,7 @@ export class MatchController {
       const matches = await this.matchService.getMatches(userId);
       return res.status(200).json(matches);
     } catch (error: unknown) {
-      handleServiceError(error, "Error getMatches");
+      return handleServiceError(error, "Error getMatches", res, 404);
     }
   };
 
@@ -78,7 +78,7 @@ export class MatchController {
       const result = await this.matchService.removeMatch(userId, user2_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
-      handleServiceError(error, "Error removeMatch");
+      return handleServiceError(error, "Error removeMatch", res, 404);
     }
   };
 }

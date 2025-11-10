@@ -178,7 +178,7 @@ export class ProfileService {
           educationalLevel: existingProfile.preferences?.educationalLevel || [],
           children: existingProfile.preferences?.children || [],
           drinking: existingProfile.preferences?.drinking || [],
-          Pets: existingProfile.preferences?.pets || [],
+          pets: existingProfile.preferences?.pets || [],
           interests: existingProfile.preferences?.interests || [],
           ...(parsedPreferences || {}),
         };

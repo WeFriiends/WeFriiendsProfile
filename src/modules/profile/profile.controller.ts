@@ -77,7 +77,7 @@ export class ProfileController {
 
       return res.status(201).json(newProfile);
     } catch (error) {
-      handleServiceError(error, "Error registerProfile");
+      return handleServiceError(error, "Error registerProfile", res, 400);
     }
   };
 
@@ -95,7 +95,7 @@ export class ProfileController {
       const profile = await this.profileService.getProfileById(userId);
       return res.status(200).json(profile);
     } catch (error) {
-      handleServiceError(error, "Error getCurrentProfile");
+      return handleServiceError(error, "Error getCurrentProfile", res, 400);
     }
   };
 
@@ -167,7 +167,7 @@ export class ProfileController {
 
       return res.status(200).json(performedUser);
     } catch (error) {
-      handleServiceError(error, "Error getProfileById");
+      return handleServiceError(error, "Error getProfileById", res, 500);
     }
   };
 
@@ -185,7 +185,7 @@ export class ProfileController {
       const exists = await this.profileService.checkProfileExists(userId);
       return res.json(exists);
     } catch (error) {
-      handleServiceError(error, "Error checkProfileExistsById");
+      return handleServiceError(error, "Error checkProfileExistsById", res, 400);
     }
   };
 
@@ -256,7 +256,7 @@ export class ProfileController {
 
       return res.status(200).json(updatedProfile);
     } catch (error) {
-      handleServiceError(error, "Error updateProfile");
+      return handleServiceError(error, "Error updateProfile", res, 400);
     }
   };
 
@@ -290,7 +290,7 @@ export class ProfileController {
       const profiles = await this.profileService.getAllProfiles(userId);
       return res.status(200).json(profiles);
     } catch (error) {
-      handleServiceError(error, "Error getAllProfiles");
+      return handleServiceError(error, "Error getAllProfiles", res, 400);
     }
   };
 
@@ -308,7 +308,7 @@ export class ProfileController {
       const friendsProfiles = await this.profileService.searchFriends(userId);
       return res.status(200).json(friendsProfiles);
     } catch (error) {
-      handleServiceError(error, "Error searchFriends");
+      return handleServiceError(error, "Error searchFriends", res, 400);
     }
   };
 
@@ -328,7 +328,7 @@ export class ProfileController {
       );
       return res.status(200).json(nearestProfiles);
     } catch (error) {
-      handleServiceError(error, "Error getNearestProfiles");
+      return handleServiceError(error, "Error getNearestProfiles", res, 400);
     }
   };
 }
