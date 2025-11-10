@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
-import { extractUserId } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 import { LikeService } from "./like.service";
 
 export class LikeController {
@@ -32,10 +32,7 @@ export class LikeController {
       const likes = await this.likeService.addLike(userId, liked_id);
       return res.status(200).json(likes);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error addLike");
     }
   };
 
@@ -51,10 +48,7 @@ export class LikeController {
       const likes = await this.likeService.getLikes(userId);
       return res.status(200).json(likes);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error getLikes");
     }
   };
 
@@ -70,12 +64,10 @@ export class LikeController {
       const likesOnMe = await this.likeService.getLikesOnMe(userId);
       return res.status(200).json(likesOnMe);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error getLikesOnMe");
     }
   };
+
   removeLike = async (req: Request, res: Response) => {
     console.log("controller removeLike");
     const userId = extractUserId(req);
@@ -96,10 +88,7 @@ export class LikeController {
       const result = await this.likeService.removeLike(userId, liked_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error removeLike");
     }
   };
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
-import { extractUserId } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 import { DislikeService } from "./dislike.service";
 
 export class DislikeController {
@@ -35,10 +35,7 @@ export class DislikeController {
       );
       return res.status(200).json(dislikes);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error addDislike");
     }
   };
 
@@ -54,10 +51,7 @@ export class DislikeController {
       const dislikes = await this.dislikeService.getDislikes(userId);
       return res.status(200).json(dislikes);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error getDislikes");
     }
   };
 
@@ -84,10 +78,7 @@ export class DislikeController {
       );
       return res.status(200).json(result);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error removeDislike");
     }
   };
 }

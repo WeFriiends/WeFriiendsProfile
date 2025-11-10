@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Profile } from "../../models";
-import { extractUserId } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 import { MatchService } from "./match.service";
 
 export class MatchController {
@@ -40,10 +40,7 @@ export class MatchController {
       const newMatch = await this.matchService.addMatch(userId, user2_id);
       return res.status(200).json(newMatch);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error addMatch");
     }
   };
 
@@ -59,10 +56,7 @@ export class MatchController {
       const matches = await this.matchService.getMatches(userId);
       return res.status(200).json(matches);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(404).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error getMatches");
     }
   };
 
@@ -84,10 +78,7 @@ export class MatchController {
       const result = await this.matchService.removeMatch(userId, user2_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(404).json({ message: error.message });
-      }
-      return res.status(500).json({ message: "An unknown error occurred" });
+      handleServiceError(error, "Error removeMatch");
     }
   };
 }
