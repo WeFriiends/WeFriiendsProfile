@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ChatService } from "./chat.service";
-import { extractUserId } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 import { MatchService } from "../match/match.service";
 
 export class ChatController {
@@ -18,7 +18,7 @@ export class ChatController {
       const chats = await this.chatService.getAllChats();
       return res.send(chats);
     } catch (err) {
-      return res.status(500).send(err);
+      return handleServiceError(err, "Error getAllChats", res, 500);
     }
   };
 
@@ -55,7 +55,7 @@ export class ChatController {
       const newChat = await this.chatService.createChat(userId, friendId);
       return res.send(newChat);
     } catch (err) {
-      return res.status(400).send(err);
+      return handleServiceError(err, "Error createChat", res, 400);
     }
   };
 
@@ -68,7 +68,7 @@ export class ChatController {
       }
       return res.send(chat);
     } catch (err) {
-      return res.status(500).send(err);
+      return handleServiceError(err, "Error getChatById", res, 500);
     }
   };
 
@@ -81,7 +81,7 @@ export class ChatController {
       }
       return res.send(chat);
     } catch (err) {
-      return res.status(400).send(err);
+      return handleServiceError(err, "Error updateChat", res, 400);
     }
   };
 
@@ -94,7 +94,7 @@ export class ChatController {
       }
       return res.send({ message: "Chat deleted" });
     } catch (err) {
-      return res.status(500).send(err);
+      return handleServiceError(err, "Error deleteChat", res, 500);
     }
   };
 }

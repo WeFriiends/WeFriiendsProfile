@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { extractUserId, haversineDistance } from "../../utils";
+import {
+  extractUserId,
+  handleServiceError,
+  haversineDistance,
+} from "../../utils";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
 import { Preferences } from "../../models";
@@ -73,8 +77,7 @@ export class ProfileController {
 
       return res.status(201).json(newProfile);
     } catch (error) {
-      console.log(error);
-      return res.status(400).json({ message: "Error creating user", error });
+      return handleServiceError(error, "Error registerProfile", res, 400);
     }
   };
 
@@ -92,9 +95,7 @@ export class ProfileController {
       const profile = await this.profileService.getProfileById(userId);
       return res.status(200).json(profile);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Error retrieving profile", error });
+      return handleServiceError(error, "Error getCurrentProfile", res, 400);
     }
   };
 
@@ -166,9 +167,7 @@ export class ProfileController {
 
       return res.status(200).json(performedUser);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Error retrieving profile", error });
+      return handleServiceError(error, "Error getProfileById", res, 500);
     }
   };
 
@@ -186,9 +185,7 @@ export class ProfileController {
       const exists = await this.profileService.checkProfileExists(userId);
       return res.json(exists);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Error retrieving profile", error });
+      return handleServiceError(error, "Error checkProfileExistsById", res, 400);
     }
   };
 
@@ -259,7 +256,7 @@ export class ProfileController {
 
       return res.status(200).json(updatedProfile);
     } catch (error) {
-      return res.status(400).json({ message: "Error updating profile", error });
+      return handleServiceError(error, "Error updateProfile", res, 400);
     }
   };
 
@@ -293,9 +290,7 @@ export class ProfileController {
       const profiles = await this.profileService.getAllProfiles(userId);
       return res.status(200).json(profiles);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Error retrieving profiles", error });
+      return handleServiceError(error, "Error getAllProfiles", res, 400);
     }
   };
 
@@ -313,9 +308,7 @@ export class ProfileController {
       const friendsProfiles = await this.profileService.searchFriends(userId);
       return res.status(200).json(friendsProfiles);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Error searching friends", error });
+      return handleServiceError(error, "Error searchFriends", res, 400);
     }
   };
 
@@ -335,9 +328,7 @@ export class ProfileController {
       );
       return res.status(200).json(nearestProfiles);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Error getting nearest profiles", error });
+      return handleServiceError(error, "Error getNearestProfiles", res, 400);
     }
   };
 }

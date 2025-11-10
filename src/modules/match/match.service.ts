@@ -10,7 +10,9 @@ export class MatchService {
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(new LikeService()),
+    profileService: ProfileService = new ProfileService(
+      new LikeService(new ProfileService())
+    ),
     chatService: ChatService = new ChatService()
   ) {
     this.mongoRepository = mongoRepository;

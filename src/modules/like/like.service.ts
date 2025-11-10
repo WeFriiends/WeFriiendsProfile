@@ -1,6 +1,14 @@
 import { Like } from "../../models";
+import { haversineDistance } from "../../utils";
+import { ProfileService } from "../profile/profile.service";
 
 export class LikeService {
+  private profileService: ProfileService;
+
+  constructor(profileService: ProfileService) {
+    this.profileService = profileService;
+  }
+
   addLike = async (liker_id: string, liked_id: string) => {
     try {
       const hasLiked = await this.hasLiked(liker_id, liked_id);
@@ -56,6 +64,36 @@ export class LikeService {
         throw new Error(error.message);
       }
       throw new Error("Error removing like");
+    }
+  };
+
+  getLikesOnMe = async (liker_id: string) => {
+    try {
+      const liker = await this.profileService.getProfileById(liker_id);
+      const likedMe = await Like.find({ "likes.liked_id": liker_id }).exec();
+      const likedMeIds = likedMe.map((like) => like.liker_id);
+      const likedMeUsers = await Promise.all(
+        likedMeIds.map((id) => {
+          return this.profileService.getProfileById(id);
+        })
+      );
+      const likedMeResult = likedMeUsers.map((user) => ({
+        id: user._id,
+        name: user.name,
+        distance: haversineDistance(
+          user.location.lat,
+          user.location.lng,
+          liker.location.lat,
+          liker.location.lng
+        ),
+        picture: user.photos?.[0] || null,
+      }));
+      return likedMeResult;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error getting likes on me");
     }
   };
 

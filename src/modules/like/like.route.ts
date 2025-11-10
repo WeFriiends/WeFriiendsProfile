@@ -2,10 +2,13 @@ import { Router } from "express";
 import { checkJwt } from "../../middleware";
 import { LikeController } from "./like.controller";
 import { LikeService } from "./like.service";
+import { ProfileService } from "../profile/profile.service";
 
 const router = Router();
 
-const likeController = new LikeController(new LikeService());
+const profileService = new ProfileService();
+const likeService = new LikeService(profileService);
+const likeController = new LikeController(likeService);
 
 /**
  * @swagger
@@ -26,6 +29,20 @@ const likeController = new LikeController(new LikeService());
  *         description: Failed to add a like
  */
 router.get("/", checkJwt, likeController.getLikes);
+
+/**
+ * @swagger
+ * /api/likes/on-me:
+ *   get:
+ *     summary: Get likes on me
+ *     tags: [Like]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Likes on me got successfully
+ */
+router.get("/on-me", checkJwt, likeController.getLikesOnMe);
 
 /**
  * @swagger
