@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadToCloudinary, upload } from "../../middleware";
+import { uploadToCloudinary, upload, checkJwt } from "../../middleware";
 import * as photoController from "./photo.controller";
 
 const router = Router();
@@ -57,7 +57,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get("/", photoController.getPhotos);
+router.get("/", checkJwt, photoController.getPhotos);
 
 /**
  * @swagger
@@ -81,7 +81,7 @@ router.get("/", photoController.getPhotos);
  *       500:
  *         description: Internal server error
  */
-router.post("/", photoController.addPhoto);
+router.post("/", checkJwt, photoController.addPhoto);
 
 /**
  * @swagger
@@ -105,6 +105,6 @@ router.post("/", photoController.addPhoto);
  *       500:
  *         description: Internal server error
  */
-router.delete("/", photoController.removePhoto);
+router.delete("/", checkJwt, photoController.removePhoto);
 
 export default router;
