@@ -2,6 +2,7 @@ import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
+import { Match } from "../../models";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
@@ -37,12 +38,40 @@ export class MatchService {
     }
   };
 
+  editMatch = async (
+    user1_id: string,
+    user2_id: string,
+    user1_seen: boolean,
+    user2_seen: boolean
+  ) => {
+    try {
+      const hasMatch = await this.hasMatch(user1_id, user2_id);
+      if (!hasMatch) {
+        throw new Error("Match not found");
+      }
+
+      const targetMatch: typeof Match = await this.mongoRepository.editMatch(
+        user1_id,
+        user2_id,
+        user1_seen,
+        user2_seen
+      );
+
+      return targetMatch;
+    } catch (error: unknown) {
+      throw error instanceof Error
+        ? error
+        : new Error("Error updating match");
+    }
+  };
+
   getMatches = async (user_id: string) => {
     try {
       const matches = await this.mongoRepository.findByUserId(user_id);
       if (matches.length === 0) {
         return [];
       }
+      console.log(matches)
       const friendsIds: string[] = matches.map((match) =>
         match.user1_id === user_id ? match.user2_id : match.user1_id
       );
