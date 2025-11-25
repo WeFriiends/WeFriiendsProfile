@@ -95,7 +95,7 @@ router.delete("/", checkJwt, matchController.removeMatch);
  * @swagger
  * /api/matches:
  *   patch:
- *     summary: Edit match seen status
+ *     summary: Update the authenticated user's seen status for a match
  *     tags: [Match]
  *     security:
  *       - bearerAuth: []
@@ -107,15 +107,13 @@ router.delete("/", checkJwt, matchController.removeMatch);
  *             type: object
  *             required:
  *               - user2_id
- *               - user1_seen
- *               - user2_seen
+ *               - seen
  *             properties:
  *               user2_id:
  *                 type: string
- *               user1_seen:
+ *               seen:
  *                 type: boolean
- *               user2_seen:
- *                 type: boolean
+ *                 description: Desired seen value for the authenticated user
  *     responses:
  *       200:
  *         description: match updated successfully

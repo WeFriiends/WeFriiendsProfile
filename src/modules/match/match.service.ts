@@ -2,7 +2,6 @@ import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
-import { Match } from "../../models";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
@@ -38,23 +37,27 @@ export class MatchService {
     }
   };
 
-  editMatch = async (
-    user1_id: string,
-    user2_id: string,
-    user1_seen: boolean,
-    user2_seen: boolean
-  ) => {
+  editMatch = async (user1_id: string, user2_id: string, seen: boolean) => {
     try {
-      const hasMatch = await this.hasMatch(user1_id, user2_id);
-      if (!hasMatch) {
+      const match = await this.mongoRepository.findMatch(user1_id, user2_id);
+      if (!match) {
         throw new Error("Match not found");
       }
 
-      const targetMatch: typeof Match = await this.mongoRepository.editMatch(
+      const update: { user1_seen?: boolean; user2_seen?: boolean } = {};
+
+      if (match.user1_id === user1_id) {
+        update.user1_seen = seen;
+      } else if (match.user2_id === user1_id) {
+        update.user2_seen = seen;
+      } else {
+        throw new Error("Unauthorized to edit match");
+      }
+
+      const targetMatch = await this.mongoRepository.editMatch(
         user1_id,
         user2_id,
-        user1_seen,
-        user2_seen
+        update
       );
 
       return targetMatch;
@@ -71,7 +74,6 @@ export class MatchService {
       if (matches.length === 0) {
         return [];
       }
-      console.log(matches)
       const friendsIds: string[] = matches.map((match) =>
         match.user1_id === user_id ? match.user2_id : match.user1_id
       );

@@ -8,8 +8,7 @@ export interface IMatchRepository {
   editMatch(
     user1_id: string,
     user2_id: string,
-    user1_seen: boolean,
-    user2_seen: boolean
+    update: Partial<{ user1_seen: boolean; user2_seen: boolean }>
   ): Promise<any | null>;
 }
 
@@ -36,8 +35,7 @@ export class MongoMatchRepository implements IMatchRepository {
   async editMatch(
     user1_id: string,
     user2_id: string,
-    user1_seen: boolean,
-    user2_seen: boolean
+    update: Partial<{ user1_seen: boolean; user2_seen: boolean }>
   ): Promise<any | null> {
     return await Match.findOneAndUpdate(
       {
@@ -46,10 +44,7 @@ export class MongoMatchRepository implements IMatchRepository {
           { user1_id: user2_id, user2_id: user1_id },
         ],
       },
-      {
-        user1_seen,
-        user2_seen,
-      },
+      update,
       { new: true }
     );
   }
