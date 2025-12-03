@@ -91,4 +91,41 @@ router.post("/", checkJwt, matchController.addMatch);
  */
 router.delete("/", checkJwt, matchController.removeMatch);
 
+/**
+ * @swagger
+ * /api/matches:
+ *   patch:
+ *     summary: Update the authenticated user's seen status for a match
+ *     tags: [Match]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user2_id
+ *               - seen
+ *             properties:
+ *               user2_id:
+ *                 type: string
+ *               seen:
+ *                 type: boolean
+ *                 description: Desired seen value for the authenticated user
+ *     responses:
+ *       200:
+ *         description: match updated successfully
+ *       400:
+ *         description: Required fields missing
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Match not found
+ *       500:
+ *         description: Failed to update match
+ */
+router.patch("/", checkJwt, matchController.editMatch);
+
 export default router;

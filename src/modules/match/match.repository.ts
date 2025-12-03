@@ -5,6 +5,11 @@ export interface IMatchRepository {
   findByUserId(userId: string): Promise<any[]>;
   findMatch(user1_id: string, user2_id: string): Promise<any | null>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
+  editMatch(
+    user1_id: string,
+    user2_id: string,
+    update: Partial<{ user1_seen: boolean; user2_seen: boolean }>
+  ): Promise<any | null>;
 }
 
 export class MongoMatchRepository implements IMatchRepository {
@@ -25,6 +30,23 @@ export class MongoMatchRepository implements IMatchRepository {
         { user1_id: user2_id, user2_id: user1_id },
       ],
     }).exec();
+  }
+
+  async editMatch(
+    user1_id: string,
+    user2_id: string,
+    update: Partial<{ user1_seen: boolean; user2_seen: boolean }>
+  ): Promise<any | null> {
+    return await Match.findOneAndUpdate(
+      {
+        $or: [
+          { user1_id, user2_id },
+          { user1_id: user2_id, user2_id: user1_id },
+        ],
+      },
+      update,
+      { new: true }
+    );
   }
 
   async deleteMatch(user1_id: string, user2_id: string): Promise<any> {

@@ -81,4 +81,28 @@ export class MatchController {
       return handleServiceError(error, "Error removeMatch", res, 404);
     }
   };
+
+  editMatch = async (req: Request, res: Response) => {
+    console.log("controller editMatch");
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+    try {
+      const { user2_id, seen } = req.body;
+
+      if (!user2_id || typeof seen !== "boolean") {
+        return res.status(400).json({
+          message: "user2_id and a boolean seen value are required",
+        });
+      }
+
+      const result = await this.matchService.editMatch(userId, user2_id, seen);
+      return res.status(200).json(result);
+    } catch (error: unknown) {
+      return handleServiceError(error, "Error editMatch", res, 404);
+    }
+  };
 }

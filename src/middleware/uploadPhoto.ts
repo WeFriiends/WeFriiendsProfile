@@ -23,11 +23,19 @@ const storage = multer.memoryStorage();
 export const upload: Multer = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
+    // Validate MIME type
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return cb(new Error("Only JPEG, PNG, GIF, and WebP images are allowed"));
     }
+    
+    // Sanitize filename to prevent path traversal
+    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    if (sanitizedName !== file.originalname) {
+      file.originalname = sanitizedName;
+    }
+    
+    cb(null, true);
   },
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
@@ -78,7 +86,8 @@ export const uploadToCloudinary = async (
     req.body.cloudinaryUrls = cloudinaryUrls;
     next();
   } catch (error) {
-    console.error("Error in uploadToCloudinary middleware:", error);
-    next(error);
+    const sanitizedError = error instanceof Error ? error.message.replace(/[<>"'&]/g, '') : 'Unknown error';
+    console.error("Error in uploadToCloudinary middleware:", sanitizedError);
+    next(new Error("File upload failed"));
   }
 };

@@ -13,7 +13,6 @@ export class ChatController {
   }
 
   getAllChats = async (req: Request, res: Response) => {
-    console.log("controller getAllChats");
     try {
       const chats = await this.chatService.getAllChats();
       return res.send(chats);
@@ -23,7 +22,6 @@ export class ChatController {
   };
 
   createChat = async (req: Request, res: Response) => {
-    console.log("controller createChat");
     try {
       const { friendId } = req.body;
       if (!friendId) {
@@ -60,7 +58,6 @@ export class ChatController {
   };
 
   getChatById = async (req: Request, res: Response) => {
-    console.log("controller getChatById");
     try {
       const chat = await this.chatService.getChatById(req.params.id);
       if (!chat) {
@@ -73,7 +70,6 @@ export class ChatController {
   };
 
   updateChat = async (req: Request, res: Response) => {
-    console.log("controller updateChat");
     try {
       const chat = await this.chatService.updateChat(req.params.id, req.body);
       if (!chat) {
@@ -86,7 +82,6 @@ export class ChatController {
   };
 
   deleteChat = async (req: Request, res: Response) => {
-    console.log("controller deleteChat");
     try {
       const chat = await this.chatService.deleteChat(req.params.id);
       if (!chat) {

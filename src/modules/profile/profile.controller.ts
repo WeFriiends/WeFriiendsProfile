@@ -17,7 +17,7 @@ export class ProfileController {
     this.likeService = likeService;
   }
 
-  registerProfile = async (req: Request, res: Response) => {
+  registerProfile = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller registerProfile");
 
     const userId = extractUserId(req);
@@ -81,7 +81,7 @@ export class ProfileController {
     }
   };
 
-  getCurrentProfile = async (req: Request, res: Response) => {
+  getCurrentProfile = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller getCurrentProfile");
 
     const userId = extractUserId(req);
@@ -99,7 +99,7 @@ export class ProfileController {
     }
   };
 
-  getProfileById = async (req: Request, res: Response) => {
+  getProfileById = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller getProfileById");
 
     try {
@@ -171,7 +171,7 @@ export class ProfileController {
     }
   };
 
-  checkProfileExistsById = async (req: Request, res: Response) => {
+  checkProfileExistsById = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller checkProfileExistsById");
 
     const userId = extractUserId(req);
@@ -189,7 +189,7 @@ export class ProfileController {
     }
   };
 
-  updateProfile = async (req: Request, res: Response) => {
+  updateProfile = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller updateProfile");
 
     const userId = extractUserId(req);
@@ -260,7 +260,7 @@ export class ProfileController {
     }
   };
 
-  deleteProfile = async (req: Request, res: Response) => {
+  deleteProfile = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller deleteProfile");
     const userId = extractUserId(req);
     if (!userId) {
@@ -277,7 +277,7 @@ export class ProfileController {
     }
   };
 
-  getAllProfiles = async (req: Request, res: Response) => {
+  getAllProfiles = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller getAllProfiles");
     const userId = extractUserId(req);
     if (!userId) {
@@ -294,7 +294,7 @@ export class ProfileController {
     }
   };
 
-  searchFriends = async (req: Request, res: Response) => {
+  searchFriends = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller searchFriends");
 
     const userId = extractUserId(req);
@@ -312,7 +312,7 @@ export class ProfileController {
     }
   };
 
-  getNearestProfiles = async (req: Request, res: Response) => {
+  getNearestProfiles = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller getNearestProfiles");
 
     const userId = extractUserId(req);
