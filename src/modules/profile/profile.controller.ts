@@ -81,7 +81,10 @@ export class ProfileController {
     }
   };
 
-  getCurrentProfile = async (req: Request, res: Response): Promise<Response> => {
+  getCurrentProfile = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     console.log("controller getCurrentProfile");
 
     const userId = extractUserId(req);
@@ -171,7 +174,10 @@ export class ProfileController {
     }
   };
 
-  checkProfileExistsById = async (req: Request, res: Response): Promise<Response> => {
+  checkProfileExistsById = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     console.log("controller checkProfileExistsById");
 
     const userId = extractUserId(req);
@@ -185,7 +191,12 @@ export class ProfileController {
       const exists = await this.profileService.checkProfileExists(userId);
       return res.json(exists);
     } catch (error) {
-      return handleServiceError(error, "Error checkProfileExistsById", res, 400);
+      return handleServiceError(
+        error,
+        "Error checkProfileExistsById",
+        res,
+        400
+      );
     }
   };
 
@@ -260,8 +271,11 @@ export class ProfileController {
     }
   };
 
-  deleteProfile = async (req: Request, res: Response): Promise<Response> => {
-    console.log("controller deleteProfile");
+  deleteCurrentProfile = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    console.log("controller deleteCurrentProfile");
     const userId = extractUserId(req);
     if (!userId) {
       return res
@@ -271,6 +285,28 @@ export class ProfileController {
 
     try {
       await this.profileService.deleteProfile(userId);
+      return res.status(200).json({ message: "Profile deleted successfully" });
+    } catch (error) {
+      return res.status(400).json({ message: "Error deleting profile", error });
+    }
+  };
+
+  deleteTargetProfile = async (req: Request, res: Response): Promise<Response> => {
+    console.log("controller deleteTargetProfile");
+    const userId = extractUserId(req);
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    const targetUserId = req.params.userId;
+    if (!targetUserId) {
+      return res.status(400).json({ message: "Target user ID is required" });
+    }
+
+    try {
+      await this.profileService.deleteProfile(targetUserId);
       return res.status(200).json({ message: "Profile deleted successfully" });
     } catch (error) {
       return res.status(400).json({ message: "Error deleting profile", error });
@@ -312,7 +348,10 @@ export class ProfileController {
     }
   };
 
-  getNearestProfiles = async (req: Request, res: Response): Promise<Response> => {
+  getNearestProfiles = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     console.log("controller getNearestProfiles");
 
     const userId = extractUserId(req);

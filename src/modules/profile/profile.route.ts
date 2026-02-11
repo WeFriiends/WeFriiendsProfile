@@ -338,6 +338,31 @@ router.patch("/", checkJwt, profileController.updateProfile);
 
 /**
  * @swagger
+ * /api/profile/{userId}:
+ *   delete:
+ *     summary: Delete target profile by ID
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         description: The ID of the user profile to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Profile deleted successfully
+ *       400:
+ *         description: Bad request - missing user ID
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete("/:userId", checkJwt, profileController.deleteTargetProfile);
+
+/**
+ * @swagger
  * /api/profile:
  *   delete:
  *     summary: Delete current profile
@@ -350,6 +375,6 @@ router.patch("/", checkJwt, profileController.updateProfile);
  *       400:
  *         description: Bad request
  */
-router.delete("/", checkJwt, profileController.deleteProfile);
+router.delete("/", checkJwt, profileController.deleteCurrentProfile);
 
 export default router;
