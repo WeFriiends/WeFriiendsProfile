@@ -1,12 +1,16 @@
 import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
+import { MatchService } from "../match/match.service";
+import { firebaseDb } from "../../config/firebase";
 
 export class LikeService {
   private profileService: ProfileService;
+  private matchService: MatchService;
 
-  constructor(profileService: ProfileService) {
+  constructor(profileService: ProfileService, matchService: MatchService) {
     this.profileService = profileService;
+    this.matchService = matchService;
   }
 
   addLike = async (liker_id: string, liked_id: string) => {
@@ -17,10 +21,20 @@ export class LikeService {
       }
 
       const likes = await Like.findOneAndUpdate(
-        { liker_id },
-        { $addToSet: { likes: { liked_id, liked_at: new Date() } } },
-        { new: true, upsert: true }
+          { liker_id },
+          { $addToSet: { likes: { liked_id, liked_at: new Date() } } },
+          { new: true, upsert: true }
       ).exec();
+
+      const isMutual = await this.hasLiked(liked_id, liker_id);
+      if (isMutual) {
+        await this.matchService.addMatch(liker_id, liked_id);
+        await firebaseDb.ref("matches").push({
+          users: [liker_id, liked_id],
+          createdAt: new Date().toISOString(),
+          type: "match",
+        });
+      }
 
       return likes;
     } catch (error: unknown) {
@@ -53,11 +67,10 @@ export class LikeService {
         throw new Error("User is not in likes");
       }
       const likes = await Like.findOneAndUpdate(
-        { liker_id },
-        { $pull: { likes: { liked_id } } },
-        { new: true }
+          { liker_id },
+          { $pull: { likes: { liked_id } } },
+          { new: true }
       ).exec();
-
       return likes;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -73,18 +86,18 @@ export class LikeService {
       const likedMe = await Like.find({ "likes.liked_id": liker_id }).exec();
       const likedMeIds = likedMe.map((like) => like.liker_id);
       const likedMeUsers = await Promise.all(
-        likedMeIds.map((id) => {
-          return this.profileService.getProfileById(id);
-        })
+          likedMeIds.map((id) => {
+            return this.profileService.getProfileById(id);
+          })
       );
       const likedMeResult = likedMeUsers.map((user) => ({
         id: user._id,
         name: user.name,
         distance: haversineDistance(
-          user.location.lat,
-          user.location.lng,
-          liker.location.lat,
-          liker.location.lng
+            user.location.lat,
+            user.location.lng,
+            liker.location.lat,
+            liker.location.lng
         ),
         picture: user.photos?.[0] || null,
       }));
@@ -103,7 +116,6 @@ export class LikeService {
         liker_id,
         "likes.liked_id": liked_id,
       }).exec();
-
       return !!likesDoc;
     } catch (error: unknown) {
       if (error instanceof Error) {

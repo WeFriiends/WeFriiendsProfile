@@ -3,11 +3,13 @@ import { checkJwt } from "../../middleware";
 import { LikeController } from "./like.controller";
 import { LikeService } from "./like.service";
 import { ProfileService } from "../profile/profile.service";
+import { MatchService } from "../match/match.service";
 
 const router = Router();
 
 const profileService = new ProfileService();
-const likeService = new LikeService(profileService);
+const matchService = new MatchService();
+const likeService = new LikeService(profileService, matchService);
 const likeController = new LikeController(likeService);
 
 /**
