@@ -1,5 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export enum Gender {
+  Male = "male",
+  Female = "female"
+}
+
 export interface Location {
   lat: number;
   lng: number;
@@ -27,7 +32,7 @@ export interface ProfileDocument extends Document {
   location: Location;
   zodiacSign: string;
   photos?: string[];
-  gender: string;
+  gender: Gender;
   reasons: string[];
   preferences?: Preferences;
   friendsAgeMin?: number;
@@ -51,7 +56,7 @@ const profileSchema = new Schema<ProfileDocument>(
       houseNumber: { type: String },
     },
     photos: { type: [String], default: [] },
-    gender: { type: String },
+    gender: {type: String, enum: Object.values(Gender), required: true},
     reasons: { type: [String], default: [] },
     preferences: {
       aboutMe: { type: String },
