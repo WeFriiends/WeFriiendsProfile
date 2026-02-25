@@ -11,7 +11,6 @@ import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
-import { Gender } from "./profile.model";
 
 export class ProfileService {
   private likeService?: LikeService;
@@ -28,7 +27,7 @@ export class ProfileService {
     dateOfBirth: Date,
     location: Location,
     reasons: string[],
-    gender: Gender,
+    gender: string,
     preferences: Preferences,
     files: Express.Multer.File[]
   ) => {
@@ -278,7 +277,6 @@ export class ProfileService {
             $lte: maxDate,
             $gte: minDate,
           },
-          gender: Gender.Female,
         },
         friendSearchProjection
       ).exec();
