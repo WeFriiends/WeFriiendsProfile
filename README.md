@@ -154,3 +154,5 @@ Once users match (mutual likes), they can communicate through the built-in chat 
 - Blacklist functionality to block unwanted connections
 - Secure authentication through Auth0
 - Data protection measures
+
+  
