@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin'
-import serviceAccount from '../../serviceAccount.json'
+import serviceAccount from '../serviceAccount.json'
 
 if (!admin.apps.length) {
     admin.initializeApp({
