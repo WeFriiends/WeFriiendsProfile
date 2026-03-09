@@ -3,5 +3,5 @@ export default interface NearestProfileDto {
   name: string;
   distance: number;
   picture: string | null;
-  likedUsers: boolean;
+  hasLikedMe: boolean;
 }

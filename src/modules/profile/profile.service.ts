@@ -396,7 +396,7 @@ export class ProfileService {
                 name: profile.name,
                 distance,
                 picture: profile.photos?.[0] || null,
-                likedUsers: profileLikes.likes.some(
+                hasLikedMe: profileLikes.likes.some(
                   (obj) => obj.liked_id === currentProfile.id
                 ),
               } as NearestProfileDto;

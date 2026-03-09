@@ -158,7 +158,7 @@ router.get("/search", checkJwt, profileController.searchFriends);
  *                   picture:
  *                     type: string
  *                     nullable: true
- *                   likedUsers:
+ *                   hasLikedMe:
  *                     type: boolean
  *       400:
  *         description: Bad request
@@ -199,7 +199,7 @@ router.get("/nearest", checkJwt, profileController.getNearestProfiles);
  *                     type: string
  *                   distance:
  *                     type: string
- *                   likedUsers:
+ *                   hasLikedMe:
  *                     type: array
  *                     items:
  *                        _id: string
