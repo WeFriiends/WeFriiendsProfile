@@ -34,13 +34,21 @@ router.get("/", checkJwt, likeController.getLikes);
  * @swagger
  * /api/likes/on-me:
  *   get:
- *     summary: Get likes on me
+ *     summary: Check if any users liked me
+ *     description: Returns true if the current user has at least one like, otherwise false.
  *     tags: [Like]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Likes on me got successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *              type: boolean
+ *              example: true
+ *       401:
+ *         description: Unauthorized
  */
 router.get("/on-me", checkJwt, likeController.getLikesOnMe);
 
