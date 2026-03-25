@@ -158,7 +158,7 @@ router.get("/search", checkJwt, profileController.searchFriends);
  *                   picture:
  *                     type: string
  *                     nullable: true
- *                   likedUsers:
+ *                   likedMe:
  *                     type: boolean
  *       400:
  *         description: Bad request
