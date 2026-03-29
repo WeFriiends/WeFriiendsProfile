@@ -2,6 +2,7 @@ import { expect, test, jest, beforeEach } from "@jest/globals";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
 import { Location, Preferences } from "../../models";
+import { MatchService } from "../match/match.service";
 
 jest.mock("cloudinary", () => {
   return {
@@ -59,12 +60,12 @@ beforeEach(() => {
 });
 
 test("ProfileService - should be defined", () => {
-  const profileService = new ProfileService(new LikeService());
+  const profileService = new ProfileService(new LikeService(new ProfileService(), new MatchService()));
   expect(profileService).toBeDefined();
 });
 
 test("ProfileService - registerProfile should create a new profile", async () => {
-  const profileService = new ProfileService(new LikeService());
+  const profileService = new ProfileService(new LikeService(new ProfileService(), new MatchService()));
 
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(false);
 
@@ -100,14 +101,14 @@ test("ProfileService - registerProfile should create a new profile", async () =>
   ] as unknown as Express.Multer.File[];
 
   const result = await profileService.registerProfile(
-    userId,
-    name,
-    dateOfBirth,
-    location,
-    reasons,
-    gender,
-    preferences,
-    files
+      userId,
+      name,
+      dateOfBirth,
+      location,
+      reasons,
+      gender,
+      preferences,
+      files
   );
 
   expect(result).toBeDefined();
@@ -117,7 +118,7 @@ test("ProfileService - registerProfile should create a new profile", async () =>
 });
 
 test("ProfileService - registerProfile should throw error (Profile already exists)", async () => {
-  const profileService = new ProfileService(new LikeService());
+  const profileService = new ProfileService(new LikeService(new ProfileService(), new MatchService()));
 
   jest.spyOn(profileService, "checkProfileExists").mockResolvedValue(true);
 
@@ -138,17 +139,17 @@ test("ProfileService - registerProfile should throw error (Profile already exist
 
   try {
     await profileService.registerProfile(
-      userId,
-      name,
-      dateOfBirth,
-      location,
-      reasons,
-      gender,
-      preferences,
-      files
+        userId,
+        name,
+        dateOfBirth,
+        location,
+        reasons,
+        gender,
+        preferences,
+        files
     );
 
-    expect(true).toBe(false); // This should not be reached
+    expect(true).toBe(false);
   } catch (error: any) {
     expect(error.message).toBe("Profile already exists");
   }

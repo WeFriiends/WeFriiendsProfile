@@ -9,12 +9,10 @@ export class MatchService {
   private chatService: ChatService;
 
   constructor(
-    mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(
-      new LikeService(new ProfileService())
-    ),
-    chatService: ChatService = new ChatService()
-  ) {
+      mongoRepository: IMatchRepository = new MongoMatchRepository(),
+      profileService: ProfileService = new ProfileService(),
+      chatService: ChatService = new ChatService()
+  ){
     this.mongoRepository = mongoRepository;
     this.profileService = profileService;
     this.chatService = chatService;
