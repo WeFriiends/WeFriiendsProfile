@@ -22,6 +22,8 @@ export interface Preferences {
 
 export interface ProfileDocument extends Document {
   _id: string;
+  device_id?: string;
+  isProfileComplete: boolean;
   name: string;
   dateOfBirth: Date;
   location: Location;
@@ -39,6 +41,8 @@ export interface ProfileDocument extends Document {
 const profileSchema = new Schema<ProfileDocument>(
   {
     _id: { type: String, required: true },
+    device_id:{type:String, index:true },
+    isProfileComplete: { type: Boolean, default: false},
     name: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     zodiacSign: { type: String },

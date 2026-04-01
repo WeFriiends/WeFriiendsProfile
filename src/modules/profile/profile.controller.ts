@@ -28,7 +28,7 @@ export class ProfileController {
     }
 
     try {
-      const { name, dateOfBirth, location, reasons, gender } = req.body;
+      const { name, dateOfBirth, location, reasons, gender,device_id } = req.body;
 
       if (!name) {
         return res.status(400).json({ error: "Name is required" });
@@ -72,7 +72,8 @@ export class ProfileController {
         reasons,
         gender,
         preferences,
-        files
+        files,
+        device_id
       );
 
       return res.status(201).json(newProfile);
@@ -174,29 +175,40 @@ export class ProfileController {
     }
   };
 
-  checkProfileExistsById = async (
-    req: Request,
-    res: Response
-  ): Promise<Response> => {
+  checkProfileExistsById = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller checkProfileExistsById");
 
-    const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
+    const isAuthenticated = !!(req as any).auth;
 
-    try {
-      const exists = await this.profileService.checkProfileExists(userId);
-      return res.json(exists);
-    } catch (error) {
-      return handleServiceError(
-        error,
-        "Error checkProfileExistsById",
-        res,
-        400
-      );
+    if (isAuthenticated) {
+      const userId = extractUserId(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized: Invalid token" });
+      }
+      try {
+        const profile = await this.profileService.getProfileById(userId).catch(() => null);
+        if (!profile || !profile.isProfileComplete) {
+          return res.status(204).send();
+        }
+        return res.status(200).json({ message: "Profile complete" });
+      } catch (error) {
+        return handleServiceError(error, "Error checkProfileExistsById", res, 400);
+      }
+    } else {
+      const deviceId = req.query.device_id as string;
+      if (!deviceId) {
+        return res.status(404).json({ message: "No credentials provided" });
+      }
+      try {
+        const profile = await this.profileService.findProfileByDeviceId(deviceId);
+        if (profile) {
+          return res.status(401).json({ message: "Unauthorized: Please log in" });
+        } else {
+          return res.status(404).json({ message: "No profile found for this device" });
+        }
+      } catch (error) {
+        return handleServiceError(error, "Error checkProfileExistsById", res, 400);
+      }
     }
   };
 

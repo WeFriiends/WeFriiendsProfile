@@ -20,6 +20,14 @@ export class ProfileService {
     this.likeService = likeService;
     this.matchService = matchService;
   }
+  findProfileByDeviceId = async (deviceId: string): Promise<ProfileDocument | null> => {
+    try{
+      return await Profile.findOne({device_id: deviceId}).exec();
+    }catch(error: unknown) {
+      if(error instanceof Error) throw new Error (error.message);
+      throw new Error("Error finding profile by device_id");
+    }
+  };
 
   registerProfile = async (
     userId: string,
@@ -29,11 +37,12 @@ export class ProfileService {
     reasons: string[],
     gender: string,
     preferences: Preferences,
-    files: Express.Multer.File[]
+    files: Express.Multer.File[],
+    deviceId? : string 
   ) => {
     try {
-      const profileExists = await this.checkProfileExists(userId);
-      if (profileExists) {
+      const existingProfile = await Profile.findById(userId).exec();
+      if (existingProfile && existingProfile.isProfileComplete) {
         throw new Error("Profile already exists");
       }
 
@@ -70,9 +79,32 @@ export class ProfileService {
 
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
+        
+        if(existingProfile){
+          return await Profile.findByIdAndUpdate(
+            userId,
+            {
+              name,
+              dateOfBirth,
+              zodiacSign,
+              location: parsedLocation,
+              gender,
+              reasons: parsedReasons,
+              preferences,
+              friendsAgeMin,
+              friendsAgeMax,
+              photos: uploadedFiles,
+              isProfileComplete: true,
+              ...(deviceId && {device_id: deviceId}),
+            },
+            {new:true}
+          ).exec();
+        }
 
       const newProfile = new Profile({
         _id: userId,
+        device_id: deviceId,
+        isProfileComplete: true,
         name,
         dateOfBirth,
         zodiacSign,

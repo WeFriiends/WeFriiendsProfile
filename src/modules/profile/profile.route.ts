@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { upload, checkJwt } from "../../middleware";
+import { upload, checkJwt,optionalCheckJwt, handleExpiredJwt} from "../../middleware";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
@@ -113,7 +113,7 @@ router.get("/", checkJwt, profileController.getCurrentProfile);
  *       400:
  *         description: Bad request
  */
-router.get("/check", checkJwt, profileController.checkProfileExistsById);
+router.get("/check", optionalCheckJwt, handleExpiredJwt, profileController.checkProfileExistsById);
 
 /**
  * @swagger
