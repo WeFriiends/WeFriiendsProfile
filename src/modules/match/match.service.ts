@@ -1,3 +1,4 @@
+import moment from "moment";
 import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
@@ -96,13 +97,30 @@ export class MatchService {
 
       const modifiedFriends = friendsWithChats
         .filter(({ hasChat }) => !hasChat)
-        .map(({ friend }) => ({
-          id: friend.id,
-          name: friend.name,
-          // amazonq-ignore-next-line
-          age: new Date().getFullYear() - friend.dateOfBirth.getFullYear(),
-          photo: friend.photos?.[0] || null,
-        }));
+        .map(({ friend }) => {
+          const friendObject = friend.toObject();
+          return {
+            id: friendObject._id,
+            name: friendObject.name,
+            age: moment().diff(moment(friendObject.dateOfBirth), "years"),
+            photos: friendObject.photos?.map((photo: string) => ({ src: photo })) || [],
+            zodiacSign: friendObject.zodiacSign,
+            city: friendObject.location?.city || "",
+            reasons: friendObject.reasons,
+            preferences: {
+              questionary: {
+                smoking: friendObject.preferences?.smoking || [],
+                education: friendObject.preferences?.educationalLevel || [],
+                children: friendObject.preferences?.children || [],
+                drinking: friendObject.preferences?.drinking || [],
+                pets: friendObject.preferences?.pets || [],
+                language: friendObject.preferences?.selectedLanguages || [],
+              },
+              interests: friendObject.preferences?.interests || [],
+              aboutMe: friendObject.preferences?.aboutMe || "",
+            },
+          };
+        });
 
       return modifiedFriends;
     } catch (error: unknown) {
