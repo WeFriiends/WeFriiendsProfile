@@ -1,3 +1,4 @@
+import moment from "moment";
 import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
@@ -99,8 +100,7 @@ export class MatchService {
         .map(({ friend }) => ({
           id: friend.id,
           name: friend.name,
-          // amazonq-ignore-next-line
-          age: new Date().getFullYear() - friend.dateOfBirth.getFullYear(),
+          age: moment().diff(moment(friend.dateOfBirth), "years"),
           photo: friend.photos?.[0] || null,
         }));
 

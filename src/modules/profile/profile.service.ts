@@ -410,6 +410,8 @@ export class ProfileService {
 
       const allProfiles = await this.getAllProfiles(userId);
 
+      const userLikes = this.likeService ? await this.likeService.getLikes(userId) : null;
+
       const nearestProfiles = await Promise.all(
         allProfiles
           .filter((profile) => profile.location?.lat && profile.location?.lng)
@@ -422,6 +424,10 @@ export class ProfileService {
             );
 
             if (distance <= currentProfile.friendsDistance!) {
+              const hasLiked = userLikes?.likes?.some((like) => like.liked_id === profile.id);
+              const hasMatch = await this.matchService?.hasMatch(userId, profile.id);
+              if (hasLiked || hasMatch) return null;
+
               const profileLikes = this.likeService ? await this.likeService.getLikes(profile.id) : { likes: [] };
               return {
                 id: profile.id,
