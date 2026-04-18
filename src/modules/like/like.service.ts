@@ -2,7 +2,6 @@ import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
-import { firebaseDb } from "../../config/firebase";
 
 export class LikeService {
   private profileService: ProfileService;
@@ -29,11 +28,6 @@ export class LikeService {
       const isMutual = await this.hasLiked(liked_id, liker_id);
       if (isMutual) {
         await this.matchService.addMatch(liker_id, liked_id);
-        await firebaseDb.ref("matches").push({
-          users: [liker_id, liked_id],
-          createdAt: new Date().toISOString(),
-          type: "match",
-        });
       }
 
       return likes;

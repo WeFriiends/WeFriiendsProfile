@@ -2,6 +2,7 @@ import { ChatService } from "../chat/chat.service";
 import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
+import { firebaseDb } from "../../config/firebase";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
@@ -24,6 +25,12 @@ export class MatchService {
       if (hasMatch) {
         throw new Error("Users are already in match");
       }
+
+      await firebaseDb.ref("matches").push({
+        users: [user1_id, user2_id],
+        createdAt: new Date().toISOString(),
+        type: "match",
+      });
 
       const newMatch = await this.mongoRepository.create(user1_id, user2_id);
 
