@@ -26,10 +26,12 @@ export class MatchService {
         throw new Error("Users are already in match");
       }
 
-      await firebaseDb.ref("matches").push({
-        users: [user1_id, user2_id],
-        createdAt: new Date().toISOString(),
+      const comboId = [user1_id, user2_id].sort().join("_");
+
+      await firebaseDb.ref("matches").child(comboId).set({
+        users: { [user1_id]: true, [user2_id]: true },
         type: "match",
+        createdAt: new Date().toISOString()
       });
 
       const newMatch = await this.mongoRepository.create(user1_id, user2_id);
@@ -124,6 +126,9 @@ export class MatchService {
       if (!hasMatch) {
         throw new Error("There is no such match");
       }
+
+      const comboId = [user1_id, user2_id].sort().join("_");
+      await firebaseDb.ref("matches").child(comboId).remove();
 
       const mongoResult = await this.mongoRepository.deleteMatch(
         user1_id,

@@ -60,6 +60,12 @@ export class LikeService {
       if (!hasLiked) {
         throw new Error("User is not in likes");
       }
+
+      const ourMatch = await this.matchService.hasMatch(liked_id, liker_id);
+      if (ourMatch) {
+        await this.matchService.removeMatch(liker_id, liked_id);
+      }
+        
       const likes = await Like.findOneAndUpdate(
           { liker_id },
           { $pull: { likes: { liked_id } } },
