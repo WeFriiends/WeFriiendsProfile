@@ -64,8 +64,14 @@ export class LikeService {
       const ourMatch = await this.matchService.hasMatch(liked_id, liker_id);
       if (ourMatch) {
         await this.matchService.removeMatch(liker_id, liked_id);
+
+        const friendlikes = await Like.findOneAndUpdate(
+          { liker_id: liked_id },
+          { $pull: { likes: { liked_id: liker_id } } },
+          { new: true }
+        ).exec();
       }
-        
+      
       const likes = await Like.findOneAndUpdate(
           { liker_id },
           { $pull: { likes: { liked_id } } },
