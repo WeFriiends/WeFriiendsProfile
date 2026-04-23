@@ -9,7 +9,7 @@ const router = Router();
 
 const likeService = new LikeService(new ProfileService(), new MatchService());
 const profileService = new ProfileService(likeService);
-const matchService = new MatchService(undefined, profileService);
+const matchService = new MatchService(profileService);
 profileService["matchService"] = matchService;
 
 const profileController: ProfileController = new ProfileController(

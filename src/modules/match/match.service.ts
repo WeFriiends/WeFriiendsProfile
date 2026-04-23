@@ -1,21 +1,21 @@
 import { ChatService } from "../chat/chat.service";
-import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
-import { IMatchRepository, MongoMatchRepository } from "./match.repository";
-import { firebaseDb } from "../../config/firebase";
-
+import { IMatchRepository, IFirebaseRepository, MongoMatchRepository, FirebaseMatchRepository } from "./match.repository";
 export class MatchService {
-  private mongoRepository: IMatchRepository;
   private profileService: ProfileService;
+  private mongoRepository: IMatchRepository;
+  private firebaseRepository: IFirebaseRepository;
   private chatService: ChatService;
 
   constructor(
-      mongoRepository: IMatchRepository = new MongoMatchRepository(),
       profileService: ProfileService = new ProfileService(),
+      mongoRepository: IMatchRepository = new MongoMatchRepository(),
+      firebaseRepository: IFirebaseRepository = new FirebaseMatchRepository(),
       chatService: ChatService = new ChatService()
   ){
-    this.mongoRepository = mongoRepository;
     this.profileService = profileService;
+    this.mongoRepository = mongoRepository;
+    this.firebaseRepository = firebaseRepository;
     this.chatService = chatService;
   }
 
@@ -25,15 +25,8 @@ export class MatchService {
       if (hasMatch) {
         throw new Error("Users are already in match");
       }
-
-      const comboId = [user1_id, user2_id].sort().join("_");
-
-      await firebaseDb.ref("matches").child(comboId).set({
-        users: { [user1_id]: true, [user2_id]: true },
-        type: "match",
-        createdAt: new Date().toISOString()
-      });
-
+      
+      await this.firebaseRepository.create(user1_id, user2_id);
       const newMatch = await this.mongoRepository.create(user1_id, user2_id);
 
       return newMatch;
@@ -127,9 +120,7 @@ export class MatchService {
         throw new Error("There is no such match");
       }
 
-      const comboId = [user1_id, user2_id].sort().join("_");
-      await firebaseDb.ref("matches").child(comboId).remove();
-
+      await this.firebaseRepository.deleteMatch(user1_id, user2_id);
       const mongoResult = await this.mongoRepository.deleteMatch(
         user1_id,
         user2_id

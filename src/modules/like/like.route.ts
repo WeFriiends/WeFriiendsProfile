@@ -8,7 +8,7 @@ import { MatchService } from "../match/match.service";
 const router = Router();
 
 const profileService = new ProfileService();
-const matchService = new MatchService();
+const matchService = new MatchService(profileService);
 const likeService = new LikeService(profileService, matchService);
 const likeController = new LikeController(likeService);
 
