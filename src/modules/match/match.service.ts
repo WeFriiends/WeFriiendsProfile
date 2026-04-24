@@ -97,30 +97,12 @@ export class MatchService {
 
       const modifiedFriends = friendsWithChats
         .filter(({ hasChat }) => !hasChat)
-        .map(({ friend }) => {
-          const friendObject = friend.toObject();
-          return {
-            id: friendObject._id,
-            name: friendObject.name,
-            age: moment().diff(moment(friendObject.dateOfBirth), "years"),
-            photos: friendObject.photos?.map((photo: string) => ({ src: photo })) || [],
-            zodiacSign: friendObject.zodiacSign,
-            city: friendObject.location?.city || "",
-            reasons: friendObject.reasons,
-            preferences: {
-              questionary: {
-                smoking: friendObject.preferences?.smoking || [],
-                education: friendObject.preferences?.educationalLevel || [],
-                children: friendObject.preferences?.children || [],
-                drinking: friendObject.preferences?.drinking || [],
-                pets: friendObject.preferences?.pets || [],
-                language: friendObject.preferences?.selectedLanguages || [],
-              },
-              interests: friendObject.preferences?.interests || [],
-              aboutMe: friendObject.preferences?.aboutMe || "",
-            },
-          };
-        });
+        .map(({ friend }) => ({
+          id: friend.id,
+          name: friend.name,
+          age: moment().diff(moment(friend.dateOfBirth), "years"),
+          photo: friend.photos?.[0] || null,
+        }));
 
       return modifiedFriends;
     } catch (error: unknown) {
