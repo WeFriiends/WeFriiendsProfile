@@ -1,12 +1,16 @@
 import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
+import { MatchService } from "../match/match.service";
+
 
 export class LikeService {
   private profileService: ProfileService;
+  private matchService: MatchService;
 
-  constructor(profileService: ProfileService) {
+  constructor(profileService: ProfileService, matchService: MatchService) {
     this.profileService = profileService;
+    this.matchService = matchService;
   }
 
   addLike = async (liker_id: string, liked_id: string) => {
@@ -15,14 +19,28 @@ export class LikeService {
       if (hasLiked) {
         throw new Error("User is already in likes");
       }
+      
+      const isMutual = await this.hasLiked(liked_id, liker_id);
+      if (isMutual) {        
+        const match = await this.matchService.addMatch(liker_id, liked_id);
 
-      const likes = await Like.findOneAndUpdate(
-        { liker_id },
-        { $addToSet: { likes: { liked_id, liked_at: new Date() } } },
-        { new: true, upsert: true }
-      ).exec();
+        await Like.findOneAndUpdate(
+          { liker_id: liked_id },
+          { $pull: { likes: { liked_id: liker_id } } },
+          { new: true }
+        ).exec();
 
-      return likes;
+        return match;
+      }
+      else {
+        const likes = await Like.findOneAndUpdate(
+          { liker_id },
+          { $addToSet: { likes: { liked_id, liked_at: new Date() } } },
+          { new: true, upsert: true }
+        ).exec();
+
+        return likes;
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -57,7 +75,7 @@ export class LikeService {
         { $pull: { likes: { liked_id } } },
         { new: true }
       ).exec();
-
+      
       return likes;
     } catch (error: unknown) {
       if (error instanceof Error) {

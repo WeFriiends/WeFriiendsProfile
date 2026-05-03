@@ -1,6 +1,5 @@
 import moment from "moment";
 import { ChatService } from "../chat/chat.service";
-import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository } from "./match.repository";
 
@@ -11,9 +10,7 @@ export class MatchService {
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(
-      new LikeService(new ProfileService())
-    ),
+    profileService: ProfileService = new ProfileService(),
     chatService: ChatService = new ChatService()
   ) {
     this.mongoRepository = mongoRepository;
