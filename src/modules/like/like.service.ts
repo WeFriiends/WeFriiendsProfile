@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
@@ -14,7 +15,10 @@ export class LikeService {
   }
 
   addLike = async (liker_id: string, liked_id: string) => {
+    const session = await mongoose.startSession();
     try {
+      session.startTransaction();
+
       const hasLiked = await this.hasLiked(liker_id, liked_id);
       if (hasLiked) {
         throw new Error("User is already in likes");
@@ -22,14 +26,15 @@ export class LikeService {
       
       const isMutual = await this.hasLiked(liked_id, liker_id);
       if (isMutual) {        
-        const match = await this.matchService.addMatch(liker_id, liked_id);
+        const match = await this.matchService.addMatch(liker_id, liked_id, { session });
 
         await Like.findOneAndUpdate(
           { liker_id: liked_id },
           { $pull: { likes: { liked_id: liker_id } } },
-          { new: true }
+          { new: true, session}
         ).exec();
-
+        await session.commitTransaction();
+        
         return match;
       }
       else {
@@ -42,10 +47,13 @@ export class LikeService {
         return likes;
       }
     } catch (error: unknown) {
+      await session.abortTransaction();
       if (error instanceof Error) {
         throw new Error(error.message);
       }
       throw new Error("Error adding like");
+    } finally {
+      await session.endSession();
     }
   };
 

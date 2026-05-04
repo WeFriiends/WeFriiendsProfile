@@ -1,9 +1,10 @@
 import { Match } from "../../models";
+import { ClientSession } from "mongoose";
 
 export interface IMatchRepository {
-  create(user1_id: string, user2_id: string): Promise<any>;
+  create(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any>;
   findByUserId(userId: string): Promise<any[]>;
-  findMatch(user1_id: string, user2_id: string): Promise<any | null>;
+  findMatch(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any | null>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
   editMatch(
     user1_id: string,
@@ -12,9 +13,13 @@ export interface IMatchRepository {
   ): Promise<any | null>;
 }
 
+export interface MatchOptions {
+  session?: ClientSession;
+}
+
 export class MongoMatchRepository implements IMatchRepository {
-  async create(user1_id: string, user2_id: string): Promise<any> {
-    return await Match.create({ user1_id, user2_id });
+  async create(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any> {
+    return await Match.create([{ user1_id, user2_id }], { session: options?.session });
   }
 
   async findByUserId(userId: string): Promise<any[]> {
@@ -23,7 +28,7 @@ export class MongoMatchRepository implements IMatchRepository {
     }).exec();
   }
 
-  async findMatch(user1_id: string, user2_id: string): Promise<any | null> {
+  async findMatch(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any | null> {
     return await Match.findOne({
       $or: [
         { user1_id, user2_id },
