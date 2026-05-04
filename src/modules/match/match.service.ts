@@ -1,8 +1,7 @@
 import moment from "moment";
 import { ChatService } from "../chat/chat.service";
-import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
-import { IMatchRepository, MongoMatchRepository } from "./match.repository";
+import { IMatchRepository, MongoMatchRepository, MatchOptions } from "./match.repository";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
@@ -11,9 +10,7 @@ export class MatchService {
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(
-      new LikeService(new ProfileService())
-    ),
+    profileService: ProfileService = new ProfileService(),
     chatService: ChatService = new ChatService()
   ) {
     this.mongoRepository = mongoRepository;
@@ -21,14 +18,14 @@ export class MatchService {
     this.chatService = chatService;
   }
 
-  addMatch = async (user1_id: string, user2_id: string) => {
+  addMatch = async (user1_id: string, user2_id: string, options?: MatchOptions) => {
     try {
-      const hasMatch = await this.hasMatch(user1_id, user2_id);
+      const hasMatch = await this.hasMatch(user1_id, user2_id, options);
       if (hasMatch) {
         throw new Error("Users are already in match");
       }
 
-      const newMatch = await this.mongoRepository.create(user1_id, user2_id);
+      const newMatch = await this.mongoRepository.create(user1_id, user2_id, options);
 
       return newMatch;
     } catch (error: unknown) {
@@ -134,11 +131,12 @@ export class MatchService {
     }
   };
 
-  hasMatch = async (user1_id: string, user2_id: string): Promise<boolean> => {
+  hasMatch = async (user1_id: string, user2_id: string, options?: MatchOptions): Promise<boolean> => {
     try {
       const mongoResult = await this.mongoRepository.findMatch(
         user1_id,
-        user2_id
+        user2_id,
+        options
       );
       return !!mongoResult;
     } catch (error: unknown) {
