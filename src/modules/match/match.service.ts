@@ -1,21 +1,24 @@
 import moment from "moment";
 import { ChatService } from "../chat/chat.service";
 import { ProfileService } from "../profile/profile.service";
-import { IMatchRepository, MongoMatchRepository, MatchOptions } from "./match.repository";
+import { IMatchRepository, MongoMatchRepository, MatchOptions, IFirebaseRepository, FirebaseMatchRepository } from "./match.repository";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
   private profileService: ProfileService;
   private chatService: ChatService;
+  private firebaseRepository: IFirebaseRepository;
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
     profileService: ProfileService = new ProfileService(),
-    chatService: ChatService = new ChatService()
+    chatService: ChatService = new ChatService(),
+    firebaseRepository: IFirebaseRepository = new FirebaseMatchRepository(),
   ) {
     this.mongoRepository = mongoRepository;
     this.profileService = profileService;
     this.chatService = chatService;
+    this.firebaseRepository = firebaseRepository;
   }
 
   addMatch = async (user1_id: string, user2_id: string, options?: MatchOptions) => {
@@ -26,6 +29,7 @@ export class MatchService {
       }
 
       const newMatch = await this.mongoRepository.create(user1_id, user2_id, options);
+      await this.firebaseRepository.create(user1_id, user2_id);
 
       return newMatch;
     } catch (error: unknown) {
@@ -121,6 +125,7 @@ export class MatchService {
         user1_id,
         user2_id
       );
+      await this.firebaseRepository.deleteMatch(user1_id, user2_id);
 
       return mongoResult;
     } catch (error: unknown) {
