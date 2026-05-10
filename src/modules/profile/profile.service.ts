@@ -12,6 +12,32 @@ import { MatchService } from "../match/match.service";
 import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
 
+/**
+ * Normalise any incoming location value to the canonical GeoJSON shape:
+ * { type: "Point", coordinates: [lng, lat], country, city, street?, houseNumber? }
+ *
+ * Accepts:
+ *  - A JSON string  (e.g. '{"lat":48.85,"lng":2.34,...}')
+ *  - An object with lat/lng fields  (old format)
+ *  - An object already in GeoJSON format  (coordinates array present)
+ */
+function toGeoJsonLocation(raw: Location | string): Location {
+  const parsed: any = typeof raw === "string" ? JSON.parse(raw) : raw;
+
+  const coordinates: [number, number] = Array.isArray(parsed.coordinates)
+    ? [parsed.coordinates[0], parsed.coordinates[1]] // already GeoJSON
+    : [parsed.lng, parsed.lat]; // old {lat, lng} format
+
+  return {
+    type: "Point",
+    coordinates,
+    country: parsed.country ?? "",
+    city: parsed.city ?? "",
+    ...(parsed.street !== undefined && { street: parsed.street }),
+    ...(parsed.houseNumber !== undefined && { houseNumber: parsed.houseNumber }),
+  };
+}
+
 export class ProfileService {
   private likeService?: LikeService;
   private matchService?: MatchService;
@@ -74,8 +100,7 @@ export class ProfileService {
       const friendsAgeMin = age - 6;
       const friendsAgeMax = age + 6;
 
-      const parsedLocation: Location =
-        typeof location === "string" ? JSON.parse(location) : location;
+      const parsedLocation: Location = toGeoJsonLocation(location);
 
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
@@ -177,8 +202,7 @@ export class ProfileService {
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
-      const parsedLocation: Location =
-        typeof location === "string" ? JSON.parse(location) : location;
+      const parsedLocation: Location = toGeoJsonLocation(location);
 
       const parsedBlackList: string[] =
         typeof blackList === "string" ? JSON.parse(blackList) : blackList;
@@ -282,16 +306,16 @@ export class ProfileService {
         throw new Error("Profile not found");
       }
 
-      const lng = profile.location?.lng;
-      const lat = profile.location?.lat;
+      const lng = profile.location?.coordinates?.[0];
+      const lat = profile.location?.coordinates?.[1];
       const friendsDistance = profile.friendsDistance;
       const friendsAgeMin = profile.friendsAgeMin;
       const friendsAgeMax = profile.friendsAgeMax;
       const blackList = profile.blackList || [];
 
       if (
-        !lng ||
-        !lat ||
+        lng === undefined ||
+        lat === undefined ||
         !friendsDistance ||
         !friendsAgeMin ||
         !friendsAgeMax
@@ -323,15 +347,17 @@ export class ProfileService {
             (like) => like.liked_id === friend.id
           );
           const hasMatch = await this.matchService?.hasMatch(userId, friend.id);
-          const hasValidLocation = friend.location?.lat && friend.location?.lng;
+          const hasValidLocation =
+            friend.location?.coordinates?.[0] !== undefined &&
+            friend.location?.coordinates?.[1] !== undefined;
 
           if (hasLiked || hasMatch || !hasValidLocation) return null;
 
           const distance = haversineDistance(
             lat,
             lng,
-            friend.location.lat,
-            friend.location.lng
+            friend.location.coordinates[1],
+            friend.location.coordinates[0]
           );
 
           if (distance > friendsDistance) return null;
@@ -356,8 +382,8 @@ export class ProfileService {
           const distance = haversineDistance(
             lat,
             lng,
-            friend.location.lat,
-            friend.location.lng
+            friend.location.coordinates[1],
+            friend.location.coordinates[0]
           );
 
           const friendObject = friend.toObject();
@@ -402,8 +428,7 @@ export class ProfileService {
       const currentProfile = await Profile.findById(userId).exec();
       if (
         !currentProfile ||
-        !currentProfile.location?.lat ||
-        !currentProfile.location?.lng
+        !currentProfile.location?.coordinates?.length
       ) {
         throw new Error("Profile or location not found");
       }
@@ -414,13 +439,17 @@ export class ProfileService {
 
       const nearestProfiles = await Promise.all(
         allProfiles
-          .filter((profile) => profile.location?.lat && profile.location?.lng)
+          .filter(
+            (profile) =>
+              profile.location?.coordinates?.[0] !== undefined &&
+              profile.location?.coordinates?.[1] !== undefined
+          )
           .map(async (profile) => {
             const distance = haversineDistance(
-              currentProfile.location.lat,
-              currentProfile.location.lng,
-              profile.location.lat,
-              profile.location.lng
+              currentProfile.location.coordinates[1],
+              currentProfile.location.coordinates[0],
+              profile.location.coordinates[1],
+              profile.location.coordinates[0]
             );
 
             if (distance <= currentProfile.friendsDistance!) {

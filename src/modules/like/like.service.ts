@@ -81,10 +81,10 @@ export class LikeService {
         id: user._id,
         name: user.name,
         distance: haversineDistance(
-          user.location.lat,
-          user.location.lng,
-          liker.location.lat,
-          liker.location.lng
+          user.location.coordinates[1],
+          user.location.coordinates[0],
+          liker.location.coordinates[1],
+          liker.location.coordinates[0]
         ),
         picture: user.photos?.[0] || null,
       }));
