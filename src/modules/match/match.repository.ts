@@ -21,6 +21,10 @@ export interface MatchOptions {
   session?: ClientSession;
 }
 
+export interface MatchOptions {
+  session?: ClientSession;
+}
+
 export class MongoMatchRepository implements IMatchRepository {
   async create(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any> {
     return await Match.create([{ user1_id, user2_id }], { session: options?.session });
