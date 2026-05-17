@@ -1,15 +1,17 @@
 import Block from "./block.model";
 import { Match, Profile } from "../../models";
-import { Chat } from "../../models";
 
 export class BlockService {
   /**
    * POST /api/block
    * - Saves block record
    * - Deletes the match between the two users (if any)
-   * - Deletes the chat between the two users (if any)
    * - Adds blockedUserId to the blocker's blackList so the blocked user
    *   is excluded from future search results
+   *
+   * NOTE: Chat deletion is intentionally omitted. Frontend handles chat
+   * creation; backend-generated chats are deprecated and no longer used.
+   * See refactoring task: https://app.clickup.com/t/869d8qe6a
    */
   blockUser = async (
     blockerUserId: string,
@@ -28,11 +30,6 @@ export class BlockService {
           { user1_id: blockerUserId, user2_id: blockedUserId },
           { user1_id: blockedUserId, user2_id: blockerUserId },
         ],
-      });
-
-      // Remove chat
-      await Chat.deleteOne({
-        participants: { $all: [blockerUserId, blockedUserId] },
       });
 
       // Add to blackList of the blocker's profile so they never appear again

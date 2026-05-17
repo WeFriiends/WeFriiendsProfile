@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BlockService } from "./block.service";
-import { handleServiceError } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 
 export class BlockController {
   private blockService: BlockService;
@@ -11,15 +11,21 @@ export class BlockController {
 
   /**
    * POST /api/block
-   * Body: { blockerUserId: string, blockedUserId: string }
+   * Body: { blockedUserId: string }
+   * blockerUserId is taken from the JWT (extractUserId).
    */
   blockUser = async (req: Request, res: Response): Promise<Response> => {
-    const { blockerUserId, blockedUserId } = req.body;
-
-    if (!blockerUserId || !blockedUserId) {
+    const blockerUserId = extractUserId(req);
+    if (!blockerUserId) {
       return res
-        .status(400)
-        .json({ error: "blockerUserId and blockedUserId are required" });
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    const { blockedUserId } = req.body;
+
+    if (!blockedUserId) {
+      return res.status(400).json({ error: "blockedUserId is required" });
     }
 
     if (blockerUserId === blockedUserId) {

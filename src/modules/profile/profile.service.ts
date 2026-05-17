@@ -9,16 +9,23 @@ import {
 import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
+import { BlockService } from "../block/block.service";
 import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
 
 export class ProfileService {
   private likeService?: LikeService;
   private matchService?: MatchService;
+  private blockService: BlockService;
 
-  constructor(likeService?: LikeService, matchService?: MatchService) {
+  constructor(
+    likeService?: LikeService,
+    matchService?: MatchService,
+    blockService: BlockService = new BlockService()
+  ) {
     this.likeService = likeService;
     this.matchService = matchService;
+    this.blockService = blockService;
   }
   findProfileByDeviceId = async (deviceId: string): Promise<ProfileDocument | null> => {
     try{
@@ -289,6 +296,10 @@ export class ProfileService {
       const friendsAgeMax = profile.friendsAgeMax;
       const blackList = profile.blackList || [];
 
+      // Exclude users that this user has explicitly blocked via /api/block
+      const blockedUserIds = await this.blockService.getBlockedUsers(userId);
+      const excludedIds = Array.from(new Set([...blackList, ...blockedUserIds]));
+
       if (
         !lng ||
         !lat ||
@@ -304,7 +315,7 @@ export class ProfileService {
 
       const allProfiles = await Profile.find(
         {
-          _id: { $ne: userId, $nin: blackList },
+          _id: { $ne: userId, $nin: excludedIds },
           dateOfBirth: {
             $lte: maxDate,
             $gte: minDate,

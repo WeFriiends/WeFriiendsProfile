@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ReportService } from "./report.service";
-import { handleServiceError } from "../../utils";
+import { extractUserId, handleServiceError } from "../../utils";
 import { ReportReason } from "./report.model";
 
 const VALID_REASONS: ReportReason[] = [
@@ -19,14 +19,22 @@ export class ReportController {
 
   /**
    * POST /api/report
-   * Body: { reportedUserId, reporterUserId, reason, comment? }
+   * Body: { reportedUserId, reason, comment? }
+   * reporterUserId is taken from the JWT (extractUserId).
    */
   createReport = async (req: Request, res: Response): Promise<Response> => {
-    const { reportedUserId, reporterUserId, reason, comment } = req.body;
+    const reporterUserId = extractUserId(req);
+    if (!reporterUserId) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
 
-    if (!reportedUserId || !reporterUserId || !reason) {
+    const { reportedUserId, reason, comment } = req.body;
+
+    if (!reportedUserId || !reason) {
       return res.status(400).json({
-        error: "reportedUserId, reporterUserId and reason are required",
+        error: "reportedUserId and reason are required",
       });
     }
 
