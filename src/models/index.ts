@@ -9,3 +9,5 @@ export {
   Preferences,
   ProfileDocument,
 } from "../modules/profile/profile.model";
+export { default as Block } from "../modules/block/block.model";
+export { default as Report } from "../modules/report/report.model";
