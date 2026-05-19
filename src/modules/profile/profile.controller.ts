@@ -1,3 +1,4 @@
+import moment from "moment";
 import { Request, Response } from "express";
 import {
   extractUserId,
@@ -139,9 +140,7 @@ export class ProfileController {
       const performedUser = {
         _id: targetUserObject._id,
         name: targetUserObject.name,
-        age: Math.round(
-          new Date().getFullYear() - targetUserObject.dateOfBirth.getFullYear()
-        ),
+        age: moment().diff(moment(targetUserObject.dateOfBirth), "years"),
         zodiacSign: targetUserObject.zodiacSign,
         city: targetUserObject.location.city,
         distance: haversineDistance(
@@ -157,15 +156,15 @@ export class ProfileController {
         reasons: targetUserObject.reasons,
         preferences: {
           questionary: {
-            smoking: targetUserObject.preferences?.smoking[0] || "",
-            education: targetUserObject.preferences?.educationalLevel,
-            children: targetUserObject.preferences?.children[0] || "",
-            drinking: targetUserObject.preferences?.drinking[0] || "",
-            pets: targetUserObject.preferences?.pets,
-            language: targetUserObject.preferences?.selectedLanguages,
+            smoking: targetUserObject.preferences?.smoking || [],
+            education: targetUserObject.preferences?.educationalLevel || [],
+            children: targetUserObject.preferences?.children || [],
+            drinking: targetUserObject.preferences?.drinking || [],
+            pets: targetUserObject.preferences?.pets || [],
+            language: targetUserObject.preferences?.selectedLanguages || [],
           },
-          interests: targetUserObject.preferences?.interests,
-          aboutMe: targetUserObject.preferences?.aboutMe,
+          interests: targetUserObject.preferences?.interests || [],
+          aboutMe: targetUserObject.preferences?.aboutMe || "",
         },
       };
 

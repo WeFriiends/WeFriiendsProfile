@@ -1,34 +1,35 @@
 import moment from "moment";
 import { ChatService } from "../chat/chat.service";
-import { LikeService } from "../like/like.service";
 import { ProfileService } from "../profile/profile.service";
-import { IMatchRepository, MongoMatchRepository } from "./match.repository";
+import { IMatchRepository, MongoMatchRepository, MatchOptions, IFirebaseRepository, FirebaseMatchRepository } from "./match.repository";
 
 export class MatchService {
   private mongoRepository: IMatchRepository;
   private profileService: ProfileService;
   private chatService: ChatService;
+  private firebaseRepository: IFirebaseRepository;
 
   constructor(
     mongoRepository: IMatchRepository = new MongoMatchRepository(),
-    profileService: ProfileService = new ProfileService(
-      new LikeService(new ProfileService())
-    ),
-    chatService: ChatService = new ChatService()
+    profileService: ProfileService = new ProfileService(),
+    chatService: ChatService = new ChatService(),
+    firebaseRepository: IFirebaseRepository = new FirebaseMatchRepository(),
   ) {
     this.mongoRepository = mongoRepository;
     this.profileService = profileService;
     this.chatService = chatService;
+    this.firebaseRepository = firebaseRepository;
   }
 
-  addMatch = async (user1_id: string, user2_id: string) => {
+  addMatch = async (user1_id: string, user2_id: string, options?: MatchOptions) => {
     try {
-      const hasMatch = await this.hasMatch(user1_id, user2_id);
+      const hasMatch = await this.hasMatch(user1_id, user2_id, options);
       if (hasMatch) {
         throw new Error("Users are already in match");
       }
 
-      const newMatch = await this.mongoRepository.create(user1_id, user2_id);
+      const newMatch = await this.mongoRepository.create(user1_id, user2_id, options);
+      await this.firebaseRepository.create(user1_id, user2_id);
 
       return newMatch;
     } catch (error: unknown) {
@@ -124,6 +125,7 @@ export class MatchService {
         user1_id,
         user2_id
       );
+      await this.firebaseRepository.deleteMatch(user1_id, user2_id);
 
       return mongoResult;
     } catch (error: unknown) {
@@ -134,11 +136,12 @@ export class MatchService {
     }
   };
 
-  hasMatch = async (user1_id: string, user2_id: string): Promise<boolean> => {
+  hasMatch = async (user1_id: string, user2_id: string, options?: MatchOptions): Promise<boolean> => {
     try {
       const mongoResult = await this.mongoRepository.findMatch(
         user1_id,
-        user2_id
+        user2_id,
+        options
       );
       return !!mongoResult;
     } catch (error: unknown) {
