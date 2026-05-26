@@ -8,6 +8,9 @@ export const setupMiddleware = (app: Express): void => {
   app.use(
     cors({
       origin: ["http://localhost:3000", 'https://frontend.wefriiends.com', 'https://warm-frangollo-93bfd5.netlify.app'], // Replace with your frontend's URL
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      maxAge: 600,
     })
   );
 
