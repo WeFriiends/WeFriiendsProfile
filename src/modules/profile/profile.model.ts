@@ -1,8 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface Location {
-  lat: number;
-  lng: number;
+  type: "Point";
+  coordinates: [number, number]; // [lng, lat]
   country: string;
   city: string;
   street?: string;
@@ -48,8 +48,8 @@ const profileSchema = new Schema<ProfileDocument>(
     dateOfBirth: { type: Date, required: true },
     zodiacSign: { type: String },
     location: {
-      lat: { type: Number },
-      lng: { type: Number },
+      type: { type: String, enum: ["Point"], default: "Point" },
+      coordinates: { type: [Number], default: undefined }, // [lng, lat]
       country: { type: String },
       city: { type: String },
       street: { type: String },

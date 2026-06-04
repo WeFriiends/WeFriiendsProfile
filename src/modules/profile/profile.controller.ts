@@ -144,10 +144,10 @@ export class ProfileController {
         zodiacSign: targetUserObject.zodiacSign,
         city: targetUserObject.location.city,
         distance: haversineDistance(
-          targetUserObject.location.lat,
-          targetUserObject.location.lng,
-          currentUserObject.location.lat,
-          currentUserObject.location.lng
+          targetUserObject.location.coordinates[1],
+          targetUserObject.location.coordinates[0],
+          currentUserObject.location.coordinates[1],
+          currentUserObject.location.coordinates[0]
         ),
         likedMe,
         photos: targetUserObject.photos.map((photo: string) => ({

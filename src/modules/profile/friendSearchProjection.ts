@@ -5,8 +5,7 @@ export default {
   zodiacSign: 1,
   photos: 1,
   "location.city": 1,
-  "location.lat": 1,
-  "location.lng": 1,
+  "location.coordinates": 1,
   reasons: 1,
   preferences: 1,
 };
