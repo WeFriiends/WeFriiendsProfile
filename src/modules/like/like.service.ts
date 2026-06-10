@@ -3,15 +3,18 @@ import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
+import { IFirebaseRepository } from "../match/match.repository";
 
 
 export class LikeService {
   private profileService: ProfileService;
   private matchService: MatchService;
+  private firebaseRepository: IFirebaseRepository;
 
-  constructor(profileService: ProfileService, matchService: MatchService) {
+  constructor(profileService: ProfileService, matchService: MatchService, firebaseRepository: IFirebaseRepository) {
     this.profileService = profileService;
     this.matchService = matchService;
+    this.firebaseRepository = firebaseRepository;
   }
 
   addLike = async (liker_id: string, liked_id: string) => {
@@ -34,6 +37,7 @@ export class LikeService {
           { new: true, session}
         ).exec();
         await session.commitTransaction();
+        await this.firebaseRepository.create(liked_id, liker_id);
         
         return match;
       }

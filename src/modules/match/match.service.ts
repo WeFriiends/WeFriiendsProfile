@@ -29,7 +29,6 @@ export class MatchService {
       }
 
       const newMatch = await this.mongoRepository.create(user1_id, user2_id, options);
-      await this.firebaseRepository.create(user1_id, user2_id);
 
       return newMatch;
     } catch (error: unknown) {
