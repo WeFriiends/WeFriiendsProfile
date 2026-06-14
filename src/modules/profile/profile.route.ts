@@ -206,10 +206,7 @@ router.get("/nearest", checkJwt, profileController.getNearestProfiles);
  *                   photos:
  *                     type: array
  *                     items:
- *                       type: object
- *                       properties:
- *                         src:
- *                           type: string
+ *                       type: string
  *                   reasons:
  *                     type: array
  *                     items:
