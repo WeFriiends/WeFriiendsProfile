@@ -75,9 +75,15 @@ export class MatchService {
       if (matches.length === 0) {
         return [];
       }
-      const friendsIds: string[] = matches.map((match) =>
-        match.user1_id === user_id ? match.user2_id : match.user1_id
-      );
+
+      const friendSeenMap: Record<string, boolean> = {};
+      matches.forEach((match) => {
+        const friendId = match.user1_id === user_id ? match.user2_id : match.user1_id;
+        const friendSeen = match.user1_id === user_id ? match.user1_seen : match.user2_seen;
+        friendSeenMap[friendId] = friendSeen;
+      })
+
+      const friendsIds = Object.keys(friendSeenMap);
 
       const friends = await Promise.all(
         friendsIds.map((friendId) =>
@@ -85,26 +91,23 @@ export class MatchService {
         )
       );
 
-      const friendsWithChats = await Promise.all(
-        friends.map(async (friend) => ({
-          friend,
-          hasChat: !!(await this.chatService.getChatByParticipants(
-            user_id,
-            friend.id
-          )),
-        }))
-      );
+      const modifiedFriends = await Promise.all(friends.map(async (friendDoc) => {
+        if (!friendDoc) return null;
 
-      const modifiedFriends = friendsWithChats
-        .filter(({ hasChat }) => !hasChat)
-        .map(({ friend }) => ({
-          id: friend.id,
-          name: friend.name,
-          age: moment().diff(moment(friend.dateOfBirth), "years"),
-          photo: friend.photos?.[0] || null,
-        }));
+        const friendObj = friendDoc.toObject({ virtuals: true });
+        const friendStrId = friendObj._id.toString();
+        const hasChat = !!(await this.chatService.getChatByParticipants(user_id, friendStrId));
+        if (hasChat) return null;
+        return {
+          id: friendStrId,
+          name: friendObj.name,
+          age: moment().diff(moment(friendObj.dateOfBirth), "years"),
+          photo: friendObj.photos?.[0] || null,
+          seen: friendSeenMap[friendStrId],
+        };
+      }));
 
-      return modifiedFriends;
+      return modifiedFriends.filter((friend): friend is NonNullable<typeof friend> => friend !== null);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
