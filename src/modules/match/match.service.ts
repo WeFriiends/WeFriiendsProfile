@@ -38,25 +38,25 @@ export class MatchService {
     }
   };
 
-  editMatch = async (user1_id: string, user2_id: string, seen: boolean) => {
+  editMatch = async (authUserId: string, user2_id: string) => {
     try {
-      const match = await this.mongoRepository.findMatch(user1_id, user2_id);
+      const match = await this.mongoRepository.findMatch(authUserId, user2_id);
       if (!match) {
         throw new Error("Match not found");
       }
 
       const update: { user1_seen?: boolean; user2_seen?: boolean } = {};
 
-      if (match.user1_id === user1_id) {
-        update.user1_seen = seen;
-      } else if (match.user2_id === user1_id) {
-        update.user2_seen = seen;
+      if (match.user1_id === authUserId) {
+        update.user1_seen = true;
+      } else if (match.user2_id === authUserId) {
+        update.user2_seen = true;
       } else {
         throw new Error("Unauthorized to edit match");
       }
 
       const targetMatch = await this.mongoRepository.editMatch(
-        user1_id,
+        authUserId,
         user2_id,
         update
       );
