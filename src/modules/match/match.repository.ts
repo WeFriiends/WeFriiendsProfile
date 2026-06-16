@@ -75,14 +75,10 @@ export class MongoMatchRepository implements IMatchRepository {
 export class FirebaseMatchRepository implements IFirebaseRepository {
   async create(user1_id: string, user2_id: string): Promise<any> {
     const comboId = [user1_id, user2_id].sort().join("_");
-    
-    const matchData = { type: "match", createdAt: new Date().toISOString() };
-
     const updates: Record<string, any> = {};
 
-    updates[`/matches/${comboId}`] = { ...matchData, users: { [user1_id]: true, [user2_id]: true } };
-    updates[`/user_matches/${user1_id}/${comboId}`] = true;
-    updates[`/user_matches/${user2_id}/${comboId}`] = true;
+    updates[`/matches/${user1_id}/${comboId}`] = true;
+    updates[`/matches/${user2_id}/${comboId}`] = true;
 
     await firebaseDb.ref().update(updates);
     
@@ -94,9 +90,8 @@ export class FirebaseMatchRepository implements IFirebaseRepository {
 
     const updates: Record<string, any> = {};
 
-    updates[`/matches/${comboId}`] = null;
-    updates[`/user_matches/${user1_id}/${comboId}`] = null;
-    updates[`/user_matches/${user2_id}/${comboId}`] = null;
+    updates[`/matches/${user1_id}/${comboId}`] = null;
+    updates[`/matches/${user2_id}/${comboId}`] = null;
 
     await firebaseDb.ref().update(updates);
 
