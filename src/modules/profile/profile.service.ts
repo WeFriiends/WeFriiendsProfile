@@ -407,7 +407,7 @@ export class ProfileService {
             likedMe,
             distance,
             city: friendObject.location?.city || "",
-            photos: friendObject.photos?.map((photo) => ({ src: photo })) || [],
+            photos: friendObject.photos || [],
             preferences: {
               questionary: {
                 smoking: friendObject.preferences?.smoking || [],
