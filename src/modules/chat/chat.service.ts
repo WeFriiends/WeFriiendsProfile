@@ -1,4 +1,5 @@
 import Chat, { IChat } from "./chat.model";
+import { firestore } from "../../config/firebase";
 
 export class ChatService {
   async getAllChats(): Promise<IChat[]> {
@@ -16,10 +17,17 @@ export class ChatService {
   async getChatByParticipants(
     userId: string,
     friendId: string
-  ): Promise<IChat | null> {
-    return await Chat.findOne({
-      participants: { $all: [userId, friendId] },
-    });
+  ): Promise<boolean> {
+    try {
+      const conversationId = [userId, friendId].sort().join("_");
+      const doc = await firestore
+        .collection("conversations")
+        .doc(conversationId)
+        .get();
+      return doc.exists;
+    } catch {
+      return false;
+    }
   }
 
   async getChatById(id: string): Promise<IChat | null> {

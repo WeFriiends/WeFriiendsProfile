@@ -42,11 +42,11 @@ export class ChatController {
       if (!hasMatch) {
         return res.status(400).send({ message: "You are not friends" });
       }
-      const existingChat = await this.chatService.getChatByParticipants(
+      const chatExists = await this.chatService.getChatByParticipants(
         userId,
         friendId
       );
-      if (existingChat) {
+      if (chatExists) {
         return res.status(400).send({ message: "Chat already exists" });
       }
 

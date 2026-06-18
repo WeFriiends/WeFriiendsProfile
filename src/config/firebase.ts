@@ -12,3 +12,4 @@ if (!admin.apps.length) {
 }
 
 export const firebaseDb = admin.database()
+export const firestore = admin.firestore()
