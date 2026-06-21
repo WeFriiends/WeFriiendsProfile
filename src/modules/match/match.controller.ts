@@ -91,15 +91,15 @@ export class MatchController {
         .json({ message: "Unauthorized: No token provided" });
     }
     try {
-      const { user2_id, seen } = req.body;
+      const { user2_id } = req.body;
 
-      if (!user2_id || typeof seen !== "boolean") {
+      if (!user2_id) {
         return res.status(400).json({
-          message: "user2_id and a boolean seen value are required",
+          message: "user2_id is required",
         });
       }
 
-      const result = await this.matchService.editMatch(userId, user2_id, seen);
+      const result = await this.matchService.editMatch(userId, user2_id);
       return res.status(200).json(result);
     } catch (error: unknown) {
       return handleServiceError(error, "Error editMatch", res, 404);

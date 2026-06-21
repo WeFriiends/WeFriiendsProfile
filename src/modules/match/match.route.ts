@@ -107,13 +107,10 @@ router.delete("/", checkJwt, matchController.removeMatch);
  *             type: object
  *             required:
  *               - user2_id
- *               - seen
  *             properties:
  *               user2_id:
  *                 type: string
- *               seen:
- *                 type: boolean
- *                 description: Desired seen value for the authenticated user
+ *                 description: The Auth0 ID of the other user in the match to mark the interaction as seen
  *     responses:
  *       200:
  *         description: match updated successfully

@@ -29,7 +29,6 @@ export class MatchService {
       }
 
       const newMatch = await this.mongoRepository.create(user1_id, user2_id, options);
-      await this.firebaseRepository.create(user1_id, user2_id);
 
       return newMatch;
     } catch (error: unknown) {
@@ -39,25 +38,25 @@ export class MatchService {
     }
   };
 
-  editMatch = async (user1_id: string, user2_id: string, seen: boolean) => {
+  editMatch = async (authUserId: string, user2_id: string) => {
     try {
-      const match = await this.mongoRepository.findMatch(user1_id, user2_id);
+      const match = await this.mongoRepository.findMatch(authUserId, user2_id);
       if (!match) {
         throw new Error("Match not found");
       }
 
       const update: { user1_seen?: boolean; user2_seen?: boolean } = {};
 
-      if (match.user1_id === user1_id) {
-        update.user1_seen = seen;
-      } else if (match.user2_id === user1_id) {
-        update.user2_seen = seen;
+      if (match.user1_id === authUserId) {
+        update.user1_seen = true;
+      } else if (match.user2_id === authUserId) {
+        update.user2_seen = true;
       } else {
         throw new Error("Unauthorized to edit match");
       }
 
       const targetMatch = await this.mongoRepository.editMatch(
-        user1_id,
+        authUserId,
         user2_id,
         update
       );
@@ -76,9 +75,15 @@ export class MatchService {
       if (matches.length === 0) {
         return [];
       }
-      const friendsIds: string[] = matches.map((match) =>
-        match.user1_id === user_id ? match.user2_id : match.user1_id
-      );
+
+      const friendSeenMap: Record<string, boolean> = {};
+      matches.forEach((match) => {
+        const friendId = match.user1_id === user_id ? match.user2_id : match.user1_id;
+        const friendSeen = match.user1_id === user_id ? match.user1_seen : match.user2_seen;
+        friendSeenMap[friendId] = friendSeen;
+      })
+
+      const friendsIds = Object.keys(friendSeenMap);
 
       const friends = await Promise.all(
         friendsIds.map((friendId) =>
@@ -86,26 +91,23 @@ export class MatchService {
         )
       );
 
-      const friendsWithChats = await Promise.all(
-        friends.map(async (friend) => ({
-          friend,
-          hasChat: !!(await this.chatService.getChatByParticipants(
-            user_id,
-            friend.id
-          )),
-        }))
-      );
+      const modifiedFriends = await Promise.all(friends.map(async (friendDoc) => {
+        if (!friendDoc) return null;
 
-      const modifiedFriends = friendsWithChats
-        .filter(({ hasChat }) => !hasChat)
-        .map(({ friend }) => ({
-          id: friend.id,
-          name: friend.name,
-          age: moment().diff(moment(friend.dateOfBirth), "years"),
-          photo: friend.photos?.[0] || null,
-        }));
+        const friendObj = friendDoc.toObject({ virtuals: true });
+        const friendStrId = friendObj._id.toString();
+        const hasChat = !!(await this.chatService.getChatByParticipants(user_id, friendStrId));
+        if (hasChat) return null;
+        return {
+          id: friendStrId,
+          name: friendObj.name,
+          age: moment().diff(moment(friendObj.dateOfBirth), "years"),
+          photo: friendObj.photos?.[0] || null,
+          seen: friendSeenMap[friendStrId],
+        };
+      }));
 
-      return modifiedFriends;
+      return modifiedFriends.filter((friend): friend is NonNullable<typeof friend> => friend !== null);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
