@@ -320,9 +320,14 @@ export class ProfileService {
       const friendsAgeMax = profile.friendsAgeMax;
       const blackList = profile.blackList || [];
 
-      // Exclude users that this user has explicitly blocked via /api/block
       const blockedUserIds = await this.blockService.getBlockedUsers(userId);
-      const excludedIds = Array.from(new Set([...blackList, ...blockedUserIds]));
+      const hiddenByOthers = await Profile.find({ blackList: userId })
+        .select("_id")
+        .lean<{ _id: string }[]>();
+      const hiddenByOthersIds = hiddenByOthers.map((p) => p._id);
+      const excludedIds = Array.from(
+        new Set([...blackList, ...blockedUserIds, ...hiddenByOthersIds])
+      );
 
       if (
         lng === undefined ||

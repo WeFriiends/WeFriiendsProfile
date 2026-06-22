@@ -2,40 +2,33 @@ import Block from "./block.model";
 import { Match, Profile } from "../../models";
 
 export class BlockService {
-  /**
-   * POST /api/block
-   * - Saves block record
-   * - Deletes the match between the two users (if any)
-   * - Adds blockedUserId to the blocker's blackList so the blocked user
-   *   is excluded from future search results
-   *
-   * NOTE: Chat deletion is intentionally omitted. Frontend handles chat
-   * creation; backend-generated chats are deprecated and no longer used.
-   * See refactoring task: https://app.clickup.com/t/869d8qe6a
-   */
+  applyBlockEffects = async (
+    initiatorUserId: string,
+    targetUserId: string
+  ): Promise<void> => {
+    await Match.deleteOne({
+      $or: [
+        { user1_id: initiatorUserId, user2_id: targetUserId },
+        { user1_id: targetUserId, user2_id: initiatorUserId },
+      ],
+    });
+
+    await Profile.findByIdAndUpdate(initiatorUserId, {
+      $addToSet: { blackList: targetUserId },
+    });
+  };
+
   blockUser = async (
     blockerUserId: string,
     blockedUserId: string
   ): Promise<{ message: string }> => {
     try {
-      // Save the block (ignore duplicate error — already blocked)
       const existing = await Block.findOne({ blockerUserId, blockedUserId });
       if (!existing) {
         await Block.create({ blockerUserId, blockedUserId });
       }
 
-      // Remove match (both directions)
-      await Match.deleteOne({
-        $or: [
-          { user1_id: blockerUserId, user2_id: blockedUserId },
-          { user1_id: blockedUserId, user2_id: blockerUserId },
-        ],
-      });
-
-      // Add to blackList of the blocker's profile so they never appear again
-      await Profile.findByIdAndUpdate(blockerUserId, {
-        $addToSet: { blackList: blockedUserId },
-      });
+      await this.applyBlockEffects(blockerUserId, blockedUserId);
 
       return { message: "User blocked successfully" };
     } catch (error: unknown) {
@@ -44,9 +37,6 @@ export class BlockService {
     }
   };
 
-  /**
-   * Returns the list of user IDs blocked by the given user.
-   */
   getBlockedUsers = async (blockerUserId: string): Promise<string[]> => {
     try {
       const blocks = await Block.find({ blockerUserId }).select("blockedUserId -_id");

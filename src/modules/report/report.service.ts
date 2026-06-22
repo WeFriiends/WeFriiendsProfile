@@ -1,5 +1,6 @@
 import Report, { ReportReason } from "./report.model";
 import { Profile } from "../../models";
+import { BlockService } from "../block/block.service";
 import {
   sendReportThresholdAlert,
   sendWeeklyReportDigest,
@@ -9,11 +10,12 @@ import {
 const REPORT_THRESHOLD = 5;
 
 export class ReportService {
-  /**
-   * POST /api/report
-   * Saves a complaint, increments the reported user's counter,
-   * and fires an alert email when the threshold is reached.
-   */
+  private blockService: BlockService;
+
+  constructor(blockService: BlockService = new BlockService()) {
+    this.blockService = blockService;
+  }
+
   createReport = async (
     reportedUserId: string,
     reporterUserId: string,
@@ -21,10 +23,10 @@ export class ReportService {
     comment?: string
   ): Promise<{ message: string; reportCount: number }> => {
     try {
-      // Persist the report
       await Report.create({ reportedUserId, reporterUserId, reason, comment });
 
-      // Atomically increment the counter and get the new value
+      await this.blockService.applyBlockEffects(reporterUserId, reportedUserId);
+
       const updatedProfile = await Profile.findByIdAndUpdate(
         reportedUserId,
         { $inc: { reportCount: 1 } },
@@ -33,7 +35,6 @@ export class ReportService {
 
       const reportCount = updatedProfile?.reportCount ?? 0;
 
-      // Send alert email exactly when the threshold is first crossed
       if (reportCount >= REPORT_THRESHOLD && reportCount % REPORT_THRESHOLD === 0) {
         sendReportThresholdAlert(reportedUserId, reportCount).catch((err) =>
           console.error("Failed to send threshold alert email:", err)
@@ -47,10 +48,6 @@ export class ReportService {
     }
   };
 
-  /**
-   * Collects all reports from the past 7 days and emails a digest to the admin.
-   * Called by the weekly cron job.
-   */
   sendWeeklyDigest = async (): Promise<void> => {
     try {
       const since = new Date();
