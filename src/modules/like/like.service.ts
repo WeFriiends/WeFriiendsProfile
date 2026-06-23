@@ -101,24 +101,40 @@ export class LikeService {
     try {
       const liker = await this.profileService.getProfileById(liker_id);
       const likedMe = await Like.find({ "likes.liked_id": liker_id }).exec();
-      const likedMeIds = likedMe.map((like) => like.liker_id);
+
       const likedMeUsers = await Promise.all(
-        likedMeIds.map((id) => {
-          return this.profileService.getProfileById(id);
+        likedMe.map(async (like) => {
+          const likedEntry = like.likes.find(
+            (entry) => entry.liked_id === liker_id
+          );
+          const user = await this.profileService
+            .getProfileById(like.liker_id)
+            .catch(() => null);
+          if (!user) {
+            return null;
+          }
+          return {
+            id: user._id,
+            name: user.name,
+            distance: haversineDistance(
+              user.location.coordinates[1],
+              user.location.coordinates[0],
+              liker.location.coordinates[1],
+              liker.location.coordinates[0]
+            ),
+            picture: user.photos?.[0] || null,
+            liked_at: likedEntry?.liked_at ?? null,
+          };
         })
       );
-      const likedMeResult = likedMeUsers.map((user) => ({
-        id: user._id,
-        name: user.name,
-        distance: haversineDistance(
-          user.location.coordinates[1],
-          user.location.coordinates[0],
-          liker.location.coordinates[1],
-          liker.location.coordinates[0]
-        ),
-        picture: user.photos?.[0] || null,
-      }));
-      return likedMeResult;
+
+      return likedMeUsers
+        .filter((user): user is NonNullable<typeof user> => user !== null)
+        .sort(
+          (a, b) =>
+            new Date(b.liked_at ?? 0).getTime() -
+            new Date(a.liked_at ?? 0).getTime()
+        );
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
