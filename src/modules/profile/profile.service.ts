@@ -344,6 +344,7 @@ export class ProfileService {
             $lte: maxDate,
             $gte: minDate,
           },
+          gender: "female",
         },
         friendSearchProjection
       ).exec();
