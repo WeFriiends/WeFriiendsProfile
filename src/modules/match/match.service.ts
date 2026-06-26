@@ -153,4 +153,10 @@ export class MatchService {
       throw new Error("Error checking match");
     }
   };
+
+  removeMyMatches = async (userId: string) => {
+    const matches = await this.mongoRepository.deleteAllMatchByUserId(userId);
+    await this.firebaseRepository.deleteAllMatchByUserId(userId);
+    return matches
+  }
 }

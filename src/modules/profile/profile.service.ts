@@ -492,4 +492,18 @@ export class ProfileService {
       throw new Error("Error retrieving nearest profiles");
     }
   };
+  deleteCurrentProfile = async (userId: string) => {
+    try {
+      await this.matchService?.removeMyMatches(userId);
+      await this.likeService?.removeMyLikes(userId);
+
+      // const result = await Profile.findByIdAndDelete(userId).exec();
+      return { message: "Profile deleted successfully" };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error deleting profile");
+    }
+  };
 }

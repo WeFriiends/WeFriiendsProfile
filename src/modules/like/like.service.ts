@@ -158,4 +158,26 @@ export class LikeService {
       throw new Error("Error checking like");
     }
   };
+
+  removeMyLikes = async (userId: string) => {
+    try {
+      const myLikes = await Like.deleteOne({
+         liker_id: userId 
+      }).exec();
+      const likesOnMe = await Like.updateMany(
+        { "likes.liked_id": userId},
+        { $pull: { likes: { liked_id: userId } } },
+      ).exec();
+
+      return {
+            deletedMyLikesCount: myLikes.deletedCount,
+            modifiedLikesOnMeCount: likesOnMe.modifiedCount
+          };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error removing all likes for user");
+    }
+  };
 }

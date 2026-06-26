@@ -293,7 +293,7 @@ export class ProfileController {
     }
 
     try {
-      await this.profileService.deleteProfile(userId);
+      await this.profileService.deleteCurrentProfile(userId);
       return res.status(200).json({ message: "Profile deleted successfully" });
     } catch (error) {
       return res.status(400).json({ message: "Error deleting profile", error });

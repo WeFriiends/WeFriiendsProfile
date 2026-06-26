@@ -12,10 +12,12 @@ export interface IMatchRepository {
     user2_id: string,
     update: Partial<{ user1_seen: boolean; user2_seen: boolean }>
   ): Promise<any | null>;
+  deleteAllMatchByUserId(userId: string): Promise<any>;
 }
 export interface IFirebaseRepository {
   create(user1_id: string, user2_id: string): Promise<any>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
+  deleteAllMatchByUserId(userId: string): Promise<any>;
 }
 export interface MatchOptions {
   session?: ClientSession;
@@ -32,6 +34,12 @@ export class MongoMatchRepository implements IMatchRepository {
 
   async findByUserId(userId: string): Promise<any[]> {
     return await Match.find({
+      $or: [{ user1_id: userId }, { user2_id: userId }],
+    }).exec();
+  }
+
+  async deleteAllMatchByUserId(userId: string): Promise<any> {
+    return await Match.deleteMany({
       $or: [{ user1_id: userId }, { user2_id: userId }],
     }).exec();
   }
@@ -96,5 +104,30 @@ export class FirebaseMatchRepository implements IFirebaseRepository {
     await firebaseDb.ref().update(updates);
 
     return { success: true, comboId };
+  }
+
+  async deleteAllMatchByUserId(userId: string): Promise<any> {
+    const userMatchesRef = firebaseDb.ref(`/matches/${userId}`);
+    const snapshot = await userMatchesRef.once("value");
+    const matches = snapshot.val();
+
+    if (!matches) {
+      return { success: true, matches: [] };
+    }
+
+    const updates: Record<string, any> = {};
+    for (const [comboId] of Object.entries(matches)) {
+      updates[`/matches/${userId}/${comboId}`] = null;
+
+      const participantIds = comboId.split('_');
+      const otherUserId = participantIds.find(id => id !== userId);
+      if (otherUserId) {
+        updates[`/matches/${otherUserId}/${comboId}`] = null;
+      }
+    }
+
+    await firebaseDb.ref().update(updates);
+
+    return { success: true, matches: Object.keys(matches) };
   }
 }
