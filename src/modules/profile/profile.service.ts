@@ -197,8 +197,7 @@ export class ProfileService {
     friendsDistance?: number,
     friendsAgeMin?: number,
     friendsAgeMax?: number,
-    preferences?: Preferences,
-    blackList?: string[] | string
+    preferences?: Preferences
   ): Promise<ProfileDocument> => {
     try {
       const existingProfile = await Profile.findById(userId).exec();
@@ -210,9 +209,6 @@ export class ProfileService {
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
       const parsedLocation: Location = toGeoJsonLocation(location);
-
-      const parsedBlackList: string[] =
-        typeof blackList === "string" ? JSON.parse(blackList) : blackList;
 
       const updateData: Partial<ProfileDocument> = {
         reasons: parsedReasons,
@@ -255,10 +251,6 @@ export class ProfileService {
 
       if (friendsAgeMax !== undefined) {
         updateData.friendsAgeMax = friendsAgeMax;
-      }
-
-      if (parsedBlackList && parsedBlackList.length > 0) {
-        updateData.blackList = parsedBlackList;
       }
 
       const updatedProfile = await Profile.findByIdAndUpdate(
@@ -318,16 +310,8 @@ export class ProfileService {
       const friendsDistance = profile.friendsDistance;
       const friendsAgeMin = profile.friendsAgeMin;
       const friendsAgeMax = profile.friendsAgeMax;
-      const blackList = profile.blackList || [];
 
-      const blockedUserIds = await this.blockService.getBlockedUsers(userId);
-      const hiddenByOthers = await Profile.find({ blackList: userId })
-        .select("_id")
-        .lean<{ _id: string }[]>();
-      const hiddenByOthersIds = hiddenByOthers.map((p) => p._id);
-      const excludedIds = Array.from(
-        new Set([...blackList, ...blockedUserIds, ...hiddenByOthersIds])
-      );
+      const excludedIds = await this.blockService.getBlockedUsers(userId);
 
       if (
         lng === undefined ||

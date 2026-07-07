@@ -1,5 +1,5 @@
 import Block from "./block.model";
-import { Match, Profile } from "../../models";
+import { Match } from "../../models";
 
 export class BlockService {
   applyBlockEffects = async (
@@ -13,9 +13,16 @@ export class BlockService {
       ],
     });
 
-    await Profile.findByIdAndUpdate(initiatorUserId, {
-      $addToSet: { blackList: targetUserId },
-    });
+    await Block.updateOne(
+      { blockerUserId: initiatorUserId, blockedUserId: targetUserId },
+      {
+        $setOnInsert: {
+          blockerUserId: initiatorUserId,
+          blockedUserId: targetUserId,
+        },
+      },
+      { upsert: true }
+    );
   };
 
   blockUser = async (
@@ -23,13 +30,7 @@ export class BlockService {
     blockedUserId: string
   ): Promise<{ message: string }> => {
     try {
-      const existing = await Block.findOne({ blockerUserId, blockedUserId });
-      if (!existing) {
-        await Block.create({ blockerUserId, blockedUserId });
-      }
-
       await this.applyBlockEffects(blockerUserId, blockedUserId);
-
       return { message: "User blocked successfully" };
     } catch (error: unknown) {
       if (error instanceof Error) throw new Error(error.message);
@@ -37,10 +38,18 @@ export class BlockService {
     }
   };
 
-  getBlockedUsers = async (blockerUserId: string): Promise<string[]> => {
+  getBlockedUsers = async (userId: string): Promise<string[]> => {
+    console.log("controller getBlockedUsers");
     try {
-      const blocks = await Block.find({ blockerUserId }).select("blockedUserId -_id");
-      return blocks.map((b) => b.blockedUserId);
+      const blocks = await Block.find({
+        $or: [{ blockerUserId: userId }, { blockedUserId: userId }],
+      }).select("blockerUserId blockedUserId -_id");
+
+      const ids = blocks.map((b) =>
+        b.blockerUserId === userId ? b.blockedUserId : b.blockerUserId
+      );
+
+      return Array.from(new Set(ids));
     } catch (error: unknown) {
       if (error instanceof Error) throw new Error(error.message);
       throw new Error("Error fetching blocked users");

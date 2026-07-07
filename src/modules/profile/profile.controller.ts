@@ -228,7 +228,6 @@ export class ProfileController {
         friendsDistance,
         friendsAgeMin,
         friendsAgeMax,
-        blackList,
       } = req.body;
 
       const friendsDistanceNum = friendsDistance
@@ -270,8 +269,7 @@ export class ProfileController {
         friendsDistanceNum,
         friendsAgeMinNum,
         friendsAgeMaxNum,
-        parsedPreferences,
-        blackList
+        parsedPreferences
       );
 
       return res.status(200).json(updatedProfile);
