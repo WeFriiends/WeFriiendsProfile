@@ -197,8 +197,7 @@ export class ProfileService {
     friendsDistance?: number,
     friendsAgeMin?: number,
     friendsAgeMax?: number,
-    preferences?: Preferences,
-    blackList?: string[] | string
+    preferences?: Preferences
   ): Promise<ProfileDocument> => {
     try {
       const existingProfile = await Profile.findById(userId).exec();
@@ -210,9 +209,6 @@ export class ProfileService {
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
       const parsedLocation: Location = toGeoJsonLocation(location);
-
-      const parsedBlackList: string[] =
-        typeof blackList === "string" ? JSON.parse(blackList) : blackList;
 
       const updateData: Partial<ProfileDocument> = {
         reasons: parsedReasons,
@@ -255,10 +251,6 @@ export class ProfileService {
 
       if (friendsAgeMax !== undefined) {
         updateData.friendsAgeMax = friendsAgeMax;
-      }
-
-      if (parsedBlackList && parsedBlackList.length > 0) {
-        updateData.blackList = parsedBlackList;
       }
 
       const updatedProfile = await Profile.findByIdAndUpdate(
@@ -318,11 +310,8 @@ export class ProfileService {
       const friendsDistance = profile.friendsDistance;
       const friendsAgeMin = profile.friendsAgeMin;
       const friendsAgeMax = profile.friendsAgeMax;
-      const blackList = profile.blackList || [];
 
-      // Exclude users that this user has explicitly blocked via /api/block
-      const blockedUserIds = await this.blockService.getBlockedUsers(userId);
-      const excludedIds = Array.from(new Set([...blackList, ...blockedUserIds]));
+      const excludedIds = await this.blockService.getBlockedUsers(userId);
 
       if (
         lng === undefined ||
