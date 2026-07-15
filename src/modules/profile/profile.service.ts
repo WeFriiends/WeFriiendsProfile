@@ -289,7 +289,7 @@ export class ProfileService {
 
   getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
-      return await Profile.find({ _id: { $ne: userId } });
+      return await Profile.find({ _id: { $ne: userId }, gender: "female"});
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
