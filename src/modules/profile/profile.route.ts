@@ -316,10 +316,6 @@ router.get("/:userId", checkJwt, profileController.getProfileById);
  *                 type: array
  *                 items:
  *                   type: string
- *               blackList:
- *                 type: array
- *                 items:
- *                   type: string
  *               friendsAgeMin:
  *                 type: number
  *               friendsAgeMax:

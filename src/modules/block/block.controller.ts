@@ -9,12 +9,8 @@ export class BlockController {
     this.blockService = blockService;
   }
 
-  /**
-   * POST /api/block
-   * Body: { blockedUserId: string }
-   * blockerUserId is taken from the JWT (extractUserId).
-   */
   blockUser = async (req: Request, res: Response): Promise<Response> => {
+    console.log("controller blockUser");
     const blockerUserId = extractUserId(req);
     if (!blockerUserId) {
       return res

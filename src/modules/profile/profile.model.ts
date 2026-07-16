@@ -35,7 +35,6 @@ export interface ProfileDocument extends Document {
   friendsAgeMin?: number;
   friendsAgeMax?: number;
   friendsDistance?: number;
-  blackList?: string[];
   reportCount: number;
 }
 
@@ -71,7 +70,6 @@ const profileSchema = new Schema<ProfileDocument>(
     friendsAgeMin: { type: Number, default: 18 },
     friendsAgeMax: { type: Number, default: 60 },
     friendsDistance: { type: Number, default: 50 },
-    blackList: { type: [String], default: [] },
     reportCount: { type: Number, default: 0 },
   },
   { timestamps: true }

@@ -197,8 +197,7 @@ export class ProfileService {
     friendsDistance?: number,
     friendsAgeMin?: number,
     friendsAgeMax?: number,
-    preferences?: Preferences,
-    blackList?: string[] | string
+    preferences?: Preferences
   ): Promise<ProfileDocument> => {
     try {
       const existingProfile = await Profile.findById(userId).exec();
@@ -258,10 +257,6 @@ export class ProfileService {
         updateData.friendsAgeMax = friendsAgeMax;
       }
 
-      if (parsedBlackList && parsedBlackList.length > 0) {
-        updateData.blackList = parsedBlackList;
-      }
-
       const updatedProfile = await Profile.findByIdAndUpdate(
         userId,
         updateData,
@@ -298,7 +293,7 @@ export class ProfileService {
 
   getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
-      return await Profile.find({ _id: { $ne: userId } });
+      return await Profile.find({ _id: { $ne: userId }, gender: "female"});
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -319,11 +314,8 @@ export class ProfileService {
       const friendsDistance = profile.friendsDistance;
       const friendsAgeMin = profile.friendsAgeMin;
       const friendsAgeMax = profile.friendsAgeMax;
-      const blackList = profile.blackList || [];
 
-      // Exclude users that this user has explicitly blocked via /api/block
-      const blockedUserIds = await this.blockService.getBlockedUsers(userId);
-      const excludedIds = Array.from(new Set([...blackList, ...blockedUserIds]));
+      const excludedIds = await this.blockService.getBlockedUsers(userId);
 
       if (
         lng === undefined ||
