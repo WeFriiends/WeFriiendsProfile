@@ -192,7 +192,7 @@ export class ProfileService {
   updateProfile = async (
     userId: string,
     reasons: string[],
-    location: Location | string,
+    location?: Location | string,
     photos?: string[],
     friendsDistance?: number,
     friendsAgeMin?: number,
@@ -208,12 +208,16 @@ export class ProfileService {
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
-      const parsedLocation: Location = toGeoJsonLocation(location);
+      const parsedBlackList: string[] =
+        typeof blackList === "string" ? JSON.parse(blackList) : blackList;
 
       const updateData: Partial<ProfileDocument> = {
         reasons: parsedReasons,
-        location: parsedLocation,
       };
+
+      if (location !== undefined && location !== null) {
+        updateData.location = toGeoJsonLocation(location);
+      }
 
       if (photos && photos.length > 0) {
         updateData.photos = photos;
