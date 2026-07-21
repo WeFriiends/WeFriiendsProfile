@@ -208,9 +208,6 @@ export class ProfileService {
       const parsedReasons: string[] =
         typeof reasons === "string" ? JSON.parse(reasons) : reasons;
 
-      const parsedBlackList: string[] =
-        typeof blackList === "string" ? JSON.parse(blackList) : blackList;
-
       const updateData: Partial<ProfileDocument> = {
         reasons: parsedReasons,
       };
