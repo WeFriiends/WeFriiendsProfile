@@ -51,6 +51,13 @@ export const uploadToCloudinary = async (
       return next(new Error("No files provided"));
     }
 
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const oversizedFile = files.find((file) => file.size > MAX_SIZE);
+
+    if (oversizedFile) {
+      return next(new Error(`File ${oversizedFile.originalname} is too large. Max allowed size is 5MB.`))
+    }
+
     const uploadPromises = files.map(async (file) => {
       if (!file.buffer || file.buffer.length === 0) {
         throw new Error("File buffer is empty");
