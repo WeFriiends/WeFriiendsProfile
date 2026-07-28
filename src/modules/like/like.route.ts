@@ -4,13 +4,13 @@ import { LikeController } from "./like.controller";
 import { LikeService } from "./like.service";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
-import { FirebaseMatchRepository } from "../match/match.repository";
+import { LiveMatchRepository } from "../match/match.repository";
 
 const router = Router();
 
 const profileService = new ProfileService();
 const matchService = new MatchService();
-const likeService = new LikeService(profileService, matchService, new FirebaseMatchRepository());
+const likeService = new LikeService(profileService, matchService, new LiveMatchRepository());
 const likeController = new LikeController(likeService);
 
 /**
