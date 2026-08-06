@@ -13,6 +13,7 @@ import { BlockService } from "../block/block.service";
 import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
 import { DeletionStatus } from "./profile.model";
+import { ChatService } from "../chat/chat.service";
 
 /**
  * Normalise any incoming location value to the canonical GeoJSON shape:
@@ -44,15 +45,18 @@ export class ProfileService {
   private likeService?: LikeService;
   private matchService?: MatchService;
   private blockService: BlockService;
+  private chatService: ChatService;
 
   constructor(
     likeService?: LikeService,
     matchService?: MatchService,
-    blockService: BlockService = new BlockService()
+    blockService: BlockService = new BlockService(),
+    chatService: ChatService = new ChatService()
   ) {
     this.likeService = likeService;
     this.matchService = matchService;
     this.blockService = blockService;
+    this.chatService = chatService;
   }
   findProfileByDeviceId = async (deviceId: string): Promise<ProfileDocument | null> => {
     try{
@@ -284,6 +288,40 @@ export class ProfileService {
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
+      }
+      throw new Error("Error deleting profile");
+    }
+  };
+
+  deleteCurrentProfile = async (userId: string) => {
+    let isMongoUpdated = false;
+    try {
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        userId,
+        { deletionStatus: DeletionStatus.PENDING_DELETION },
+        { new: true }
+      ).exec();
+
+      if (!updatedProfile) {
+        throw new Error("Profile not found");
+      }
+
+      isMongoUpdated = true;
+
+      await this.chatService.deleteAllMyChatsAndMessages(userId);
+
+      return { message: "Current profile deleted successfully" };
+    } catch (error: unknown) {
+      if (isMongoUpdated) {
+        try {
+          await Profile.findByIdAndUpdate(
+            userId,
+            { deletionStatus: DeletionStatus.ACTIVE },
+            { new: true }
+          ).exec();
+        } catch (rollbackError) {
+          console.error("Critical: Failed to rollback profile deletion status for user", userId, rollbackError);
+        }
       }
       throw new Error("Error deleting profile");
     }

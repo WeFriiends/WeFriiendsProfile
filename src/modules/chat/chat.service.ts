@@ -44,4 +44,32 @@ export class ChatService {
   async deleteChat(id: string): Promise<IChat | null> {
     return await Chat.findByIdAndDelete(id);
   }
+
+  async deleteAllMyChatsAndMessages(userId: string): Promise<void> {
+    const chatsSnapshot = await firestore
+      .collection("conversations")
+      .where("participants", "array-contains", userId)
+      .get();
+
+    if (chatsSnapshot.empty) {
+      return;
+    }
+
+    const batch = firestore.batch();
+
+    for (const chatDoc of chatsSnapshot.docs) {
+      
+      const messagesSnapshot = await chatDoc.ref
+        .collection("messages")
+        .get();
+
+      messagesSnapshot.docs.forEach((messageDoc) => {
+        batch.delete(messageDoc.ref);
+      });
+
+      batch.delete(chatDoc.ref);
+    }
+    await batch.commit();
+    return 
+  }
 }
