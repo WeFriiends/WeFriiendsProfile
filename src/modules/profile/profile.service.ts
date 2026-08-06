@@ -12,6 +12,7 @@ import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
 import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
+import { DeletionStatus } from "./profile.model";
 
 /**
  * Normalise any incoming location value to the canonical GeoJSON shape:
@@ -290,7 +291,7 @@ export class ProfileService {
 
   getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
-      return await Profile.find({ _id: { $ne: userId }, gender: "female"});
+      return await Profile.find({ _id: { $ne: userId }, gender: "female", deletionStatus: DeletionStatus.ACTIVE }).exec();
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -335,6 +336,7 @@ export class ProfileService {
             $gte: minDate,
           },
           gender: "female",
+          deletionStatus: DeletionStatus.ACTIVE,
         },
         friendSearchProjection
       ).exec();

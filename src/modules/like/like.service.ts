@@ -4,6 +4,7 @@ import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
 import { ILiveMatchRepository } from "../match/match.repository";
+import { DeletionStatus } from "../profile/profile.model";
 
 
 export class LikeService {
@@ -110,7 +111,7 @@ export class LikeService {
           const user = await this.profileService
             .getProfileById(like.liker_id)
             .catch(() => null);
-          if (!user) {
+          if (!user ||  user.deletionStatus !== DeletionStatus.ACTIVE) {
             return null;
           }
           return {
