@@ -438,6 +438,7 @@ export class ProfileService {
       const allProfiles = await this.getAllProfiles(userId);
 
       const userLikes = this.likeService ? await this.likeService.getLikes(userId) : null;
+      const blockedIds = new Set(await this.blockService.getBlockedUsers(userId));
 
       const nearestProfiles = await Promise.all(
         allProfiles
@@ -455,6 +456,7 @@ export class ProfileService {
             );
 
             if (distance <= currentProfile.friendsDistance!) {
+              if (blockedIds.has(profile.id)) return null;
               const hasLiked = userLikes?.likes?.some((like) => like.liked_id === profile.id);
               const hasMatch = await this.matchService?.hasMatch(userId, profile.id);
               if (hasLiked || hasMatch) return null;

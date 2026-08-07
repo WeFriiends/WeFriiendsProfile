@@ -3,6 +3,7 @@ import { Like } from "../../models";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
+import { BlockService } from "../block/block.service";
 import { ILiveMatchRepository } from "../match/match.repository";
 
 
@@ -10,11 +11,13 @@ export class LikeService {
   private profileService: ProfileService;
   private matchService: MatchService;
   private liveMatchRepository: ILiveMatchRepository;
+  private blockService: BlockService;
 
-  constructor(profileService: ProfileService, matchService: MatchService, liveMatchRepository: ILiveMatchRepository) {
+  constructor(profileService: ProfileService, matchService: MatchService, liveMatchRepository: ILiveMatchRepository, blockService: BlockService = new BlockService()) {
     this.profileService = profileService;
     this.matchService = matchService;
     this.liveMatchRepository = liveMatchRepository;
+    this.blockService = blockService;
   }
 
   addLike = async (liker_id: string, liked_id: string) => {
@@ -101,9 +104,13 @@ export class LikeService {
     try {
       const liker = await this.profileService.getProfileById(liker_id);
       const likedMe = await Like.find({ "likes.liked_id": liker_id }).exec();
+      const blockedIds = new Set(await this.blockService.getBlockedUsers(liker_id));
 
       const likedMeUsers = await Promise.all(
         likedMe.map(async (like) => {
+          if (blockedIds.has(like.liker_id)) {
+            return null;
+          }
           const likedEntry = like.likes.find(
             (entry) => entry.liked_id === liker_id
           );
