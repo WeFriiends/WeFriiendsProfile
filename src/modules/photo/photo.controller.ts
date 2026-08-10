@@ -3,7 +3,7 @@ import * as photoService from "./photo.service";
 import { extractUserId } from "../../utils";
 
 export const handleUploadToCloudinary = async (req: Request, res: Response) => {
-  const { cloudinaryUrls } = req.body;
+  const cloudinaryUrls = req.cloudinaryUrls || [];
   if (!cloudinaryUrls?.length) {
     return res.status(400).json({ error: "No Cloudinary URLs provided" });
   }

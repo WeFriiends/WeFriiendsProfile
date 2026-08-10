@@ -30,8 +30,8 @@ export class ProfileController {
     }
 
     try {
-      const { name, dateOfBirth, location, reasons, gender, device_id, cloudinaryUrls } = req.body;
-      const photos = cloudinaryUrls || [];
+      const { name, dateOfBirth, location, reasons, gender, device_id } = req.body;
+      const photos = req.cloudinaryUrls || [];
 
       if (!name) {
         return res.status(400).json({ error: "Name is required" });

@@ -76,7 +76,6 @@ const profileController: ProfileController = new ProfileController(
 router.post("/",
   checkJwt,
   upload.any(),
-  // @ts-ignore
   uploadToCloudinary,
   profileController.registerProfile
 );

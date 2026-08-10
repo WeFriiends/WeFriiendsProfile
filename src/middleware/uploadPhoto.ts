@@ -41,13 +41,19 @@ export const upload: Multer = multer({
 });
 
 export const uploadToCloudinary = async (
-  req: CustomRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const files: CloudinaryFile[] = req.files as CloudinaryFile[];
+    const files = Array.isArray(req.files)
+      ? (req.files as Express.Multer.File[])
+      : req.files
+      ? Object.values(req.files).flat()
+      : [];
+
     if (!files || files.length === 0) {
+      req.cloudinaryUrls = [];
       return next(new Error("No files provided"));
     }
 
@@ -89,8 +95,8 @@ export const uploadToCloudinary = async (
       });
     });
 
-    const cloudinaryUrls = await Promise.all(uploadPromises);
-    req.body.cloudinaryUrls = cloudinaryUrls;
+    const urls:string[] = await Promise.all(uploadPromises);
+    req.cloudinaryUrls = urls;
     next();
   } catch (error) {
     const sanitizedError = error instanceof Error ? error.message.replace(/[<>"'&]/g, '') : 'Unknown error';
