@@ -20,10 +20,10 @@ export const checkProfileActive = async (req: Request, res: Response, next: Next
         if (profile.deletionStatus !== DeletionStatus.ACTIVE) {
             return res.status(403).json({ 
                 code: "ACCOUNT_DELETED", 
-                message: "User account is deleted or pending deletion" 
+                message: "Access denied: Your account is deleted or pending deletion" 
             });
         }
-        
+
         next();
     } catch (error) {
         return res.status(500).json({ message: "Failed to check profile status" });
