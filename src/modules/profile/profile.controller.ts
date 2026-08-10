@@ -8,6 +8,7 @@ import {
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
 import { Preferences } from "../../models";
+import { DeletionStatus } from "./profile.model";
 
 export class ProfileController {
   private profileService: ProfileService;
@@ -184,7 +185,13 @@ export class ProfileController {
       }
       try {
         const profile = await this.profileService.getProfileById(userId).catch(() => null);
-        if (!profile || !profile.isProfileComplete) {
+        if (!profile) {
+          return res.status(204).send();
+        }
+        if (profile.deletionStatus !== DeletionStatus.ACTIVE) {
+          return res.status(401).json({ message: "User account is deleted" });
+        }
+        if (!profile.isProfileComplete) {
           return res.status(204).send();
         }
         return res.status(200).json({ message: "Profile complete" });

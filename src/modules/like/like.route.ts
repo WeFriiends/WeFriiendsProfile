@@ -5,6 +5,7 @@ import { LikeService } from "./like.service";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
 import { LiveMatchRepository } from "../match/match.repository";
+import { checkProfileActive } from "../../middleware/checkProfileActive";
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.get("/", checkJwt, likeController.getLikes);
  *       200:
  *         description: Likes on me got successfully
  */
-router.get("/on-me", checkJwt, likeController.getLikesOnMe);
+router.get("/on-me", checkJwt, checkProfileActive, likeController.getLikesOnMe);
 
 /**
  * @swagger

@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-//deletionStatus
+
 export enum DeletionStatus {
   ACTIVE = 'ACTIVE',
   PENDING_DELETION = 'PENDING_DELETION',
