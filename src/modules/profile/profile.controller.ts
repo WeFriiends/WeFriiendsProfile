@@ -30,7 +30,8 @@ export class ProfileController {
     }
 
     try {
-      const { name, dateOfBirth, location, reasons, gender,device_id } = req.body;
+      const { name, dateOfBirth, location, reasons, gender, device_id, cloudinaryUrls } = req.body;
+      const photos = cloudinaryUrls || [];
 
       if (!name) {
         return res.status(400).json({ error: "Name is required" });
@@ -48,16 +49,14 @@ export class ProfileController {
         return res.status(400).json({ error: "Location is required" });
       }
 
+      if (photos.length === 0) {
+        return res.status(400).json({ error: "No files uploaded" });
+      }
+
       const preferences: Preferences =
         typeof req.body.preferences === "string"
           ? JSON.parse(req.body.preferences)
           : req.body.preferences || {};
-
-      if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
-        return res.status(400).json({ error: "No files uploaded" });
-      }
-
-      const files = req.files as Express.Multer.File[];
 
       const dateOfBirthObj = new Date(dateOfBirth);
       if (isNaN(dateOfBirthObj.getTime())) {
@@ -74,7 +73,7 @@ export class ProfileController {
         reasons,
         gender,
         preferences,
-        files,
+        photos,
         device_id
       );
 

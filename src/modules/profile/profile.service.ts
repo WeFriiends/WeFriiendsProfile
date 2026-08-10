@@ -10,7 +10,6 @@ import { dateToZodiac, haversineDistance } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
-import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
 import { DeletionStatus } from "./profile.model";
 import { ChatService } from "../chat/chat.service";
@@ -75,7 +74,7 @@ export class ProfileService {
     reasons: string[],
     gender: string,
     preferences: Preferences,
-    files: Express.Multer.File[],
+    photos: string[],
     deviceId? : string 
   ) => {
     try {
@@ -83,29 +82,6 @@ export class ProfileService {
       if (existingProfile && existingProfile.isProfileComplete) {
         throw new Error("Profile already exists");
       }
-
-      const uploadedFiles: string[] = [];
-
-      if (!files || files.length === 0) {
-        throw new Error("No files uploaded");
-      }
-
-      for (const file of files) {
-        try {
-          const result = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-            {
-              folder: "profile_pics",
-            }
-          );
-          uploadedFiles.push(result.secure_url);
-        } catch (error) {
-          console.error(`Failed to upload file ${file.originalname}:`, error);
-          throw new Error(`Failed to upload file ${file.originalname}`);
-        }
-      }
-
-      console.log("ProfileService: photos uploaded");
 
       const zodiacSign = dateToZodiac(dateOfBirth);
       const age = moment().diff(moment(dateOfBirth), "years");
@@ -130,7 +106,7 @@ export class ProfileService {
               preferences,
               friendsAgeMin,
               friendsAgeMax,
-              photos: uploadedFiles,
+              photos,
               isProfileComplete: true,
               ...(deviceId && {device_id: deviceId}),
             },
@@ -151,7 +127,7 @@ export class ProfileService {
         preferences,
         friendsAgeMin,
         friendsAgeMax,
-        photos: uploadedFiles,
+        photos,
       });
 
       return await newProfile.save();
