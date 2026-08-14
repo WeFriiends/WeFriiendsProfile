@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/cloudinary";
 import { extractUserId } from "../utils";
+import { formatTag } from "../utils/deleteCloudinaryImage";
 
 interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer;
@@ -51,7 +52,6 @@ export const uploadToCloudinary = async (
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const userIdTag = userId.replace("|","_");
   try {
     const files: CloudinaryFile[] = req.files as CloudinaryFile[];
     if (!files || files.length === 0) {
@@ -79,7 +79,7 @@ export const uploadToCloudinary = async (
         const options: UploadApiOptions = {
           resource_type: "auto",
           folder: "profile-photos",
-          tags: [userIdTag],
+          tags: [formatTag(userId)],
         };
 
         const uploadStream = cloudinary.uploader.upload_stream(
