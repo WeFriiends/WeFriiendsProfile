@@ -390,6 +390,6 @@ router.delete("/:userId", checkJwt, checkProfileActive, profileController.delete
  *       403:
  *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.delete("/", checkJwt, checkProfileActive, profileController.deleteCurrentProfile);
+router.delete("/", checkJwt, checkProfileActive, profileController.startDeleteCurrentProfile);
 
 export default router;

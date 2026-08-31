@@ -46,30 +46,33 @@ export class ChatService {
   }
 
   async deleteAllMyChatsAndMessages(userId: string): Promise<void> {
-    const chatsSnapshot = await firestore
-      .collection("conversations")
-      .where("participants", "array-contains", userId)
-      .get();
-
-    if (chatsSnapshot.empty) {
-      return;
-    }
-
-    const batch = firestore.batch();
-
-    for (const chatDoc of chatsSnapshot.docs) {
-      
-      const messagesSnapshot = await chatDoc.ref
-        .collection("messages")
+    try {
+      const chatsSnapshot = await firestore
+        .collection("conversations")
+        .where("participants", "array-contains", userId)
         .get();
 
-      messagesSnapshot.docs.forEach((messageDoc) => {
-        batch.delete(messageDoc.ref);
-      });
+      if (!chatsSnapshot.empty) {
+        const batch = firestore.batch();
 
-      batch.delete(chatDoc.ref);
+        for (const chatDoc of chatsSnapshot.docs) {
+          const messagesSnapshot = await chatDoc.ref
+            .collection("messages")
+            .get();
+
+          messagesSnapshot.docs.forEach((messageDoc) => {
+            batch.delete(messageDoc.ref);
+          });
+
+          batch.delete(chatDoc.ref);
+        }
+        await batch.commit();
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error deleting all chats and messages");
     }
-    await batch.commit();
-    return 
   }
 }

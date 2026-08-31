@@ -6,7 +6,7 @@ import {
   Preferences,
   ProfileDocument,
 } from "../../models";
-import { dateToZodiac, haversineDistance } from "../../utils";
+import { dateToZodiac, haversineDistance, deleteCloudinaryImage, deleteAllMyCloudinaryImage  } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
@@ -269,7 +269,7 @@ export class ProfileService {
     }
   };
 
-  deleteCurrentProfile = async (userId: string) => {
+  startDeleteCurrentProfile = async (userId: string) => {
     let isMongoUpdated = false;
     try {
       const updatedProfile = await Profile.findByIdAndUpdate(
@@ -302,6 +302,21 @@ export class ProfileService {
       throw new Error("Error deleting profile");
     }
   };
+  
+  endDeleteCurrentProfile = async (userId: string) => {
+    try {
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        userId,
+        { deletionStatus: DeletionStatus.DELETED },
+        { new: true }
+      ).exec();
+
+      return { message: "Current profile deleted successfully" };
+    } catch (error: unknown) {
+      throw new Error("Error deleting profile");
+    }
+  };
+  
 
   getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
@@ -496,6 +511,54 @@ export class ProfileService {
         throw new Error(error.message);
       }
       throw new Error("Error retrieving nearest profiles");
+    }
+  };
+
+
+  getPendingDeletedProfiles = async (): Promise<ProfileDocument[]> => {
+    try {
+      return await Profile.find({ deletionStatus: DeletionStatus.PENDING_DELETION }).exec();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error retrieving profiles");
+    }
+  }; 
+
+  removeAllUserPhotos = async (userId: string): Promise<void> => {
+    try {
+      const profile = await Profile.findById(userId).exec();
+      if (!profile || !profile.photos || profile.photos.length === 0) {
+        return;
+      }
+
+      for (const photoUrl of profile.photos) {
+        try {
+          const urlParts = photoUrl.split("/");
+          const publicId = urlParts
+            .slice(urlParts.indexOf("upload") + 2)
+            .join("/")
+            .replace(/\.[^/.]+$/, "");
+
+          await deleteCloudinaryImage(publicId);
+        } catch (error) {
+          console.error(`Failed to delete photo from Cloudinary: ${photoUrl}`, error);
+        }
+      }
+      
+      await Profile.findByIdAndUpdate(
+        userId,
+        { photos: [] },
+        { new: true }
+      ).exec();
+
+      await deleteAllMyCloudinaryImage(userId)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error removing all user photos");
     }
   };
 }
