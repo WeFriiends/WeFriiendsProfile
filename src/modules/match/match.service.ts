@@ -153,4 +153,16 @@ export class MatchService {
       throw new Error("Error checking match");
     }
   };
+
+  removeAllUserMatches = async (userId: string) => {
+    try {
+      await this.mongoRepository.deleteAllMatchByUserId(userId);
+      await this.liveMatchRepository.removeAllMyMatchesRealtime(userId);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error removing all user matches");
+    }
+  };
 }

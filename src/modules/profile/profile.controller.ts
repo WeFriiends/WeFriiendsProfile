@@ -285,11 +285,11 @@ export class ProfileController {
     }
   };
 
-  deleteCurrentProfile = async (
+  startDeleteCurrentProfile = async (
     req: Request,
     res: Response
   ): Promise<Response> => {
-    console.log("controller deleteCurrentProfile");
+    console.log("controller startDeleteCurrentProfile");
     const userId = extractUserId(req);
     if (!userId) {
       return res
@@ -298,7 +298,7 @@ export class ProfileController {
     }
 
     try {
-      await this.profileService.deleteCurrentProfile(userId);
+      await this.profileService.startDeleteCurrentProfile(userId);
       return res.status(200).json({ message: "Profile deleted successfully" });
     } catch (error) {
       return res.status(400).json({ message: "Error deleting profile", error });

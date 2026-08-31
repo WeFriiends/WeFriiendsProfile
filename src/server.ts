@@ -3,6 +3,7 @@ import cron from "node-cron";
 import { createApp } from "./config/app";
 import { connectDatabase } from "./config/database";
 import { ReportService } from "./modules/report/report.service";
+import initCronJobs from "./config/cron";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ const startServer = async (): Promise<void> => {
     );
   });
 
+  initCronJobs();
+  
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}/api-docs`);
   });

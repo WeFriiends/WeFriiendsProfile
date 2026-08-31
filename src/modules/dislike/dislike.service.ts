@@ -79,4 +79,20 @@ export class DislikeService {
       throw new Error("Error checking dislike");
     }
   };
+
+  removeAllMyDislikes = async (userId: string) => {
+    try {
+      await Dislike.deleteOne({ disliker_id: userId }).exec();
+      
+      await Dislike.updateMany(
+        { "dislikes.disliked_id": userId },
+        { $pull: { dislikes: { disliked_id: userId } } }
+      ).exec();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error removing all dislikes");
+    }
+  };
 }
