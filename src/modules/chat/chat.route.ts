@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkJwt, checkProfileActive } from "../../middleware";
+import { checkJwt } from "../../middleware";
 import { ChatController } from "./chat.controller";
 import { ChatService } from "./chat.service";
 
@@ -24,7 +24,7 @@ const chatController = new ChatController(chatService);
  *       500:
  *         description: Internal server error
  */
-router.get("/", checkJwt, checkProfileActive, chatController.getAllChats);
+router.get("/", checkJwt, chatController.getAllChats);
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ router.get("/", checkJwt, checkProfileActive, chatController.getAllChats);
  *       400:
  *         description: Bad request
  */
-router.post("/", checkJwt, checkProfileActive, chatController.createChat);
+router.post("/", checkJwt, chatController.createChat);
 
 /**
  * @swagger
@@ -72,12 +72,10 @@ router.post("/", checkJwt, checkProfileActive, chatController.createChat);
  *     responses:
  *       200:
  *         description: Chat retrieved successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Chat not found
  */
-router.get("/:id", checkJwt, checkProfileActive, chatController.getChatById);
+router.get("/:id", checkJwt, chatController.getChatById);
 
 /**
  * @swagger
@@ -113,12 +111,10 @@ router.get("/:id", checkJwt, checkProfileActive, chatController.getChatById);
  *         description: Chat updated successfully
  *       400:
  *         description: Bad request
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Chat not found
  */
-router.put("/:id", checkJwt, checkProfileActive, chatController.updateChat);
+router.put("/:id", checkJwt, chatController.updateChat);
 
 /**
  * @swagger
@@ -138,11 +134,9 @@ router.put("/:id", checkJwt, checkProfileActive, chatController.updateChat);
  *     responses:
  *       200:
  *         description: Chat deleted successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Chat not found
  */
-router.delete("/:id", checkJwt, checkProfileActive, chatController.deleteChat);
+router.delete("/:id", checkJwt, chatController.deleteChat);
 
 export default router;

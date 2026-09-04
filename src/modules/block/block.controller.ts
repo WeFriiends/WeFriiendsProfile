@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { BlockService } from "./block.service";
 import { extractUserId, handleServiceError } from "../../utils";
+import { Profile, DeletionStatus } from "../../models";
 
 export class BlockController {
   private blockService: BlockService;
@@ -29,6 +30,14 @@ export class BlockController {
     }
 
     try {
+      const blockedProfile = await Profile.findById(blockedUserId).exec();
+      if (!blockedProfile) {
+        return res.status(404).json({ message: "Blocked Profile not found" });
+      }
+      if(blockedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
+        return res.status(403).json({ message: "Access denied: This account is deleted" });
+      }
+
       const result = await this.blockService.blockUser(blockerUserId, blockedUserId);
       return res.status(200).json(result);
     } catch (error) {

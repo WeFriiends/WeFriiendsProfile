@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { DislikeService } from "./dislike.service";
 
@@ -27,6 +27,9 @@ export class DislikeController {
       const dislikedProfile = await Profile.findById(disliked_id).exec();
       if (!dislikedProfile) {
         return res.status(404).json({ message: "Disliked Profile not found" });
+      }
+      if(dislikedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
+        return res.status(403).json({ message: "Access denied: This account is deleted" });
       }
 
       const dislikes = await this.dislikeService.addDislike(

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { LikeService } from "./like.service";
 
@@ -27,6 +27,9 @@ export class LikeController {
       const likedProfile = await Profile.findById(liked_id).exec();
       if (!likedProfile) {
         return res.status(404).json({ message: "Liked Profile not found" });
+      }
+      if(likedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
+        return res.status(403).json({ message: "Access denied: This account is deleted" });
       }
 
       const likes = await this.likeService.addLike(userId, liked_id);

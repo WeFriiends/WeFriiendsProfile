@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkJwt, checkProfileActive } from "../../middleware";
+import { checkJwt } from "../../middleware";
 import { LikeController } from "./like.controller";
 import { LikeService } from "./like.service";
 import { ProfileService } from "../profile/profile.service";
@@ -26,14 +26,12 @@ const likeController = new LikeController(likeService);
  *         description: Like got successfully
  *       400:
  *         description: liked_id is required
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Liked Profile not found
  *       500:
  *         description: Failed to add a like
  */
-router.get("/", checkJwt, checkProfileActive, likeController.getLikes);
+router.get("/", checkJwt, likeController.getLikes);
 
 /**
  * @swagger
@@ -46,10 +44,8 @@ router.get("/", checkJwt, checkProfileActive, likeController.getLikes);
  *     responses:
  *       200:
  *         description: Likes on me got successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.get("/on-me", checkJwt, checkProfileActive, likeController.getLikesOnMe);
+router.get("/on-me", checkJwt, likeController.getLikesOnMe);
 
 /**
  * @swagger
@@ -82,7 +78,7 @@ router.get("/on-me", checkJwt, checkProfileActive, likeController.getLikesOnMe);
  *       500:
  *         description: Failed to add a like
  */
-router.post("/", checkJwt, checkProfileActive, likeController.addLike);
+router.post("/", checkJwt, likeController.addLike);
 
 /**
  * @swagger
@@ -110,11 +106,9 @@ router.post("/", checkJwt, checkProfileActive, likeController.addLike);
  *         description: Required fields missing
  *       401:
  *         description: Unauthorized
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Failed to remove like
  */
-router.delete("/", checkJwt, checkProfileActive, likeController.removeLike);
+router.delete("/", checkJwt, likeController.removeLike);
 
 export default router;

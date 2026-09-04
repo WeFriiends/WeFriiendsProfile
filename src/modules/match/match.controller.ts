@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { MatchService } from "./match.service";
 
@@ -29,6 +29,9 @@ export class MatchController {
         return res
           .status(404)
           .json({ message: "User with this id doesn't exist" });
+      }
+      if(isUser2Exist.deletionStatus !== DeletionStatus.ACTIVE) {
+        return res.status(403).json({ message: "Access denied: This account is deleted" });
       }
 
       if (userId === user2_id) {
