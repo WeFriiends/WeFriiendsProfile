@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkJwt, checkProfileActive } from "../../middleware";
+import { checkJwt } from "../../middleware";
 import { DislikeController } from "./dislike.controller";
 import { DislikeService } from "./dislike.service";
 
@@ -20,14 +20,12 @@ const dislikeController = new DislikeController(new DislikeService());
  *         description: dislike got successfully
  *       400:
  *         description: disliked_id is required
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: disliked Profile not found
  *       500:
  *         description: Failed to add a dislike
  */
-router.get("/", checkJwt, checkProfileActive, dislikeController.getDislikes);
+router.get("/", checkJwt, dislikeController.getDislikes);
 
 /**
  * @swagger
@@ -60,7 +58,7 @@ router.get("/", checkJwt, checkProfileActive, dislikeController.getDislikes);
  *       500:
  *         description: Failed to add a dislike
  */
-router.post("/", checkJwt, checkProfileActive, dislikeController.addDislike);
+router.post("/", checkJwt, dislikeController.addDislike);
 
 /**
  * @swagger
@@ -88,11 +86,9 @@ router.post("/", checkJwt, checkProfileActive, dislikeController.addDislike);
  *         description: Required fields missing
  *       401:
  *         description: Unauthorized
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Failed to remove dislike
  */
-router.delete("/", checkJwt, checkProfileActive, dislikeController.removeDislike);
+router.delete("/", checkJwt, dislikeController.removeDislike);
 
 export default router;

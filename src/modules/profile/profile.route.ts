@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { upload, checkJwt, checkProfileActive, optionalCheckJwt, handleExpiredJwt, uploadToCloudinary } from "../../middleware";
+import { upload, checkJwt, optionalCheckJwt, handleExpiredJwt, uploadToCloudinary } from "../../middleware";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
@@ -91,8 +91,6 @@ router.post("/",
  *     responses:
  *       200:
  *         description: Profile retrieved successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Profile not found
  *         content:
@@ -103,7 +101,7 @@ router.post("/",
  *                 message:
  *                   type: string
  */
-router.get("/", checkJwt, checkProfileActive, profileController.getCurrentProfile);
+router.get("/", checkJwt, profileController.getCurrentProfile);
 
 /**
  * @swagger
@@ -134,12 +132,10 @@ router.get("/check", optionalCheckJwt, handleExpiredJwt, profileController.check
  *         description: List of matching profiles found
  *       400:
  *         description: Bad request - invalid input parameters
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Error searching friends
  */
-router.get("/search", checkJwt, checkProfileActive, profileController.searchFriends);
+router.get("/search", checkJwt, profileController.searchFriends);
 
 /**
  * @swagger
@@ -174,10 +170,8 @@ router.get("/search", checkJwt, checkProfileActive, profileController.searchFrie
  *         description: Bad request
  *       401:
  *         description: Unauthorized
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.get("/nearest", checkJwt, checkProfileActive, profileController.getNearestProfiles);
+router.get("/nearest", checkJwt, profileController.getNearestProfiles);
 
 /**
  * @swagger
@@ -190,8 +184,6 @@ router.get("/nearest", checkJwt, checkProfileActive, profileController.getNeares
  *     responses:
  *       200:
  *         description: Profiles retrieved successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Profiles not found
  *         content:
@@ -226,7 +218,7 @@ router.get("/nearest", checkJwt, checkProfileActive, profileController.getNeares
  *                     items:
  *                       type: string
  */
-router.get("/all", checkJwt, checkProfileActive, profileController.getAllProfiles);
+router.get("/all", checkJwt, profileController.getAllProfiles);
 
 /**
  * @swagger
@@ -246,8 +238,6 @@ router.get("/all", checkJwt, checkProfileActive, profileController.getAllProfile
  *     responses:
  *       200:
  *         description: Profile retrieved successfully
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Profile not found
  *         content:
@@ -258,7 +248,7 @@ router.get("/all", checkJwt, checkProfileActive, profileController.getAllProfile
  *                 message:
  *                   type: string
  */
-router.get("/:userId", checkJwt, checkProfileActive, profileController.getProfileById);
+router.get("/:userId", checkJwt, profileController.getProfileById);
 
 /**
  * @swagger
@@ -342,10 +332,8 @@ router.get("/:userId", checkJwt, checkProfileActive, profileController.getProfil
  *         description: Profile updated successfully
  *       400:
  *         description: Bad request
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.patch("/", checkJwt, checkProfileActive, profileController.updateProfile);
+router.patch("/", checkJwt, profileController.updateProfile);
 
 /**
  * @swagger
@@ -369,10 +357,8 @@ router.patch("/", checkJwt, checkProfileActive, profileController.updateProfile)
  *         description: Bad request - missing user ID
  *       401:
  *         description: Unauthorized
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.delete("/:userId", checkJwt, checkProfileActive, profileController.deleteTargetProfile);
+router.delete("/:userId", checkJwt, profileController.deleteTargetProfile);
 
 /**
  * @swagger
@@ -387,9 +373,7 @@ router.delete("/:userId", checkJwt, checkProfileActive, profileController.delete
  *         description: Profile deleted successfully
  *       400:
  *         description: Bad request
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.delete("/", checkJwt, checkProfileActive, profileController.startDeleteCurrentProfile);
+router.delete("/", checkJwt, profileController.deleteCurrentProfile);
 
 export default router;

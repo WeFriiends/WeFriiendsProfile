@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ReportController } from "./report.controller";
-import { checkJwt, checkProfileActive } from "../../middleware";
+import { checkJwt } from "../../middleware";
 
 const router = Router();
 const reportController = new ReportController();
@@ -48,6 +48,6 @@ const reportController = new ReportController();
  *       500:
  *         description: Internal server error
 */
-router.post("/", checkJwt, checkProfileActive, reportController.createReport);
+router.post("/", checkJwt, reportController.createReport);
 
 export default router;

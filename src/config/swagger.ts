@@ -16,7 +16,7 @@ export const swaggerOptions = {
       },
       responses: {
         ProfileDeletedForbidden: {
-          description: "Access denied: Your account is deleted or pending deletion",
+          description: "Access denied: This account is deleted",
           content: {
             "application/json": {
               schema: {
@@ -28,7 +28,7 @@ export const swaggerOptions = {
                   },
                   message: {
                     type: "string",
-                    example: "Access denied: Your account is deleted or pending deletion",
+                    example: "Access denied: This account is deleted",
                   },
                 },
               },

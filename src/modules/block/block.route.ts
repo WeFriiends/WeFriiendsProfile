@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { BlockController } from "./block.controller";
-import { checkJwt, checkProfileActive } from "../../middleware";
+import { checkJwt } from "../../middleware";
 
 const router = Router();
 const blockController = new BlockController();
@@ -38,6 +38,6 @@ const blockController = new BlockController();
  *       500:
  *         description: Internal server error
 */
-router.post("/", checkJwt, checkProfileActive, blockController.blockUser);
+router.post("/", checkJwt, blockController.blockUser);
 
 export default router;

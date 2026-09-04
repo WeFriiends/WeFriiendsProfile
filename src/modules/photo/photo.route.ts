@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadToCloudinary, upload, checkJwt, checkProfileActive } from "../../middleware";
+import { uploadToCloudinary, upload, checkJwt } from "../../middleware";
 import * as photoController from "./photo.controller";
 
 const router = Router();
@@ -53,12 +53,10 @@ router.post(
  *     responses:
  *       200:
  *         description: List of profile photos
- *       403:
- *        $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Internal server error
  */
-router.get("/", checkJwt, checkProfileActive, photoController.getPhotos);
+router.get("/", checkJwt, photoController.getPhotos);
 
 /**
  * @swagger
@@ -79,12 +77,10 @@ router.get("/", checkJwt, checkProfileActive, photoController.getPhotos);
  *     responses:
  *       200:
  *         description: Successfully added photo
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Internal server error
  */
-router.post("/", checkJwt, checkProfileActive, photoController.addPhoto);
+router.post("/", checkJwt, photoController.addPhoto);
 
 /**
  * @swagger
@@ -105,11 +101,9 @@ router.post("/", checkJwt, checkProfileActive, photoController.addPhoto);
  *     responses:
  *       200:
  *         description: Successfully removed photo
- *       403:
- *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Internal server error
  */
-router.delete("/", checkJwt, checkProfileActive, photoController.removePhoto);
+router.delete("/", checkJwt, photoController.removePhoto);
 
 export default router;

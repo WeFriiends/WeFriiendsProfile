@@ -13,6 +13,7 @@ import { BlockService } from "../block/block.service";
 import NearestProfileDto from "./nearestProfile.dto";
 import { DeletionStatus } from "./profile.model";
 import { ChatService } from "../chat/chat.service";
+import { deleteUserFromAuth0 } from "../../utils/deleteProfileAuth0"
 
 /**
  * Normalise any incoming location value to the canonical GeoJSON shape:
@@ -285,6 +286,8 @@ export class ProfileService {
       isMongoUpdated = true;
 
       await this.chatService.deleteAllMyChatsAndMessages(userId);
+
+      await deleteUserFromAuth0(userId);
 
       return { message: "Current profile deleted successfully" };
     } catch (error: unknown) {

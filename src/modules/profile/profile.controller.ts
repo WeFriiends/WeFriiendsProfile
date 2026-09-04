@@ -284,11 +284,11 @@ export class ProfileController {
     }
   };
 
-  startDeleteCurrentProfile = async (
+  deleteCurrentProfile = async (
     req: Request,
     res: Response
   ): Promise<Response> => {
-    console.log("controller startDeleteCurrentProfile");
+    console.log("controller deleteCurrentProfile");
     const userId = extractUserId(req);
     if (!userId) {
       return res

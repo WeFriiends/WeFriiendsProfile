@@ -6,6 +6,7 @@ import { BlockService } from "../modules/block/block.service";
 import { ReportService } from "../modules/report/report.service";
 import { ChatService } from "../modules/chat/chat.service";
 import { LiveMatchRepository } from "../modules/match/match.repository";
+import { deleteUserFromAuth0 } from "../utils/deleteProfileAuth0"
 
 const profileService = new ProfileService();
 const likeService = new LikeService(profileService, new MatchService(), new LiveMatchRepository());
@@ -36,6 +37,28 @@ export async function hardDeleteUsersJob() {
     console.log(`[Cron] Starting cascading deletion for user: ${userId}`);
 
     try {
+      // Firestore Chat
+      try {
+        await chatService.deleteAllMyChatsAndMessages(userId);
+        console.log(`[Cron] Chat deleted for user: ${userId}`);
+      } catch (e) {
+        const errorMsg = `Ошибка при удалении чатов для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
+        hasErrors = true;
+      }
+      
+      // Auth0
+      try {
+        await deleteUserFromAuth0(userId);
+        console.log(`[Cron] Auth0 deleted for user: ${userId}`);
+      } catch (e) {
+        const errorMsg = `Ошибка при удалении пользователя из Auth0 для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
+        hasErrors = true;
+      }
+      
       // MongoDB Likes
       try {
         await likeService.removeAllMyLikes(userId);
@@ -117,7 +140,7 @@ export async function hardDeleteUsersJob() {
       }
 
       if (hasErrors) {
-        console.log(`[Cron] ⚠ Not all data was deleted for user ${userId}. Keeping profile for next deletion cycle.`);
+        console.log(`[Cron] Not all data was deleted for user ${userId}. Keeping profile for next deletion cycle.`);
         console.log(`[Cron] Errors encountered:`, errors);
       }
     } catch (error) {
