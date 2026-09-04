@@ -53,6 +53,8 @@ router.get("/", checkJwt, matchController.getMatches);
  *         description: user2_id is required
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Failed to add a match
  */

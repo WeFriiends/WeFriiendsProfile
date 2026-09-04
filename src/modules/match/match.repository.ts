@@ -7,6 +7,7 @@ export interface IMatchRepository {
   findByUserId(userId: string): Promise<any[]>;
   findMatch(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any | null>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
+  deleteAllMatchByUserId(userId: string): Promise<any>;
   editMatch(
     user1_id: string,
     user2_id: string,
@@ -16,6 +17,7 @@ export interface IMatchRepository {
 export interface ILiveMatchRepository {
   create(user1_id: string, user2_id: string): Promise<any>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
+  removeAllMyMatchesRealtime(userId: string): Promise<any>;
 }
 export interface MatchOptions {
   session?: ClientSession;
@@ -70,6 +72,12 @@ export class MongoMatchRepository implements IMatchRepository {
       ],
     }).exec();
   }
+
+  async deleteAllMatchByUserId(userId: string): Promise<any> {
+    return await Match.deleteMany({
+      $or: [{ user1_id: userId }, { user2_id: userId }],
+    }).exec();
+  }
 }
 
 export class LiveMatchRepository implements ILiveMatchRepository {
@@ -93,5 +101,26 @@ export class LiveMatchRepository implements ILiveMatchRepository {
     await firestore.collection('matches').doc(comboId).delete();
 
     return { success: true, comboId };
+  }
+
+  async removeAllMyMatchesRealtime(userId: string): Promise<any> {
+    const matchesRef = firestore.collection('matches');
+    
+    const snapshot = await matchesRef
+      .where('users', 'array-contains', userId)
+      .get();
+
+    if (snapshot.empty) {
+      return { count: 0, message: 'No matches found' };
+    }
+
+    const batch = firestore.batch();
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+
+    return { deletedCount: snapshot.size, success: true };
   }
 }

@@ -71,6 +71,8 @@ router.get("/on-me", checkJwt, likeController.getLikesOnMe);
  *         description: Like added successfully
  *       400:
  *         description: liked_id is required
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Liked Profile not found
  *       500:

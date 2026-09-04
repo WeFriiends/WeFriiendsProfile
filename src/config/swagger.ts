@@ -14,6 +14,28 @@ export const swaggerOptions = {
           bearerFormat: "JWT",
         },
       },
+      responses: {
+        ProfileDeletedForbidden: {
+          description: "Access denied: This account is deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  code: {
+                    type: "string",
+                    example: "ACCOUNT_DELETED",
+                  },
+                  message: {
+                    type: "string",
+                    example: "Access denied: This account is deleted",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     security: [
       {

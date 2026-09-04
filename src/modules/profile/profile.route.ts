@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { upload, checkJwt,optionalCheckJwt, handleExpiredJwt} from "../../middleware";
+import { upload, checkJwt, optionalCheckJwt, handleExpiredJwt, uploadToCloudinary } from "../../middleware";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
@@ -73,7 +73,12 @@ const profileController: ProfileController = new ProfileController(
  *       401:
  *         description: Unauthorized - no token provided
  */
-router.post("/", checkJwt, upload.any(), profileController.registerProfile);
+router.post("/",
+  checkJwt,
+  upload.any(),
+  uploadToCloudinary,
+  profileController.registerProfile
+);
 
 /**
  * @swagger

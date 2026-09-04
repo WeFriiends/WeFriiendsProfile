@@ -70,4 +70,18 @@ export class ReportService {
       console.error("Error sending weekly digest:", error);
     }
   };
+
+  removeAllUserReports = async (userId: string): Promise<void> => {
+    try {
+      await Report.deleteMany({
+        $or: [
+          { reportedUserId: userId },
+          { reporterUserId: userId }
+        ]
+      }).exec();
+    } catch (error: unknown) {
+      if (error instanceof Error) throw new Error(error.message);
+      throw new Error("Error removing all user reports");
+    }
+  };
 }

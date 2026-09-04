@@ -6,12 +6,14 @@ import {
   Preferences,
   ProfileDocument,
 } from "../../models";
-import { dateToZodiac, haversineDistance } from "../../utils";
+import { dateToZodiac, haversineDistance, deleteCloudinaryImage, deleteAllMyCloudinaryImage  } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
-import cloudinary from "../../config/cloudinary";
 import NearestProfileDto from "./nearestProfile.dto";
+import { DeletionStatus } from "./profile.model";
+import { ChatService } from "../chat/chat.service";
+import { deleteUserFromAuth0 } from "../../utils/deleteProfileAuth0"
 
 /**
  * Normalise any incoming location value to the canonical GeoJSON shape:
@@ -43,15 +45,18 @@ export class ProfileService {
   private likeService?: LikeService;
   private matchService?: MatchService;
   private blockService: BlockService;
+  private chatService: ChatService;
 
   constructor(
     likeService?: LikeService,
     matchService?: MatchService,
-    blockService: BlockService = new BlockService()
+    blockService: BlockService = new BlockService(),
+    chatService: ChatService = new ChatService()
   ) {
     this.likeService = likeService;
     this.matchService = matchService;
     this.blockService = blockService;
+    this.chatService = chatService;
   }
   findProfileByDeviceId = async (deviceId: string): Promise<ProfileDocument | null> => {
     try{
@@ -70,7 +75,7 @@ export class ProfileService {
     reasons: string[],
     gender: string,
     preferences: Preferences,
-    files: Express.Multer.File[],
+    photos: string[],
     deviceId? : string 
   ) => {
     try {
@@ -78,29 +83,6 @@ export class ProfileService {
       if (existingProfile && existingProfile.isProfileComplete) {
         throw new Error("Profile already exists");
       }
-
-      const uploadedFiles: string[] = [];
-
-      if (!files || files.length === 0) {
-        throw new Error("No files uploaded");
-      }
-
-      for (const file of files) {
-        try {
-          const result = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-            {
-              folder: "profile_pics",
-            }
-          );
-          uploadedFiles.push(result.secure_url);
-        } catch (error) {
-          console.error(`Failed to upload file ${file.originalname}:`, error);
-          throw new Error(`Failed to upload file ${file.originalname}`);
-        }
-      }
-
-      console.log("ProfileService: photos uploaded");
 
       const zodiacSign = dateToZodiac(dateOfBirth);
       const age = moment().diff(moment(dateOfBirth), "years");
@@ -125,7 +107,7 @@ export class ProfileService {
               preferences,
               friendsAgeMin,
               friendsAgeMax,
-              photos: uploadedFiles,
+              photos,
               isProfileComplete: true,
               ...(deviceId && {device_id: deviceId}),
             },
@@ -146,7 +128,7 @@ export class ProfileService {
         preferences,
         friendsAgeMin,
         friendsAgeMax,
-        photos: uploadedFiles,
+        photos,
       });
 
       return await newProfile.save();
@@ -288,9 +270,60 @@ export class ProfileService {
     }
   };
 
+  startDeleteCurrentProfile = async (userId: string) => {
+    let isMongoUpdated = false;
+    try {
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        userId,
+        { deletionStatus: DeletionStatus.PENDING_DELETION },
+        { new: true }
+      ).exec();
+
+      if (!updatedProfile) {
+        throw new Error("Profile not found");
+      }
+
+      isMongoUpdated = true;
+
+      await this.chatService.deleteAllMyChatsAndMessages(userId);
+
+      await deleteUserFromAuth0(userId);
+
+      return { message: "Current profile deleted successfully" };
+    } catch (error: unknown) {
+      if (isMongoUpdated) {
+        try {
+          await Profile.findByIdAndUpdate(
+            userId,
+            { deletionStatus: DeletionStatus.ACTIVE },
+            { new: true }
+          ).exec();
+        } catch (rollbackError) {
+          console.error("Critical: Failed to rollback profile deletion status for user", userId, rollbackError);
+        }
+      }
+      throw new Error("Error deleting profile");
+    }
+  };
+  
+  endDeleteCurrentProfile = async (userId: string) => {
+    try {
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        userId,
+        { deletionStatus: DeletionStatus.DELETED },
+        { new: true }
+      ).exec();
+
+      return { message: "Current profile deleted successfully" };
+    } catch (error: unknown) {
+      throw new Error("Error deleting profile");
+    }
+  };
+  
+
   getAllProfiles = async (userId: string): Promise<ProfileDocument[]> => {
     try {
-      return await Profile.find({ _id: { $ne: userId }, gender: "female"});
+      return await Profile.find({ _id: { $ne: userId }, gender: "female", deletionStatus: DeletionStatus.ACTIVE }).exec();
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -335,6 +368,7 @@ export class ProfileService {
             $gte: minDate,
           },
           gender: "female",
+          deletionStatus: DeletionStatus.ACTIVE,
         },
         friendSearchProjection
       ).exec();
@@ -482,6 +516,54 @@ export class ProfileService {
         throw new Error(error.message);
       }
       throw new Error("Error retrieving nearest profiles");
+    }
+  };
+
+
+  getPendingDeletedProfiles = async (): Promise<ProfileDocument[]> => {
+    try {
+      return await Profile.find({ deletionStatus: DeletionStatus.PENDING_DELETION }).exec();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error retrieving profiles");
+    }
+  }; 
+
+  removeAllUserPhotos = async (userId: string): Promise<void> => {
+    try {
+      const profile = await Profile.findById(userId).exec();
+      if (!profile || !profile.photos || profile.photos.length === 0) {
+        return;
+      }
+
+      for (const photoUrl of profile.photos) {
+        try {
+          const urlParts = photoUrl.split("/");
+          const publicId = urlParts
+            .slice(urlParts.indexOf("upload") + 2)
+            .join("/")
+            .replace(/\.[^/.]+$/, "");
+
+          await deleteCloudinaryImage(publicId);
+        } catch (error) {
+          console.error(`Failed to delete photo from Cloudinary: ${photoUrl}`, error);
+        }
+      }
+      
+      await Profile.findByIdAndUpdate(
+        userId,
+        { photos: [] },
+        { new: true }
+      ).exec();
+
+      await deleteAllMyCloudinaryImage(userId)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error removing all user photos");
     }
   };
 }

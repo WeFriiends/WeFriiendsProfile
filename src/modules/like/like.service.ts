@@ -5,6 +5,7 @@ import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
 import { ILiveMatchRepository } from "../match/match.repository";
+import { DeletionStatus } from "../profile/profile.model";
 
 
 export class LikeService {
@@ -117,7 +118,7 @@ export class LikeService {
           const user = await this.profileService
             .getProfileById(like.liker_id)
             .catch(() => null);
-          if (!user) {
+          if (!user ||  user.deletionStatus !== DeletionStatus.ACTIVE) {
             return null;
           }
           return {
@@ -164,5 +165,26 @@ export class LikeService {
       }
       throw new Error("Error checking like");
     }
+  };
+
+  removeAllMyLikes = async (userId: string) => {
+    const session = await Like.startSession();
+    session.startTransaction();
+    
+    try {
+      await Like.deleteOne({
+         liker_id: userId 
+      }).session(session);
+      await Like.updateMany(
+        { "likes.liked_id": userId},
+        { $pull: { likes: { liked_id: userId } } },
+      ).session(session);
+      await session.commitTransaction();
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
   };
 }

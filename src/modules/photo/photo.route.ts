@@ -40,7 +40,6 @@ const router = Router();
 router.post(
   "/upload",
   upload.array("images", 5),
-  // @ts-ignore
   uploadToCloudinary,
   photoController.handleUploadToCloudinary
 );

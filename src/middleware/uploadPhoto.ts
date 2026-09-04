@@ -7,6 +7,8 @@ import {
 import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/cloudinary";
+import { extractUserId } from "../utils";
+import { formatTag } from "../utils/deleteCloudinaryImage";
 
 interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer;
@@ -41,13 +43,24 @@ export const upload: Multer = multer({
 });
 
 export const uploadToCloudinary = async (
-  req: CustomRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   try {
-    const files: CloudinaryFile[] = req.files as CloudinaryFile[];
+    const files = Array.isArray(req.files)
+      ? (req.files as Express.Multer.File[])
+      : req.files
+      ? Object.values(req.files).flat()
+      : [];
+
     if (!files || files.length === 0) {
+      req.cloudinaryUrls = [];
       return next(new Error("No files provided"));
     }
 
@@ -72,6 +85,7 @@ export const uploadToCloudinary = async (
         const options: UploadApiOptions = {
           resource_type: "auto",
           folder: "profile-photos",
+          tags: [formatTag(userId)],
         };
 
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -89,8 +103,8 @@ export const uploadToCloudinary = async (
       });
     });
 
-    const cloudinaryUrls = await Promise.all(uploadPromises);
-    req.body.cloudinaryUrls = cloudinaryUrls;
+    const urls:string[] = await Promise.all(uploadPromises);
+    req.cloudinaryUrls = urls;
     next();
   } catch (error) {
     const sanitizedError = error instanceof Error ? error.message.replace(/[<>"'&]/g, '') : 'Unknown error';

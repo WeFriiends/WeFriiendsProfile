@@ -8,6 +8,7 @@ import {
 import { ProfileService } from "./profile.service";
 import { LikeService } from "../like/like.service";
 import { Preferences } from "../../models";
+import { DeletionStatus } from "./profile.model";
 
 export class ProfileController {
   private profileService: ProfileService;
@@ -29,7 +30,8 @@ export class ProfileController {
     }
 
     try {
-      const { name, dateOfBirth, location, reasons, gender,device_id } = req.body;
+      const { name, dateOfBirth, location, reasons, gender, device_id } = req.body;
+      const photos = req.cloudinaryUrls || [];
 
       if (!name) {
         return res.status(400).json({ error: "Name is required" });
@@ -47,16 +49,14 @@ export class ProfileController {
         return res.status(400).json({ error: "Location is required" });
       }
 
+      if (photos.length === 0) {
+        return res.status(400).json({ error: "No files uploaded" });
+      }
+
       const preferences: Preferences =
         typeof req.body.preferences === "string"
           ? JSON.parse(req.body.preferences)
           : req.body.preferences || {};
-
-      if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
-        return res.status(400).json({ error: "No files uploaded" });
-      }
-
-      const files = req.files as Express.Multer.File[];
 
       const dateOfBirthObj = new Date(dateOfBirth);
       if (isNaN(dateOfBirthObj.getTime())) {
@@ -73,7 +73,7 @@ export class ProfileController {
         reasons,
         gender,
         preferences,
-        files,
+        photos,
         device_id
       );
 
@@ -184,7 +184,13 @@ export class ProfileController {
       }
       try {
         const profile = await this.profileService.getProfileById(userId).catch(() => null);
-        if (!profile || !profile.isProfileComplete) {
+        if (!profile) {
+          return res.status(204).send();
+        }
+        if (profile.deletionStatus !== DeletionStatus.ACTIVE) {
+          return res.status(401).json({ message: "User account is deleted" });
+        }
+        if (!profile.isProfileComplete) {
           return res.status(204).send();
         }
         return res.status(200).json({ message: "Profile complete" });
@@ -291,7 +297,7 @@ export class ProfileController {
     }
 
     try {
-      await this.profileService.deleteProfile(userId);
+      await this.profileService.startDeleteCurrentProfile(userId);
       return res.status(200).json({ message: "Profile deleted successfully" });
     } catch (error) {
       return res.status(400).json({ message: "Error deleting profile", error });

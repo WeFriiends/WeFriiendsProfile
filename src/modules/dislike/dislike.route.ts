@@ -51,6 +51,8 @@ router.get("/", checkJwt, dislikeController.getDislikes);
  *         description: dislike added successfully
  *       400:
  *         description: disliked_id is required
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: disliked Profile not found
  *       500:
