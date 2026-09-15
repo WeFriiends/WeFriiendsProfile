@@ -8,7 +8,6 @@ import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/cloudinary";
 import { extractUserId } from "../utils";
-import { formatTag } from "../utils/deleteCloudinaryImage";
 
 interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer;
@@ -79,7 +78,7 @@ export const uploadToCloudinary = async (
         const options: UploadApiOptions = {
           resource_type: "auto",
           folder: "profile-photos",
-          tags: [formatTag(userId)],
+          tags: [userId],
         };
 
         const uploadStream = cloudinary.uploader.upload_stream(

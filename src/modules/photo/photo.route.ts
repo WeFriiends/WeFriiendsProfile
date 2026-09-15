@@ -39,6 +39,7 @@ const router = Router();
  */
 router.post(
   "/upload",
+  checkJwt,
   upload.array("images", 5),
   // @ts-ignore
   uploadToCloudinary,

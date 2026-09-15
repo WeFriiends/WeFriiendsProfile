@@ -1,9 +1,5 @@
 import cloudinary from "../config/cloudinary";
 
-export function formatTag(userId: string):string{
-  return userId.replace("|","_");
-}
-
 export async function deleteCloudinaryImage(photoId: string) {
   if (!photoId) {
     throw new Error("Photo ID is required");
@@ -28,7 +24,7 @@ export async function deleteCloudinaryImage(photoId: string) {
 
 export async function deleteAllMyCloudinaryImage(userId: string) {
   try {
-    const result = await cloudinary.api.delete_resources_by_tag(formatTag(userId), {
+    const result = await cloudinary.api.delete_resources_by_tag(userId, {
       invalidate: true
     });
     console.log("All images deleted successfully:", result);
@@ -48,7 +44,7 @@ export async function deleteAllMyCloudinaryImage(userId: string) {
 export async function getAllMyCloudinaryImage(userId: string): Promise<string[]> {
   try{
     const result = await cloudinary.search
-      .expression(`tags="${formatTag(userId)}"`)
+      .expression(`tags="${(userId)}"`)
       .max_results(500)
       .execute();
       
