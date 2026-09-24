@@ -1,6 +1,6 @@
 import { Match } from "../../models";
 import { ClientSession } from "mongoose";
-import { firestore } from "../../config/firebase";
+import { firestore, FieldValue } from "../../config/firebase";
 
 export interface IMatchRepository {
   create(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any>;
@@ -17,7 +17,8 @@ export interface IMatchRepository {
 export interface ILiveMatchRepository {
   create(user1_id: string, user2_id: string): Promise<any>;
   deleteMatch(user1_id: string, user2_id: string): Promise<any>;
-  removeAllMyMatchesRealtime(userId: string): Promise<any>;
+  deleteMatchesForDeletedUser(userId: string): Promise<any>;
+  hideMatchesForDeletedUser(userId: string): Promise<any>;
 }
 export interface MatchOptions {
   session?: ClientSession;
@@ -26,7 +27,16 @@ export interface MatchOptions {
 export interface MatchOptions {
   session?: ClientSession;
 }
-
+export interface BaseOperationResult {
+  success: boolean;
+  message?: string;
+}
+export interface HideOperationResult extends BaseOperationResult {
+  updatedCount: number;
+}
+export interface DeleteOperationResult extends BaseOperationResult {
+  deletedCount: number;
+}
 export class MongoMatchRepository implements IMatchRepository {
   async create(user1_id: string, user2_id: string, options?: MatchOptions): Promise<any> {
     return await Match.create([{ user1_id, user2_id }], { session: options?.session });
@@ -88,6 +98,7 @@ export class LiveMatchRepository implements ILiveMatchRepository {
     await matchRef.set(
       {
         users: [user1_id, user2_id],
+        deletedBy: [],
       },
       { merge: true }
     );
@@ -103,24 +114,100 @@ export class LiveMatchRepository implements ILiveMatchRepository {
     return { success: true, comboId };
   }
 
-  async removeAllMyMatchesRealtime(userId: string): Promise<any> {
-    const matchesRef = firestore.collection('matches');
+  async deleteMatchesForDeletedUser(userId: string): Promise<DeleteOperationResult> {
+    if (!userId) {
+      throw new Error('UserId is required');
+    }
     
-    const snapshot = await matchesRef
-      .where('users', 'array-contains', userId)
-      .get();
+    try {
+      const snapshot = await firestore
+        .collection('matches')
+        .where('users', 'array-contains', userId)
+        .select()
+        .get();
 
-    if (snapshot.empty) {
-      return { count: 0, message: 'No matches found' };
+      if (snapshot.empty) {
+        return { success: true, deletedCount: 0, message: 'No matches found to delete' };
+      }
+      const BATCH_LIMIT = 500;
+      const batchPromises: Promise<FirebaseFirestore.WriteResult[]>[] = [];
+
+      for (let i = 0; i < snapshot.docs.length; i += BATCH_LIMIT) {
+        const batch = firestore.batch();
+        const chunk = snapshot.docs.slice(i, i + BATCH_LIMIT);
+
+        chunk.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        
+        batchPromises.push(batch.commit());
+      }
+
+      await Promise.all(batchPromises);
+      
+      return {
+        success: true,
+        deletedCount: snapshot.size,
+      };
+    } catch (error) {
+      throw new Error(
+        `Failed to delete matches for user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  async hideMatchesForDeletedUser(userId: string): Promise<HideOperationResult>{
+    if (!userId) {
+      throw new Error('UserId is required');
     }
 
-    const batch = firestore.batch();
-    snapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
+    try{
+      const snapshot = await firestore
+        .collection('matches')
+        .where('users', 'array-contains', userId)
+        .select('deletedBy')
+        .get();
 
-    await batch.commit();
+      if (snapshot.empty) {
+        return { success: true, updatedCount: 0, message: 'No matches found to hide' };
+      }
 
-    return { deletedCount: snapshot.size, success: true };
+      const docsToUpdate = snapshot.docs.filter((doc) => {
+        const deletedBy = doc.get('deletedBy') as string[] | undefined;
+        return !deletedBy || !deletedBy.includes(userId);
+      });
+
+      if (docsToUpdate.length === 0) {
+        return { success: true, updatedCount: 0, message: 'All matches are already hidden' };
+      }
+      
+      const BATCH_LIMIT = 500;
+      const batchPromises: Promise<FirebaseFirestore.WriteResult[]>[] = [];
+      const docs = snapshot.docs;
+
+      for (let i = 0; i < docsToUpdate.length; i += BATCH_LIMIT) {
+        const batch = firestore.batch();
+        const chunk = docs.slice(i, i + BATCH_LIMIT);
+
+        chunk.forEach((doc) => {
+          batch.update(doc.ref, {
+            deletedBy: FieldValue.arrayUnion(userId),
+          });
+        });
+        
+        batchPromises.push(batch.commit());
+      }
+
+      await Promise.all(batchPromises);
+      
+      return {
+        success: true,
+        updatedCount: docsToUpdate.length,
+      };
+    } catch (error) {
+      throw new Error(
+        `Failed to hide matches for user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 }

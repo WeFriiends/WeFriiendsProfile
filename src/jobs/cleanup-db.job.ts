@@ -6,7 +6,6 @@ import { BlockService } from "../modules/block/block.service";
 import { ReportService } from "../modules/report/report.service";
 import { ChatService } from "../modules/chat/chat.service";
 import { LiveMatchRepository } from "../modules/match/match.repository";
-import { deleteUserFromAuth0 } from "../utils/deleteProfileAuth0"
 
 const profileService = new ProfileService();
 const likeService = new LikeService(profileService, new MatchService(), new LiveMatchRepository());
@@ -34,98 +33,37 @@ export async function hardDeleteUsersJob() {
       const userId = user._id.toString();
       let hasErrors = false;
       const errors: string[] = [];
-
+      
       console.log(`[Cron] Starting cascading deletion for user: ${userId}`);
 
       try {
-        // Firestore Chat
-        try {
-          await chatService.deleteAllMyChatsAndMessages(userId);
-          console.log(`[Cron] Chat deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении чатов для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
+        const tasks = [
+          { fn: () => chatService.deleteUserChatsForDeletedUser(userId), name: 'Chats from Firestore'},
+          { fn: () => likeService.removeAllMyLikes(userId), name: 'Likes from Mongo'},
+          { fn: () => dislikeService.removeAllMyDislikes(userId), name: 'Dislikes from Mongo'},
+          { fn: () => matchService.removeAllUserMatches(userId), name: 'Matches from Mongo and Firestore'},
+          { fn: () => blockService.removeAllUserBlocks(userId), name: 'Blocks from Mongo'},
+          { fn: () => reportService.removeAllUserReports(userId), name: 'Reports from Mongo'},
+          { fn: () => profileService.removeAllUserPhotos(userId), name: 'Photos from Mongo'},
+        ];
+
+        const results = await Promise.allSettled(tasks.map(t => t.fn));
+
+        results.forEach((result, index) => {
+          const { name } = tasks[index];
+
+          if (result.status === 'fulfilled') {
+            console.log(`[Cron] ${name} deleted for user: ${userId}`);
+          } else {
+            const e = result.reason;
+            const message = e instanceof Error ? e.message : String(e);
+           const errorMsg = `Error removing ${name} for ${userId}: ${message}`;
+            console.error(errorMsg);
+            errors.push(errorMsg);
+            hasErrors = true;
+          }
+        });
         
-        // Auth0
-        try {
-          await deleteUserFromAuth0(userId);
-          console.log(`[Cron] Auth0 deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении пользователя из Auth0 для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-        
-        // MongoDB Likes
-        try {
-          await likeService.removeAllMyLikes(userId);
-          console.log(`[Cron] Likes deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении лайков для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
-        // MongoDB Dislikes
-        try {
-          await dislikeService.removeAllMyDislikes(userId);
-          console.log(`[Cron] Dislikes deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении дизлайков для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
-        // MongoDB and Firebase Matches
-        try {
-          await matchService.removeAllUserMatches(userId);
-          console.log(`[Cron] Matches deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении матчей для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
-        // MongoDB Blocks
-        try {
-          await blockService.removeAllUserBlocks(userId);
-          console.log(`[Cron] Blocks deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении блокировок для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
-        // MongoDB Reports
-        try {
-          await reportService.removeAllUserReports(userId);
-          console.log(`[Cron] Reports deleted for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении репортов для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
-        // Delete Cloudinary(mongo array and tag) and Mongo Photos 
-        try {
-          await profileService.removeAllUserPhotos(userId);
-          console.log(`[Cron] Photos deleted from Cloudinary for user: ${userId}`);
-        } catch (e) {
-          const errorMsg = `Ошибка при удалении фото для ${userId}: ${e instanceof Error ? e.message : String(e)}`;
-          console.error(errorMsg);
-          errors.push(errorMsg);
-          hasErrors = true;
-        }
-
         // Mark Profile as DELETED (only if no errors)
         if (!hasErrors) {
           try {

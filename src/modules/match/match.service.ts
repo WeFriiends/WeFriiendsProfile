@@ -2,7 +2,7 @@ import moment from "moment";
 import { ChatService } from "../chat/chat.service";
 import { ProfileService } from "../profile/profile.service";
 import { IMatchRepository, MongoMatchRepository, MatchOptions, ILiveMatchRepository, LiveMatchRepository } from "./match.repository";
-
+import { DeletionStatus } from "../../models"
 export class MatchService {
   private mongoRepository: IMatchRepository;
   private profileService: ProfileService;
@@ -93,6 +93,7 @@ export class MatchService {
 
       const modifiedFriends = await Promise.all(friends.map(async (friendDoc) => {
         if (!friendDoc) return null;
+        if (friendDoc.deletionStatus !== DeletionStatus.ACTIVE) return null;
 
         const friendObj = friendDoc.toObject({ virtuals: true });
         const friendStrId = friendObj._id.toString();
@@ -157,7 +158,7 @@ export class MatchService {
   removeAllUserMatches = async (userId: string) => {
     try {
       await this.mongoRepository.deleteAllMatchByUserId(userId);
-      await this.liveMatchRepository.removeAllMyMatchesRealtime(userId);
+      await this.liveMatchRepository.deleteMatchesForDeletedUser(userId);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -165,4 +166,15 @@ export class MatchService {
       throw new Error("Error removing all user matches");
     }
   };
+
+  hideDeletedUserMatches = async (userId: string) => {
+    try {
+      await this.liveMatchRepository.hideMatchesForDeletedUser(userId);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error hide all user matches");
+    }
+  }
 }

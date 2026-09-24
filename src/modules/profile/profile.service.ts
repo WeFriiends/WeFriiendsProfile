@@ -296,6 +296,7 @@ export class ProfileService {
 
   startDeleteCurrentProfile = async (userId: string) => {
     let isMongoUpdated = false;
+    let isChatsHidden = false;
     try {
       const updatedProfile = await Profile.findByIdAndUpdate(
         userId,
@@ -309,12 +310,20 @@ export class ProfileService {
 
       isMongoUpdated = true;
 
-      await this.chatService.deleteAllMyChatsAndMessages(userId);
-
-      await deleteUserFromAuth0(userId);
+      await this.chatService.hideUserChatsForDeletedUser(userId);
+      isChatsHidden = true;
+      await this.matchService?.hideDeletedUserMatches(userId);
 
       return { message: "Current profile deleted successfully" };
     } catch (error: unknown) {
+      if (isChatsHidden) {
+        try {
+          await this.chatService.unhideUserChatsForDeletedUser(userId);
+        } catch (chatRollbackErr) {
+          console.error("Critical: Failed to unhide chats for user", userId, chatRollbackErr);
+        }
+      }
+
       if (isMongoUpdated) {
         try {
           await Profile.findByIdAndUpdate(
@@ -331,16 +340,28 @@ export class ProfileService {
   };
   
   endDeleteCurrentProfile = async (userId: string) => {
+    const session = await Profile.startSession();
+    session.startTransaction();
+
     try {
-      const updatedProfile = await Profile.findByIdAndUpdate(
-        userId,
-        { deletionStatus: DeletionStatus.DELETED },
-        { new: true }
-      ).exec();
+      const deletedProfile = await Profile.findByIdAndDelete(userId, { session }).exec();
+
+      if (!deletedProfile) {
+        throw new Error(`Profile with ID ${userId} not found`);
+      }
+
+      await deleteUserFromAuth0(userId);
+
+      await session.commitTransaction();
+      session.endSession();
 
       return { message: "Current profile deleted successfully" };
     } catch (error: unknown) {
-      throw new Error("Error deleting profile");
+      await session.abortTransaction();
+      session.endSession();
+
+      console.error(`Transaction aborted for user ${userId} due to error:`, error);
+      throw error;
     }
   };
   
