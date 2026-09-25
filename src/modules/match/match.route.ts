@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { MatchController } from "./match.controller";
-import { checkJwt } from "../../middleware";
+import { checkJwt, requireActiveProfile } from "../../middleware";
 import { MatchService } from "./match.service";
 
 const router = Router();
@@ -22,10 +22,12 @@ const matchController: MatchController = new MatchController(
  *         description: matches got successfully
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Failed to add a match
  */
-router.get("/", checkJwt, matchController.getMatches);
+router.get("/", checkJwt, requireActiveProfile, matchController.getMatches);
 
 /**
  * @swagger
@@ -58,7 +60,7 @@ router.get("/", checkJwt, matchController.getMatches);
  *       500:
  *         description: Failed to add a match
  */
-router.post("/", checkJwt, matchController.addMatch);
+router.post("/", checkJwt, requireActiveProfile, matchController.addMatch);
 
 /**
  * @swagger
@@ -86,12 +88,14 @@ router.post("/", checkJwt, matchController.addMatch);
  *         description: Required fields missing
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: There is no such match
  *       500:
  *         description: Failed to remove a match
  */
-router.delete("/", checkJwt, matchController.removeMatch);
+router.delete("/", checkJwt, requireActiveProfile, matchController.removeMatch);
 
 /**
  * @swagger
@@ -120,11 +124,13 @@ router.delete("/", checkJwt, matchController.removeMatch);
  *         description: Required fields missing
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Match not found
  *       500:
  *         description: Failed to update match
  */
-router.patch("/", checkJwt, matchController.editMatch);
+router.patch("/", checkJwt, requireActiveProfile, matchController.editMatch);
 
 export default router;

@@ -31,11 +31,8 @@ export class BlockController {
 
     try {
       const blockedProfile = await Profile.findById(blockedUserId).exec();
-      if (!blockedProfile) {
+      if (!blockedProfile || blockedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
         return res.status(404).json({ message: "Blocked Profile not found" });
-      }
-      if(blockedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
-        return res.status(403).json({ message: "Access denied: This account is deleted" });
       }
 
       const result = await this.blockService.blockUser(blockerUserId, blockedUserId);

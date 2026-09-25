@@ -48,7 +48,7 @@ export const uploadToCloudinary = async (
 ) => {
   const userId = extractUserId(req);
   if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 
   try {

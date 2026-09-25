@@ -23,11 +23,6 @@ export class ProfileController {
     console.log("controller registerProfile");
 
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
 
     try {
       const { name, dateOfBirth, location, reasons, gender,device_id } = req.body;
@@ -91,11 +86,6 @@ export class ProfileController {
     console.log("controller getCurrentProfile");
 
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
 
     try {
       const profile = await this.profileService.getProfileById(userId);
@@ -110,11 +100,6 @@ export class ProfileController {
 
     try {
       const userId = extractUserId(req);
-      if (!userId) {
-        return res
-          .status(401)
-          .json({ message: "Unauthorized: No token provided" });
-      }
 
       const targetUserId = req.params.userId;
       if (!targetUserId) {
@@ -218,14 +203,7 @@ export class ProfileController {
 
   updateProfile = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller updateProfile");
-
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
     try {
       const {
         reasons,
@@ -291,12 +269,6 @@ export class ProfileController {
   ): Promise<Response> => {
     console.log("controller deleteCurrentProfile");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
     try {
       await this.profileService.startDeleteCurrentProfile(userId);
       return res.status(200).json({ message: "Profile deleted successfully" });
@@ -330,12 +302,6 @@ export class ProfileController {
   getAllProfiles = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller getAllProfiles");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
     try {
       const profiles = await this.profileService.getAllProfiles(userId);
       return res.status(200).json(profiles);
@@ -346,14 +312,7 @@ export class ProfileController {
 
   searchFriends = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller searchFriends");
-
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
     try {
       const friendsProfiles = await this.profileService.searchFriends(userId);
       return res.status(200).json(friendsProfiles);
@@ -367,14 +326,7 @@ export class ProfileController {
     res: Response
   ): Promise<Response> => {
     console.log("controller getNearestProfiles");
-
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
     try {
       const nearestProfiles = await this.profileService.getNearestProfiles(
         userId

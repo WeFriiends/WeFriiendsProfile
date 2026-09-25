@@ -39,11 +39,8 @@ export class ReportController {
       });
     }
     const reportedProfile = await Profile.findById(reportedUserId).exec();
-    if (!reportedProfile) {
+    if (!reportedProfile || reportedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
       return res.status(404).json({ message: "Reported Profile not found" });
-    }
-    if(reportedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
-      return res.status(403).json({ message: "Access denied: This account is deleted" });
     }
 
     if (!VALID_REASONS.includes(reason as ReportReason)) {

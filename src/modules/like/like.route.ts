@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkJwt } from "../../middleware";
+import { checkJwt, requireActiveProfile } from "../../middleware";
 import { LikeController } from "./like.controller";
 import { LikeService } from "./like.service";
 import { ProfileService } from "../profile/profile.service";
@@ -26,12 +26,14 @@ const likeController = new LikeController(likeService);
  *         description: Like got successfully
  *       400:
  *         description: liked_id is required
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       404:
  *         description: Liked Profile not found
  *       500:
  *         description: Failed to add a like
  */
-router.get("/", checkJwt, likeController.getLikes);
+router.get("/", checkJwt, requireActiveProfile, likeController.getLikes);
 
 /**
  * @swagger
@@ -44,8 +46,10 @@ router.get("/", checkJwt, likeController.getLikes);
  *     responses:
  *       200:
  *         description: Likes on me got successfully
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  */
-router.get("/on-me", checkJwt, likeController.getLikesOnMe);
+router.get("/on-me", checkJwt, requireActiveProfile, likeController.getLikesOnMe);
 
 /**
  * @swagger
@@ -78,7 +82,7 @@ router.get("/on-me", checkJwt, likeController.getLikesOnMe);
  *       500:
  *         description: Failed to add a like
  */
-router.post("/", checkJwt, likeController.addLike);
+router.post("/", checkJwt, requireActiveProfile, likeController.addLike);
 
 /**
  * @swagger
@@ -106,9 +110,11 @@ router.post("/", checkJwt, likeController.addLike);
  *         description: Required fields missing
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Failed to remove like
  */
-router.delete("/", checkJwt, likeController.removeLike);
+router.delete("/", checkJwt, requireActiveProfile, likeController.removeLike);
 
 export default router;
