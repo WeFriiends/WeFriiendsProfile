@@ -110,11 +110,13 @@ router.get("/", checkJwt, requireActiveProfile, profileController.getCurrentProf
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: true - Profile found
- *       404:
- *         description: false - Profile not found
+ *         description: Profile found
  *       400:
  *         description: Bad request
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
+ *       404:
+ *         description: Profile by Id not found
  */
 router.get("/check", optionalCheckJwt, handleExpiredJwt, profileController.checkProfileExistsById);
 

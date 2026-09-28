@@ -61,7 +61,7 @@ export class ProfileService {
   }
   findProfileByDeviceId = async (deviceId: string): Promise<ProfileDocument | null> => {
     try{
-      return await Profile.findOne({device_id: deviceId}).exec();
+      return await Profile.findOne({device_id: deviceId, deletionStatus: DeletionStatus.ACTIVE}).exec();
     }catch(error: unknown) {
       if(error instanceof Error) throw new Error (error.message);
       throw new Error("Error finding profile by device_id");
@@ -294,14 +294,19 @@ export class ProfileService {
     }
   };
 
-  startDeleteCurrentProfile = async (userId: string) => {
+ startDeleteCurrentProfile = async (userId: string) => {
     let isMongoUpdated = false;
     let isChatsHidden = false;
+    let isDeviceIdCleared = false;
+    let deviceId: string | undefined;
     try {
       const updatedProfile = await Profile.findByIdAndUpdate(
         userId,
-        { deletionStatus: DeletionStatus.PENDING_DELETION },
-        { new: true }
+        {
+          $set: { deletionStatus: DeletionStatus.PENDING_DELETION },
+          $unset: { device_id: 1 },
+        },
+        { new: false }
       ).exec();
 
       if (!updatedProfile) {
@@ -309,6 +314,8 @@ export class ProfileService {
       }
 
       isMongoUpdated = true;
+      deviceId = updatedProfile.device_id;
+      isDeviceIdCleared = !!deviceId;
 
       await this.chatService.hideUserChatsForDeletedUser(userId);
       isChatsHidden = true;
@@ -326,9 +333,15 @@ export class ProfileService {
 
       if (isMongoUpdated) {
         try {
+          const rollbackUpdate: Record<string, unknown> = {
+            deletionStatus: DeletionStatus.ACTIVE,
+          };
+          if (isDeviceIdCleared && deviceId) {
+            rollbackUpdate.device_id = deviceId;
+          }
           await Profile.findByIdAndUpdate(
             userId,
-            { deletionStatus: DeletionStatus.ACTIVE },
+            rollbackUpdate,
             { new: true }
           ).exec();
         } catch (rollbackError) {

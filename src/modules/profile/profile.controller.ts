@@ -160,21 +160,21 @@ export class ProfileController {
 
   checkProfileExistsById = async (req: Request, res: Response): Promise<Response> => {
     console.log("controller checkProfileExistsById");
-
-    const isAuthenticated = !!(req as any).auth;
+    
+    const isAuthenticated = !!(req as any).auth; 
 
     if (isAuthenticated) {
       const userId = extractUserId(req);
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized: Invalid token" });
       }
-      try {
+      try { 
         const profile = await this.profileService.getProfileById(userId).catch(() => null);
         if (!profile) {
           return res.status(204).send();
         }
         if (profile.deletionStatus !== DeletionStatus.ACTIVE) {
-          return res.status(401).json({ message: "User account is deleted" });
+          return res.status(403).json({ message: "Access denied: Your account is deleted" });
         }
         if (!profile.isProfileComplete) {
           return res.status(204).send();
@@ -184,15 +184,15 @@ export class ProfileController {
         return handleServiceError(error, "Error checkProfileExistsById", res, 400);
       }
     } else {
-      const deviceId = req.query.device_id as string;
+      const deviceId = req.query.device_id as string; 
       if (!deviceId) {
         return res.status(404).json({ message: "No credentials provided" });
       }
       try {
         const profile = await this.profileService.findProfileByDeviceId(deviceId);
-        if (profile) {
+        if (profile) { 
           return res.status(401).json({ message: "Unauthorized: Please log in" });
-        } else {
+        } else { 
           return res.status(404).json({ message: "No profile found for this device" });
         }
       } catch (error) {
