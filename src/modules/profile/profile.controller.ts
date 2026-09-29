@@ -106,14 +106,10 @@ export class ProfileController {
         return res.status(400).json({ message: "User ID is required" });
       }
 
-      const exists = await this.profileService.checkProfileExists(targetUserId);
-      if (!exists) {
-        return res
-          .status(404)
-          .json({ message: "User with provided ID doesn't exist" });
-      }
-
       const targetUser = await this.profileService.getProfileById(targetUserId);
+      if (!targetUser || targetUser.deletionStatus !== DeletionStatus.ACTIVE) {
+        return res.status(404).json({ message: "Profile by Id not found" });
+      }
       const currentUser = await this.profileService.getProfileById(userId);
 
       const likesDoc = await this.likeService.getLikes(targetUser._id);

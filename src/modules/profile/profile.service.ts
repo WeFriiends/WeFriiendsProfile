@@ -179,22 +179,6 @@ export class ProfileService {
     }
   };
 
-  checkProfileExists = async (userId: string): Promise<boolean> => {
-    try {
-      if (typeof Profile.findById !== "function") {
-        console.error("Profile.findById is not a function");
-        return false;
-      }
-      const profile = await Profile.findById(userId).exec();
-      return !!profile;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-      throw new Error("Error checking profile existence");
-    }
-  };
-
   updateProfile = async (
     userId: string,
     reasons: string[],
