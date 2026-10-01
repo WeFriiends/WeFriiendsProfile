@@ -22,10 +22,6 @@ export const swaggerOptions = {
               schema: {
                 type: "object",
                 properties: {
-                  code: {
-                    type: "string",
-                    example: "ACCOUNT_DELETED",
-                  },
                   message: {
                     type: "string",
                     example: "Access denied: Your account is deleted",

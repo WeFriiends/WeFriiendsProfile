@@ -278,7 +278,7 @@ export class ProfileService {
     }
   };
 
- startDeleteCurrentProfile = async (userId: string) => {
+  startDeleteCurrentProfile = async (userId: string) => {
     let isMongoUpdated = false;
     let isChatsHidden = false;
     let isDeviceIdCleared = false;
@@ -307,11 +307,19 @@ export class ProfileService {
 
       return { message: "Current profile deleted successfully" };
     } catch (error: unknown) {
+      console.error("Failed to start profile deletion", {
+        userId,
+        isMongoUpdated,
+        isChatsHidden,
+        isDeviceIdCleared,
+        error,
+      });
+
       if (isChatsHidden) {
         try {
           await this.chatService.unhideUserChatsForDeletedUser(userId);
         } catch (chatRollbackErr) {
-          console.error("Critical: Failed to unhide chats for user", userId, chatRollbackErr);
+          console.error("Critical: [rollback] Failed to  unhide chats for user", userId, chatRollbackErr);
         }
       }
 
@@ -329,7 +337,7 @@ export class ProfileService {
             { new: true }
           ).exec();
         } catch (rollbackError) {
-          console.error("Critical: Failed to rollback profile deletion status for user", userId, rollbackError);
+          console.error("Critical: [rollback] Failed to rollback profile deletion status for user", userId, rollbackError);
         }
       }
       throw new Error("Error deleting profile");
