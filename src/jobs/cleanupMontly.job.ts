@@ -17,7 +17,7 @@ const matchService = new MatchService(undefined, profileService, chatService, ne
 
 profileService["matchService"] = matchService;
 
-export async function hardDeleteUsersJob() {
+export async function cleanupDeletedUsersMonthlyJob() {
   console.log("[Cron] Starting hard delete users job...");
   
   try {
