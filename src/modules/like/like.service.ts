@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Like } from "../../models";
+import Like, { type ILike } from "./like.model";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
@@ -68,7 +68,38 @@ export class LikeService {
       if (!likes) {
         return await Like.create({ liker_id, likes: [] });
       }
-      return likes;
+      if (!likes.likes.length) {
+        return likes;
+      }
+
+      const [result] = (await Like.aggregate<ILike>([
+        { $match: { liker_id } },
+        { $unwind: '$likes' },
+        {
+          $lookup: {
+            from: 'profiles',
+            localField: 'likes.liked_id',
+            foreignField: '_id',
+            as: 'liked_user'
+          }
+        },
+        { $unwind: '$liked_user' },
+        {
+          $match: {
+            'liked_user.deletionStatus': 'ACTIVE'
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            liker_id: { $first: '$liker_id' },
+            likes: { $push: '$likes' },
+            __v: { $first: '$__v' }
+          }
+        }
+      ]));
+      
+      return result || { ...likes.toObject(), likes: [] };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);

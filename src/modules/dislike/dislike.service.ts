@@ -1,4 +1,4 @@
-import { Dislike } from "../../models";
+import Dislike, { type IDislike } from "./dislike.model";
 
 export class DislikeService {
   addDislike = async (disliker_id: string, disliked_id: string) => {
@@ -31,7 +31,38 @@ export class DislikeService {
       if (!dislikes) {
         return await Dislike.create({ disliker_id, dislikes: [] });
       }
-      return dislikes;
+      if (!dislikes.dislikes.length) {
+        return dislikes;
+      }
+
+      const [result] = (await Dislike.aggregate<IDislike>([
+        { $match: { disliker_id } },
+        { $unwind: '$dislikes' },
+        {
+          $lookup: {
+            from: 'profiles',
+            localField: 'dislikes.disliked_id',
+            foreignField: '_id',
+            as: 'disliked_user'
+          }
+        },
+        { $unwind: '$disliked_user' },
+        {
+          $match: {
+            'disliked_user.deletionStatus': 'ACTIVE'
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            disliker_id: { $first: '$disliker_id' },
+            dislikes: { $push: '$dislikes' },
+            __v: { $first: '$__v' }
+          }
+        }
+      ]));
+      
+      return result || { ...dislikes.toObject(), dislikes: [] };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
