@@ -6,7 +6,7 @@ import {
   Preferences,
   ProfileDocument,
 } from "../../models";
-import { dateToZodiac, haversineDistance, deleteCloudinaryImage, deleteAllMyCloudinaryImage  } from "../../utils";
+import { dateToZodiac, haversineDistance, deleteAllMyCloudinaryImage, getAllMyCloudinaryImage } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
@@ -581,35 +581,24 @@ export class ProfileService {
 
   removeAllUserPhotos = async (userId: string): Promise<void> => {
     try {
-      const profile = await Profile.findById(userId).exec();
-      if (!profile || !profile.photos || profile.photos.length === 0) {
-        return;
-      }
+      await deleteAllMyCloudinaryImage(userId)
 
-      for (const photoUrl of profile.photos) {
-        try {
-          const urlParts = photoUrl.split("/");
-          const publicId = urlParts
-            .slice(urlParts.indexOf("upload") + 2)
-            .join("/")
-            .replace(/\.[^/.]+$/, "");
+      const maxRetries = 3;
+      let remainingPhotos: string[] = [];
 
-          await deleteCloudinaryImage(publicId);
-        } catch (error) {
-          console.error(`Failed to delete photo from Cloudinary: ${photoUrl}`, error);
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        
+        remainingPhotos = await getAllMyCloudinaryImage(userId);
+        if (remainingPhotos.length === 0) {
+          return;
         }
       }
       
-      await Profile.findByIdAndUpdate(
-        userId,
-        { photos: [] },
-        { new: true }
-      ).exec();
-
-      await deleteAllMyCloudinaryImage(userId)
+      throw new Error(`Failed to remove all photos for user ${userId}. Remaining: ${remainingPhotos.length}`);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        throw new Error(error.message);
+        throw error;
       }
       throw new Error("Error removing all user photos");
     }

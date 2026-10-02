@@ -24,17 +24,9 @@ export async function deleteCloudinaryImage(photoId: string) {
 
 export async function deleteAllMyCloudinaryImage(userId: string) {
   try {
-    const result = await cloudinary.api.delete_resources_by_tag(userId, {
+    return await cloudinary.api.delete_resources_by_tag(userId, {
       invalidate: true
     });
-    console.log("All images deleted successfully:", result);
-
-    if (result && result.deleted) {
-      console.log("Images deleted successfully:", result);
-      return result;
-    } else {
-      throw new Error("Failed to delete images or no images found");
-    }
   } catch (error) {
     console.error("Error deleting images from Cloudinary:", error);
     throw error;
@@ -44,18 +36,17 @@ export async function deleteAllMyCloudinaryImage(userId: string) {
 export async function getAllMyCloudinaryImage(userId: string): Promise<string[]> {
   try{
     const result = await cloudinary.search
-      .expression(`tags="${(userId)}"`)
+      .expression(`tags="${userId}"`)
       .max_results(500)
       .execute();
       
     if(result.total_count === 0){
       return [];
     }
-    const myPhotoUrl: string[] = result.resources.map((file: { secure_url: string }) => file.secure_url);
-    return myPhotoUrl;
+
+    return result.resources.map((file: { secure_url: string }) => file.secure_url);
   } catch (error) {
     console.error("Error getting all Cloudinary Images:", error);
     throw error;
   }
-
 }
