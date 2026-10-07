@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { Like } from "../../models";
+import Like, { type ILike } from "./like.model";
 import { haversineDistance } from "../../utils";
 import { ProfileService } from "../profile/profile.service";
 import { MatchService } from "../match/match.service";
 import { BlockService } from "../block/block.service";
 import { ILiveMatchRepository } from "../match/match.repository";
+import { DeletionStatus } from "../profile/profile.model";
 
 
 export class LikeService {
@@ -70,7 +71,38 @@ export class LikeService {
       if (!likes) {
         return await Like.create({ liker_id, likes: [] });
       }
-      return likes;
+      if (!likes.likes.length) {
+        return likes;
+      }
+
+      const [result] = (await Like.aggregate<ILike>([
+        { $match: { liker_id } },
+        { $unwind: '$likes' },
+        {
+          $lookup: {
+            from: 'profiles',
+            localField: 'likes.liked_id',
+            foreignField: '_id',
+            as: 'liked_user'
+          }
+        },
+        { $unwind: '$liked_user' },
+        {
+          $match: {
+            'liked_user.deletionStatus': 'ACTIVE'
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            liker_id: { $first: '$liker_id' },
+            likes: { $push: '$likes' },
+            __v: { $first: '$__v' }
+          }
+        }
+      ]));
+      
+      return result || { ...likes.toObject(), likes: [] };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -117,7 +149,7 @@ export class LikeService {
           const user = await this.profileService
             .getProfileById(like.liker_id)
             .catch(() => null);
-          if (!user) {
+          if (!user ||  user.deletionStatus !== DeletionStatus.ACTIVE) {
             return null;
           }
           return {
@@ -164,5 +196,26 @@ export class LikeService {
       }
       throw new Error("Error checking like");
     }
+  };
+
+  removeAllMyLikes = async (userId: string) => {
+    const session = await Like.startSession();
+    session.startTransaction();
+    
+    try {
+      await Like.deleteOne({
+         liker_id: userId 
+      }).session(session);
+      await Like.updateMany(
+        { "likes.liked_id": userId},
+        { $pull: { likes: { liked_id: userId } } },
+      ).session(session);
+      await session.commitTransaction();
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
   };
 }

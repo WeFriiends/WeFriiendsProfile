@@ -21,3 +21,32 @@ export async function deleteCloudinaryImage(photoId: string) {
     throw error;
   }
 }
+
+export async function deleteAllMyCloudinaryImage(userId: string) {
+  try {
+    return await cloudinary.api.delete_resources_by_tag(userId, {
+      invalidate: true
+    });
+  } catch (error) {
+    console.error("Error deleting images from Cloudinary:", error);
+    throw error;
+  }
+}
+
+export async function getAllMyCloudinaryImage(userId: string): Promise<string[]> {
+  try{
+    const result = await cloudinary.search
+      .expression(`tags="${userId}"`)
+      .max_results(500)
+      .execute();
+      
+    if(result.total_count === 0){
+      return [];
+    }
+
+    return result.resources.map((file: { secure_url: string }) => file.secure_url);
+  } catch (error) {
+    console.error("Error getting all Cloudinary Images:", error);
+    throw error;
+  }
+}

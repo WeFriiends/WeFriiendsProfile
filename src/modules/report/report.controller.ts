@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ReportService } from "./report.service";
 import { extractUserId, handleServiceError } from "../../utils";
 import { ReportReason } from "./report.model";
+import { Profile, DeletionStatus } from "../../models";
 
 const VALID_REASONS: ReportReason[] = [
   "spam",
@@ -36,6 +37,10 @@ export class ReportController {
       return res.status(400).json({
         error: "reportedUserId and reason are required",
       });
+    }
+    const reportedProfile = await Profile.findById(reportedUserId).exec();
+    if (!reportedProfile || reportedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
+      return res.status(404).json({ message: "Reported Profile not found" });
     }
 
     if (!VALID_REASONS.includes(reason as ReportReason)) {

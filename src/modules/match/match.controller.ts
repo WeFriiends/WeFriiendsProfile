@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { MatchService } from "./match.service";
 
@@ -13,11 +13,6 @@ export class MatchController {
   addMatch = async (req: Request, res: Response) => {
     console.log("controller addMatch");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const user2_id = req.body.user2_id;
       if (!user2_id) {
@@ -25,7 +20,7 @@ export class MatchController {
       }
 
       const isUser2Exist = await Profile.findById(user2_id);
-      if (!isUser2Exist) {
+      if (!isUser2Exist || isUser2Exist.deletionStatus !== DeletionStatus.ACTIVE) {
         return res
           .status(404)
           .json({ message: "User with this id doesn't exist" });
@@ -47,11 +42,6 @@ export class MatchController {
   getMatches = async (req: Request, res: Response) => {
     console.log("controller getMatches");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const matches = await this.matchService.getMatches(userId);
       return res.status(200).json(matches);
@@ -63,11 +53,6 @@ export class MatchController {
   removeMatch = async (req: Request, res: Response) => {
     console.log("controller removeMatch");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const user2_id = req.body.user2_id;
 
@@ -85,11 +70,6 @@ export class MatchController {
   editMatch = async (req: Request, res: Response) => {
     console.log("controller editMatch");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const { user2_id } = req.body;
 

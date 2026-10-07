@@ -1,5 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export enum DeletionStatus {
+  ACTIVE = 'ACTIVE',
+  PENDING_DELETION = 'PENDING_DELETION'
+}
 export interface Location {
   type: "Point";
   coordinates: [number, number]; // [lng, lat]
@@ -36,6 +40,7 @@ export interface ProfileDocument extends Document {
   friendsAgeMax?: number;
   friendsDistance?: number;
   reportCount: number;
+  deletionStatus: DeletionStatus;
 }
 
 const profileSchema = new Schema<ProfileDocument>(
@@ -71,6 +76,7 @@ const profileSchema = new Schema<ProfileDocument>(
     friendsAgeMax: { type: Number, default: 60 },
     friendsDistance: { type: Number, default: 50 },
     reportCount: { type: Number, default: 0 },
+    deletionStatus: { type: String, enum: DeletionStatus, default: DeletionStatus.ACTIVE },
   },
   { timestamps: true }
 );

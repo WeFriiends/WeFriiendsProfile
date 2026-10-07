@@ -7,6 +7,7 @@ import {
 import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "../config/cloudinary";
+import { extractUserId } from "../utils";
 
 interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer;
@@ -45,6 +46,11 @@ export const uploadToCloudinary = async (
   res: Response,
   next: NextFunction
 ) => {
+  const userId = extractUserId(req);
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+
   try {
     const files: CloudinaryFile[] = req.files as CloudinaryFile[];
     if (!files || files.length === 0) {
@@ -72,6 +78,7 @@ export const uploadToCloudinary = async (
         const options: UploadApiOptions = {
           resource_type: "auto",
           folder: "profile-photos",
+          tags: [userId],
         };
 
         const uploadStream = cloudinary.uploader.upload_stream(
