@@ -47,7 +47,7 @@ export async function cleanupDeletedUsersMonthlyJob() {
           { fn: () => profileService.removeAllUserPhotos(userId), name: 'Photos from Mongo'},
         ];
 
-        const results = await Promise.allSettled(tasks.map(t => t.fn));
+        const results = await Promise.allSettled(tasks.map(async t => t.fn()));
 
         results.forEach((result, index) => {
           const { name } = tasks[index];
