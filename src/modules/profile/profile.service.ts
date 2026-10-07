@@ -6,6 +6,11 @@ import {
   Preferences,
   ProfileDocument,
 } from "../../models";
+import {
+  UploadApiResponse,
+  UploadApiErrorResponse,
+  UploadApiOptions,
+} from "cloudinary";
 import { dateToZodiac, haversineDistance, deleteAllMyCloudinaryImage, getAllMyCloudinaryImage } from "../../utils";
 import { LikeService } from "../like/like.service";
 import { MatchService } from "../match/match.service";
@@ -15,6 +20,7 @@ import NearestProfileDto from "./nearestProfile.dto";
 import { DeletionStatus } from "./profile.model";
 import { ChatService } from "../chat/chat.service";
 import { deleteUserFromAuth0 } from "../../utils/deleteProfileAuth0"
+import sharp from "sharp";
 
 /**
  * Normalise any incoming location value to the canonical GeoJSON shape:
@@ -85,26 +91,51 @@ export class ProfileService {
         throw new Error("Profile already exists");
       }
 
-      const uploadedFiles: string[] = [];
-
       if (!files || files.length === 0) {
-        throw new Error("No files uploaded");
+        throw new Error("No files provided")
       }
-
-      for (const file of files) {
-        try {
-          const result = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-            {
-              folder: "profile_pics",
+  
+      const MAX_SIZE = 5 * 1024 * 1024;
+      const oversizedFile = files.find((file) => file.size > MAX_SIZE);
+  
+      if (oversizedFile) {
+        throw new Error(`File ${oversizedFile.originalname} is too large. Max allowed size is 5MB.`)
+      }
+  
+      const uploadPromises = files.map(async (file) => {
+        if (!file.buffer || file.buffer.length === 0) {
+          throw new Error("File buffer is empty");
+        }
+  
+        const resizedBuffer: Buffer = await sharp(file.buffer)
+          .resize({ width: 450, height: 535 })
+          .jpeg({ quality: 80 })
+          .toBuffer();
+  
+        return new Promise<string>((resolve, reject) => {
+          const options: UploadApiOptions = {
+            resource_type: "auto",
+            folder: "profile-photos",
+            tags: [userId],
+          };
+  
+          const uploadStream = cloudinary.uploader.upload_stream(
+            options,
+            (
+              err: UploadApiErrorResponse | undefined,
+              result: UploadApiResponse | undefined
+            ) => {
+              if (err) return reject(err);
+              if (!result) return reject(new Error("Upload result is undefined"));
+              resolve(result.secure_url);
             }
           );
-          uploadedFiles.push(result.secure_url);
-        } catch (error) {
-          console.error(`Failed to upload file ${file.originalname}:`, error);
-          throw new Error(`Failed to upload file ${file.originalname}`);
-        }
-      }
+          uploadStream.end(resizedBuffer);
+        });
+      });
+  
+      
+      const uploadedFiles: string[] = await Promise.all(uploadPromises);
 
       console.log("ProfileService: photos uploaded");
 

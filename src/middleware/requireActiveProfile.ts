@@ -1,18 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { DeletionStatus, Profile } from "../models";
 
-type AuthenticatedRequest = Request & {
-  auth?: {
-    sub?: string;
-  };
-};
-
 export const requireActiveProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const userId = (req as AuthenticatedRequest).auth?.sub;
+  const userId = req.auth?.sub;
 
   if (!userId) {
     res.status(401).json({ message: "Unauthorized: Invalid token" });

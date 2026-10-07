@@ -1,5 +1,4 @@
-import {Request} from "express";
-import {jwtDecode} from "jwt-decode";
+import { Request } from "express";
 
 export const extractUserId = (req: Request): string => {
   const userId = req.auth?.sub;
