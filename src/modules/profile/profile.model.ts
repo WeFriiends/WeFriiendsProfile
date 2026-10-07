@@ -2,8 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export enum DeletionStatus {
   ACTIVE = 'ACTIVE',
-  PENDING_DELETION = 'PENDING_DELETION',
-  DELETED = 'DELETED'
+  PENDING_DELETION = 'PENDING_DELETION'
 }
 export interface Location {
   type: "Point";
