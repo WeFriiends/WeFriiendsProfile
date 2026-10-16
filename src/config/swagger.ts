@@ -3,7 +3,7 @@ export const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "SPA Backend API",
-      version: "1.0.0",
+      version: process.env.APP_VERSION || "1.0.0",
       description: "API for SPA backend",
     },
     components: {

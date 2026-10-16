@@ -16,6 +16,9 @@ RUN npm run build
 FROM node:20-slim
 WORKDIR /app
 
+ARG APP_VERSION=latest
+ENV APP_VERSION=$APP_VERSION
+
 COPY package*.json ./
 RUN npm install --omit=dev
 
