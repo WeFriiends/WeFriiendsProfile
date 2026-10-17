@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, InferSchemaType } from "mongoose";
 
 const dislikedUserSchema = new Schema({
   disliked_id: { type: String, required: true },
@@ -9,6 +9,8 @@ const dislikeSchema = new Schema({
   disliker_id: { type: String, required: true },
   dislikes: { type: [dislikedUserSchema], required: true },
 });
+
+export type IDislike = InferSchemaType<typeof dislikeSchema>;
 
 const Dislike = mongoose.model("Dislike", dislikeSchema);
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { DislikeService } from "./dislike.service";
 
@@ -13,11 +13,6 @@ export class DislikeController {
   addDislike = async (req: Request, res: Response) => {
     console.log("controller addDislike");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const disliked_id = req.body.disliked_id;
       if (!disliked_id) {
@@ -25,7 +20,7 @@ export class DislikeController {
       }
 
       const dislikedProfile = await Profile.findById(disliked_id).exec();
-      if (!dislikedProfile) {
+      if (!dislikedProfile || dislikedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
         return res.status(404).json({ message: "Disliked Profile not found" });
       }
 
@@ -42,11 +37,6 @@ export class DislikeController {
   getDislikes = async (req: Request, res: Response) => {
     console.log("controller getDislikes");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const dislikes = await this.dislikeService.getDislikes(userId);
       return res.status(200).json(dislikes);
@@ -58,11 +48,6 @@ export class DislikeController {
   removeDislike = async (req: Request, res: Response) => {
     console.log("controller removeDislike");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const disliked_id = req.body.disliked_id;
 

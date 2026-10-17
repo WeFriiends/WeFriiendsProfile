@@ -1,22 +1,11 @@
-import {Request} from "express";
-import {jwtDecode} from "jwt-decode";
+import { Request } from "express";
 
-export const extractUserId = (req: Request): string | null => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || typeof authHeader !== "string") {
-    return null;
+export const extractUserId = (req: Request): string => {
+  const userId = req.auth?.sub;
+
+  if (!userId) {
+    throw new Error("Unauthorized: User ID missing from request context");
   }
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decodedToken: any = jwtDecode(token);
-    return decodedToken.sub || null;
-  } catch (error) {
-    console.error("Invalid token:", error);
-    return null;
-  }
+  return userId;
 };

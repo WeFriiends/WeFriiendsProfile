@@ -19,6 +19,8 @@ const chatController = new ChatController(chatService);
  *     responses:
  *       200:
  *         description: List of all chats
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       500:
  *         description: Internal server error
  */
@@ -45,6 +47,8 @@ router.get("/", checkJwt, chatController.getAllChats);
  *     responses:
  *       201:
  *         description: Chat created successfully
+ *       403:
+ *         $ref: '#/components/responses/ProfileDeletedForbidden'
  *       400:
  *         description: Bad request
  */
@@ -105,10 +109,10 @@ router.get("/:id", checkJwt, chatController.getChatById);
  *     responses:
  *       200:
  *         description: Chat updated successfully
- *       404:
- *         description: Chat not found
  *       400:
  *         description: Bad request
+ *       404:
+ *         description: Chat not found
  */
 router.put("/:id", checkJwt, chatController.updateChat);
 

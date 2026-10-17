@@ -17,9 +17,6 @@ export const getPhotos = async (
 ) => {
   try {
     const userId = extractUserId(req);
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
     const photos = await photoService.getPhotos(userId);
     return res.json(photos);
   } catch (error) {
@@ -38,10 +35,6 @@ export const addPhoto = async (
       return res.status(400).json({ error: "Photo URL is required" });
     }
     const userId = extractUserId(req);
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-
     const photos = await photoService.addPhoto(userId, photoUrl);
     return res.json(photos);
   } catch (error) {
@@ -61,9 +54,6 @@ export const removePhoto = async (
     }
 
     const userId = extractUserId(req);
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
 
     const photos = await photoService.removePhoto(userId, photoUrl);
     return res.json(photos);

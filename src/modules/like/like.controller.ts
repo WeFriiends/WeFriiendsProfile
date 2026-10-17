@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Profile } from "../../models";
+import { Profile, DeletionStatus } from "../../models";
 import { extractUserId, handleServiceError } from "../../utils";
 import { LikeService } from "./like.service";
 
@@ -13,11 +13,6 @@ export class LikeController {
   addLike = async (req: Request, res: Response) => {
     console.log("controller addLike");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const liked_id = req.body.liked_id;
       if (!liked_id) {
@@ -25,7 +20,7 @@ export class LikeController {
       }
 
       const likedProfile = await Profile.findById(liked_id).exec();
-      if (!likedProfile) {
+      if (!likedProfile || likedProfile.deletionStatus !== DeletionStatus.ACTIVE) {
         return res.status(404).json({ message: "Liked Profile not found" });
       }
 
@@ -39,11 +34,6 @@ export class LikeController {
   getLikes = async (req: Request, res: Response) => {
     console.log("controller getLikes");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const likes = await this.likeService.getLikes(userId);
       return res.status(200).json(likes);
@@ -55,11 +45,6 @@ export class LikeController {
   getLikesOnMe = async (req: Request, res: Response) => {
     console.log("controller getLikesOnMe");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const likesOnMe = await this.likeService.getLikesOnMe(userId);
       return res.status(200).json(likesOnMe);
@@ -71,11 +56,6 @@ export class LikeController {
   removeLike = async (req: Request, res: Response) => {
     console.log("controller removeLike");
     const userId = extractUserId(req);
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
     try {
       const liked_id = req.body.liked_id;
 
