@@ -1,5 +1,5 @@
 # Base image for building the application
-FROM node:20 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # Runtime image
-FROM node:20-slim
+FROM node:24-slim
 WORKDIR /app
 
 ARG APP_VERSION=latest
