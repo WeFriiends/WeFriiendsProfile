@@ -22,7 +22,7 @@ const router = Router();
  *                 items:
  *                   type: string
  *                   format: binary
- *                 description: Array of images to upload (max 5 files)
+ *                 description: Array of images to upload (max 6 files)
  *     responses:
  *       200:
  *         description: Successfully uploaded images
@@ -39,7 +39,7 @@ const router = Router();
  */
 router.post(
   "/upload",
-  upload.array("images", 5),
+  upload.array("images", 6),
   // @ts-ignore
   uploadToCloudinary,
   photoController.handleUploadToCloudinary
