@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -20,7 +20,7 @@ ARG APP_VERSION=latest
 ENV APP_VERSION=$APP_VERSION
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
