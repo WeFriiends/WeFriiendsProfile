@@ -1,11 +1,11 @@
 # Base image for building the application
-FROM node:20 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 
 COPY package*.json ./
 COPY tsconfig.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -13,14 +13,14 @@ COPY . .
 RUN npm run build
 
 # Runtime image
-FROM node:20-slim
+FROM node:24-slim
 WORKDIR /app
 
 ARG APP_VERSION=latest
 ENV APP_VERSION=$APP_VERSION
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 

@@ -154,3 +154,8 @@ Once users match (mutual likes), they can communicate through the built-in chat 
 - Blacklist functionality to block unwanted connections
 - Secure authentication through Auth0
 - Data protection measures
+
+### Automated deployment (.env VPS > main tag > GHCR > VPS): 
+> [!WARNING]
+> When adding or modifying env variables, you must update the main `.env` file on the VPS before pushing the tag.
+[More about automated deployment](https://github.com/WeFriiends/DockerCompose#3-%D0%BE%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%BA%D1%88%D0%B5%D0%BD%D0%B0-%D0%B0%D0%B2%D1%82%D0%BE-%D0%B4%D0%B5%D0%BF%D0%BB%D0%BE%D0%B9)
