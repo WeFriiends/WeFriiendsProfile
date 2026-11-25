@@ -64,8 +64,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -e
-            cd ${{ secrets.PROD_BACKEND_DERECTORY }}
-            git pull origin main || true
+            cd ${{ secrets.PROD_BACKEND_DIRECTORY }}
+            git pull origin main
             echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
             docker compose pull backend
             docker compose up -d --force-recreate backend
